@@ -1,0 +1,18 @@
+ctgan package
+=============
+
+Submodules
+----------
+
+.. toctree::
+
+   ctgan.cli
+   ctgan.model
+
+Module contents
+---------------
+
+.. automodule:: ctgan
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>CTGAN &mdash; CTGAN 0.1.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/dai-logo-white.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CTGAN" href="readme.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> CTGAN
+          
+
+          
+            
+            <img src="_static/dai-logo-white-200.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">CTGAN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#install">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#install-from-pypi">Install from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#install-from-source">Install from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#install-for-development">Install for Development</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#quickstart">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#data-format">Data format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#run-model">Run model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#what-s-next">What’s next?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#citing-tgan">Citing TGAN</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ctgan.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ctgan.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.cli.html">ctgan.cli module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.model.html">ctgan.model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ctgan.html#module-ctgan">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#types-of-contributions">Types of Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#report-bugs">Report Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#fix-bugs">Fix Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#implement-features">Implement Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#write-documentation">Write Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#submit-feedback">Submit Feedback</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#unit-testing-guidelines">Unit Testing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#tips">Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#release-workflow">Release Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#release-candidates">Release Candidates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">CTGAN</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>CTGAN</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/DAI-Lab/CTGAN/blob/master/docs/index.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p align="left">
+<img width=15% src="https://dai.lids.mit.edu/wp-content/uploads/2018/06/Logo_DAI_highres.png" alt=“DAI-Lab” />
+<i>An open source project from Data to AI Lab at MIT.</i>
+</p><a class="reference external image-reference" href="https://pypi.python.org/pypi/ctgan"><img alt="PyPI Shield" src="https://img.shields.io/pypi/v/ctgan.svg" /></a>
+<a class="reference external image-reference" href="https://travis-ci.org/DAI-Lab/CTGAN"><img alt="Travis CI Shield" src="https://travis-ci.org/DAI-Lab/CTGAN.svg?branch=master" /></a>
+<!--[![Downloads](https://pepy.tech/badge/ctgan)](https://pepy.tech/project/ctgan)--><div class="section" id="ctgan">
+<h1>CTGAN<a class="headerlink" href="#ctgan" title="Permalink to this headline">¶</a></h1>
+<p>Implementation of our NeurIPS paper <strong>Modeling Tabular data using Conditional GAN</strong>.</p>
+<p>CTGAN is a GAN-based data synthesizer that can generate synthetic tabular data with high fidelity.</p>
+<ul class="simple">
+<li><p>Free software: MIT license</p></li>
+<li><p>Documentation: <a class="reference external" href="https://DAI-Lab.github.io/CTGAN">https://DAI-Lab.github.io/CTGAN</a></p></li>
+<li><p>Homepage: <a class="reference external" href="https://github.com/DAI-Lab/CTGAN">https://github.com/DAI-Lab/CTGAN</a></p></li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>Based on previous work (<a class="reference external" href="https://github.com/DAI-Lab/tgan">TGAN</a>) on synthetic data generation, we develop a new model called CTGAN. Several major differences make CTGAN outperform TGAN.</p>
+<ul class="simple">
+<li><p><strong>Preprocessing</strong>: CTGAN uses more sophisticated Variational Gaussian Mixture Model to detect modes of continuous columns.</p></li>
+<li><p><strong>Network structure</strong>: TGAN uses LSTM to generate synthetic data column by column. CTGAN uses Fully-connected networks which is more efficient.</p></li>
+<li><p><strong>Features to prevent mode collapse</strong>: We design a conditional generator and resample the training data to prevent model collapse on discrete columns. We use WGANGP and PacGAN to stabilize the training of GAN.</p></li>
+</ul>
+</div>
+<div class="section" id="install">
+<h1>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p><strong>CTGAN</strong> has been developed and tested on <a class="reference external" href="https://www.python.org/downloads/">Python 3.5, 3.6 and 3.7</a></p>
+</div>
+<div class="section" id="install-from-pypi">
+<h2>Install from PyPI<a class="headerlink" href="#install-from-pypi" title="Permalink to this headline">¶</a></h2>
+<p>The recommended way to installing <strong>CTGAN</strong> is using <a class="reference external" href="https://pip.pypa.io/en/stable/">pip</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install ctgan
+</pre></div>
+</div>
+<p>This will pull and install the latest stable release from <a class="reference external" href="https://pypi.org/">PyPI</a>.</p>
+</div>
+<div class="section" id="install-from-source">
+<h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
+<p>Alternatively, you can clone the repository and install it from
+source by running <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> on the <code class="docutils literal notranslate"><span class="pre">stable</span></code> branch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:DAI-Lab/CTGAN.git
+<span class="nb">cd</span> CTGAN
+git checkout stable
+make install
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-for-development">
+<h2>Install for Development<a class="headerlink" href="#install-for-development" title="Permalink to this headline">¶</a></h2>
+<p>If you want to contribute to the project, a few more steps are required to make the project ready
+for development.</p>
+<p>Please head to the <a class="reference external" href="https://DAI-Lab.github.io/CTGAN/contributing.html#get-started">Contributing Guide</a>
+for more details about this process.</p>
+</div>
+</div>
+<div class="section" id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<p>In this short tutorial we will guide you through a series of steps that will help you
+getting started with <strong>CTGAN</strong>.</p>
+<div class="section" id="data-format">
+<h2>Data format<a class="headerlink" href="#data-format" title="Permalink to this headline">¶</a></h2>
+<p>The data is a space (or tab) separated file. For example,</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="mi">100</span>        <span class="n">A</span>        <span class="k">True</span>
+<span class="mi">200</span>        <span class="n">B</span>        <span class="k">False</span>
+<span class="mi">105</span>        <span class="n">A</span>        <span class="k">True</span>
+<span class="mi">120</span>        <span class="k">C</span>        <span class="k">False</span>
+<span class="p">...</span>        <span class="p">...</span>        <span class="p">...</span>
+</pre></div>
+</div>
+<p>Metafile describes each column as one line. <code class="docutils literal notranslate"><span class="pre">C</span></code> or <code class="docutils literal notranslate"><span class="pre">D</span></code> at the beginning of each line represent continuous column or discrete column respectively. For continuous column, the following two number indicates the range of the column. For discrete column, the following strings indicate all possible values in the column. For example,</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="k">C</span>    <span class="mi">0</span>    <span class="mi">500</span>
+<span class="n">D</span>    <span class="n">A</span>    <span class="n">B</span>    <span class="k">C</span>
+<span class="n">D</span>    <span class="k">True</span>     <span class="k">False</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-model">
+<h2>Run model<a class="headerlink" href="#run-model" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="k">USAGE</span><span class="p">:</span>
+    <span class="n">python3</span> <span class="n">ctgan</span><span class="o">/</span><span class="n">cli</span><span class="p">.</span><span class="n">py</span> <span class="p">[</span><span class="n">flags</span><span class="p">]</span>
+<span class="n">flags</span><span class="p">:</span>
+  <span class="c1">--data: Filename of training data.</span>
+    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+  <span class="c1">--max_epoch: Epoches to train.</span>
+    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;100&#39;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">an</span> <span class="nb">integer</span><span class="p">)</span>
+  <span class="c1">--meta: Filename of meta data.</span>
+    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+  <span class="c1">--model_dir: Path to save model.</span>
+    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+  <span class="c1">--output: Output filename.</span>
+    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+  <span class="c1">--sample: Number of rows to generate.</span>
+    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;1000&#39;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">an</span> <span class="nb">integer</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>It’s easy to try our model using example datasets.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="o">/</span><span class="n">DAI</span><span class="o">-</span><span class="n">Lab</span><span class="o">/</span><span class="n">ctgan</span>
+<span class="n">cd</span> <span class="n">ctgan</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">ctgan</span><span class="p">.</span><span class="n">cli</span> <span class="c1">--data examples/adult.dat --meta examples/adult.meta</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="what-s-next">
+<h2>What’s next?<a class="headerlink" href="#what-s-next" title="Permalink to this headline">¶</a></h2>
+<p>For more details about <strong>CTGAN</strong> and all its possibilities
+and features, please check the <a class="reference external" href="https://DAI-Lab.github.io/CTGAN/">documentation site</a>.</p>
+</div>
+</div>
+<div class="section" id="citing-tgan">
+<h1>Citing TGAN<a class="headerlink" href="#citing-tgan" title="Permalink to this headline">¶</a></h1>
+<p>If you use CTGAN, please cite the following work:</p>
+<ul class="simple">
+<li><p><em>Lei Xu, Maria Skoularidou, Alfredo Cuesta-Infante, Kalyan Veeramachaneni.</em> <strong>Modeling Tabular data using Conditional GAN</strong>. NeurIPS, 2019.</p></li>
+</ul>
+<div class="highlight-LaTeX notranslate"><div class="highlight"><pre><span></span>@inproceedings<span class="nb">{</span>xu2019modeling,
+  title=<span class="nb">{</span>Modeling Tabular data using Conditional GAN<span class="nb">}</span>,
+  author=<span class="nb">{</span>Xu, Lei and Skoularidou, Maria and Cuesta-Infante, Alfredo and Veeramachaneni, Kalyan<span class="nb">}</span>,
+  booktitle=<span class="nb">{</span>Advances in Neural Information Processing Systems<span class="nb">}</span>,
+  year=<span class="nb">{</span>2019<span class="nb">}</span>
+<span class="nb">}</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="readme.html" class="btn btn-neutral float-right" title="CTGAN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MIT Data To AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

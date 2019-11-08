@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctgan package &mdash; CTGAN 0.1.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/dai-logo-white.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ctgan.cli module" href="ctgan.cli.html" />
+    <link rel="prev" title="CTGAN" href="../readme.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CTGAN
+          
+
+          
+            
+            <img src="../_static/dai-logo-white-200.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">CTGAN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#install">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#install-from-pypi">Install from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#install-from-source">Install from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#install-for-development">Install for Development</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#quickstart">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#data-format">Data format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#run-model">Run model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#what-s-next">What’s next?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#citing-tgan">Citing TGAN</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Resources</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ctgan.cli.html">ctgan.cli module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ctgan.model.html">ctgan.model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-ctgan">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#types-of-contributions">Types of Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#report-bugs">Report Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#fix-bugs">Fix Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#implement-features">Implement Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#write-documentation">Write Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#submit-feedback">Submit Feedback</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#unit-testing-guidelines">Unit Testing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#tips">Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#release-workflow">Release Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#release-candidates">Release Candidates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CTGAN</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>ctgan package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/DAI-Lab/CTGAN/blob/master/docs/api/ctgan.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ctgan-package">
+<h1>ctgan package<a class="headerlink" href="#ctgan-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ctgan.cli.html">ctgan.cli module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctgan.model.html">ctgan.model module</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-ctgan">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ctgan" title="Permalink to this headline">¶</a></h2>
+<p>Top-level package for ctgan.</p>
+<p><strong>Classes</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.CTGANSynthesizer" title="ctgan.CTGANSynthesizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CTGANSynthesizer</span></code></a>([embedding_dim, gen_dim, …])</p></td>
+<td><p>docstring for IdentitySynthesizer.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="ctgan.CTGANSynthesizer">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.</code><code class="sig-name descname">CTGANSynthesizer</code><span class="sig-paren">(</span><em class="sig-param">embedding_dim=128</em>, <em class="sig-param">gen_dim=(256</em>, <em class="sig-param">256)</em>, <em class="sig-param">dis_dim=(256</em>, <em class="sig-param">256)</em>, <em class="sig-param">l2scale=1e-06</em>, <em class="sig-param">batch_size=500</em>, <em class="sig-param">epochs=300</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#CTGANSynthesizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.CTGANSynthesizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>docstring for IdentitySynthesizer.</p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.CTGANSynthesizer.fit" title="ctgan.CTGANSynthesizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(train_data[, categorical_columns, …])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.CTGANSynthesizer.sample" title="ctgan.CTGANSynthesizer.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>(n)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.CTGANSynthesizer.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">categorical_columns=()</em>, <em class="sig-param">ordinal_columns=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#CTGANSynthesizer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.CTGANSynthesizer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.CTGANSynthesizer.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#CTGANSynthesizer.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.CTGANSynthesizer.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ctgan.cli.html" class="btn btn-neutral float-right" title="ctgan.cli module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../readme.html" class="btn btn-neutral float-left" title="CTGAN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MIT Data To AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

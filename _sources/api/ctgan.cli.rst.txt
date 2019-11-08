@@ -1,0 +1,7 @@
+ctgan.cli module
+================
+
+.. automodule:: ctgan.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

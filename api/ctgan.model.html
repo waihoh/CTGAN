@@ -1,0 +1,561 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctgan.model module &mdash; CTGAN 0.1.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/dai-logo-white.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="ctgan.cli module" href="ctgan.cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CTGAN
+          
+
+          
+            
+            <img src="../_static/dai-logo-white-200.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">CTGAN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#install">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#install-from-pypi">Install from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#install-from-source">Install from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#install-for-development">Install for Development</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#quickstart">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#data-format">Data format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#run-model">Run model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../readme.html#what-s-next">What’s next?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html#citing-tgan">Citing TGAN</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Resources</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="ctgan.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ctgan.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ctgan.cli.html">ctgan.cli module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ctgan.model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ctgan.html#module-ctgan">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#types-of-contributions">Types of Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#report-bugs">Report Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#fix-bugs">Fix Bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#implement-features">Implement Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#write-documentation">Write Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#submit-feedback">Submit Feedback</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#unit-testing-guidelines">Unit Testing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#tips">Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#release-workflow">Release Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#release-candidates">Release Candidates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CTGAN</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="ctgan.html">ctgan package</a> &raquo;</li>
+        
+      <li>ctgan.model module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/DAI-Lab/CTGAN/blob/master/docs/api/ctgan.model.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-ctgan.model">
+<span id="ctgan-model-module"></span><h1>ctgan.model module<a class="headerlink" href="#module-ctgan.model" title="Permalink to this headline">¶</a></h1>
+<p><strong>Classes</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.CTGANSynthesizer" title="ctgan.model.CTGANSynthesizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CTGANSynthesizer</span></code></a>([embedding_dim, gen_dim, …])</p></td>
+<td><p>docstring for IdentitySynthesizer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.Cond" title="ctgan.model.Cond"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cond</span></code></a>(data, output_info)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.DataTransformer" title="ctgan.model.DataTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataTransformer</span></code></a>([n_clusters, eps])</p></td>
+<td><p>Model continuous columns with a BayesianGMM and normalized to a scalar [0, 1] and a vector.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.Discriminator" title="ctgan.model.Discriminator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Discriminator</span></code></a>(input_dim, dis_dims[, pack])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.Generator" title="ctgan.model.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a>(embedding_dim, gen_dims, data_dim)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.Residual" title="ctgan.model.Residual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Residual</span></code></a>(i, o)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.Sampler" title="ctgan.model.Sampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sampler</span></code></a>(data, output_info)</p></td>
+<td><p>docstring for Sampler.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Functions</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.apply_activate" title="ctgan.model.apply_activate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_activate</span></code></a>(data, output_info)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.calc_gradient_penalty" title="ctgan.model.calc_gradient_penalty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_gradient_penalty</span></code></a>(netD, real_data, fake_data)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.cond_loss" title="ctgan.model.cond_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cond_loss</span></code></a>(data, output_info, c, m)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.random_choice_prob_index" title="ctgan.model.random_choice_prob_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_choice_prob_index</span></code></a>(a[, axis])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="ctgan.model.CTGANSynthesizer">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">CTGANSynthesizer</code><span class="sig-paren">(</span><em class="sig-param">embedding_dim=128</em>, <em class="sig-param">gen_dim=(256</em>, <em class="sig-param">256)</em>, <em class="sig-param">dis_dim=(256</em>, <em class="sig-param">256)</em>, <em class="sig-param">l2scale=1e-06</em>, <em class="sig-param">batch_size=500</em>, <em class="sig-param">epochs=300</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#CTGANSynthesizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.CTGANSynthesizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>docstring for IdentitySynthesizer.</p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.CTGANSynthesizer.fit" title="ctgan.model.CTGANSynthesizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(train_data[, categorical_columns, …])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.CTGANSynthesizer.sample" title="ctgan.model.CTGANSynthesizer.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>(n)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.model.CTGANSynthesizer.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">categorical_columns=()</em>, <em class="sig-param">ordinal_columns=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#CTGANSynthesizer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.CTGANSynthesizer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.model.CTGANSynthesizer.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#CTGANSynthesizer.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.CTGANSynthesizer.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.model.Cond">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">Cond</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">output_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Cond"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Cond" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.Cond.sample" title="ctgan.model.Cond.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>(batch)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.Cond.sample_zero" title="ctgan.model.Cond.sample_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_zero</span></code></a>(batch)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.model.Cond.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Cond.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Cond.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.model.Cond.sample_zero">
+<code class="sig-name descname">sample_zero</code><span class="sig-paren">(</span><em class="sig-param">batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Cond.sample_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Cond.sample_zero" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.model.DataTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">DataTransformer</code><span class="sig-paren">(</span><em class="sig-param">n_clusters=10</em>, <em class="sig-param">eps=0.005</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#DataTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.DataTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Model continuous columns with a BayesianGMM and normalized to a scalar
+[0, 1] and a vector.
+Discrete and ordinal columns are converted to a one-hot vector.</p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.DataTransformer.fit" title="ctgan.model.DataTransformer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(data[, categorical_columns, ordinal_columns])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.DataTransformer.get_metadata" title="ctgan.model.DataTransformer.get_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata</span></code></a>(data[, categorical_columns, …])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.DataTransformer.inverse_transform" title="ctgan.model.DataTransformer.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(data, sigmas)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.model.DataTransformer.transform" title="ctgan.model.DataTransformer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(data)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.model.DataTransformer.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">categorical_columns=()</em>, <em class="sig-param">ordinal_columns=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#DataTransformer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.DataTransformer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.model.DataTransformer.get_metadata">
+<em class="property">static </em><code class="sig-name descname">get_metadata</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">categorical_columns=()</em>, <em class="sig-param">ordinal_columns=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#DataTransformer.get_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.DataTransformer.get_metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.model.DataTransformer.inverse_transform">
+<code class="sig-name descname">inverse_transform</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">sigmas</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#DataTransformer.inverse_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.DataTransformer.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.model.DataTransformer.transform">
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#DataTransformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.DataTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.model.Discriminator">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">Discriminator</code><span class="sig-paren">(</span><em class="sig-param">input_dim</em>, <em class="sig-param">dis_dims</em>, <em class="sig-param">pack=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Discriminator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Discriminator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.Discriminator.forward" title="ctgan.model.Discriminator.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(input)</p></td>
+<td><p>Defines the computation performed at every call.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.model.Discriminator.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Discriminator.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Discriminator.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.model.Generator">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">Generator</code><span class="sig-paren">(</span><em class="sig-param">embedding_dim</em>, <em class="sig-param">gen_dims</em>, <em class="sig-param">data_dim</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.Generator.forward" title="ctgan.model.Generator.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(input)</p></td>
+<td><p>Defines the computation performed at every call.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.model.Generator.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Generator.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Generator.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.model.Residual">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">Residual</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">o</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Residual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Residual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.Residual.forward" title="ctgan.model.Residual.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(input)</p></td>
+<td><p>Defines the computation performed at every call.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.model.Residual.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Residual.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Residual.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.model.Sampler">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">Sampler</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">output_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>docstring for Sampler.</p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.model.Sampler.sample" title="ctgan.model.Sampler.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>(n, col, opt)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.model.Sampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">col</em>, <em class="sig-param">opt</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#Sampler.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.Sampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ctgan.model.apply_activate">
+<code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">apply_activate</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">output_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#apply_activate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.apply_activate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ctgan.model.calc_gradient_penalty">
+<code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">calc_gradient_penalty</code><span class="sig-paren">(</span><em class="sig-param">netD</em>, <em class="sig-param">real_data</em>, <em class="sig-param">fake_data</em>, <em class="sig-param">device='cpu'</em>, <em class="sig-param">pac=10</em>, <em class="sig-param">lambda_=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#calc_gradient_penalty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.calc_gradient_penalty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ctgan.model.cond_loss">
+<code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">cond_loss</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">output_info</em>, <em class="sig-param">c</em>, <em class="sig-param">m</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#cond_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.cond_loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ctgan.model.random_choice_prob_index">
+<code class="sig-prename descclassname">ctgan.model.</code><code class="sig-name descname">random_choice_prob_index</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">axis=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/model.html#random_choice_prob_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.model.random_choice_prob_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ctgan.cli.html" class="btn btn-neutral float-left" title="ctgan.cli module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MIT Data To AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

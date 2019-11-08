@@ -1,0 +1,7 @@
+ctgan.model module
+==================
+
+.. automodule:: ctgan.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
