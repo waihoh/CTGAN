@@ -229,12 +229,12 @@
 <h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
 <p><strong>CTGAN</strong> comes with a command line interface that allows modeling and sampling data
 without the need to write any Python code. This is available under the <code class="docutils literal notranslate"><span class="pre">ctgan</span></code> command
-that will have been set up in your sistem upon installing <strong>CTGAN</strong>.</p>
+that will have been set up in your system upon installing <strong>CTGAN</strong>.</p>
 <div class="section" id="working-with-csv-files">
 <h2>Working with CSV files<a class="headerlink" href="#working-with-csv-files" title="Permalink to this headline">¶</a></h2>
-<p>In the simples scenario, you <code class="docutils literal notranslate"><span class="pre">ctgan</span></code> can be used to read data from a CSV file, with headers,
+<p>In the simplest scenario, <code class="docutils literal notranslate"><span class="pre">ctgan</span></code> can be used to read data from a CSV file, with headers,
 and using <code class="docutils literal notranslate"><span class="pre">,</span></code> as the separator.</p>
-<p>For this, you can call <code class="docutils literal notranslate"><span class="pre">ctgan</span></code> passin it only two arguments:</p>
+<p>For this, you can call <code class="docutils literal notranslate"><span class="pre">ctgan</span></code> passing it only two arguments:</p>
 <ul class="simple">
 <li><p>The path to the input data file.</p></li>
 <li><p>The path to the output file.</p></li>
@@ -246,19 +246,19 @@ and using <code class="docutils literal notranslate"><span class="pre">,</span><
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ctgan path/to/input.csv path/to/output.csv --no-header
 </pre></div>
 </div>
-<p>The command above will model the data from the input CSV file and produce a new CSV file with
+<p>The commands above will model the data from the input CSV file and produce a new CSV file with
 synthetic data and as many rows as there were in the input table.</p>
 </div>
 <div class="section" id="json-metadata">
 <h2>JSON Metadata<a class="headerlink" href="#json-metadata" title="Permalink to this headline">¶</a></h2>
 <p>The previous example will work for datasets that only contain continuous columns, but if the
 table that you are trying to model contains any discrete columns you will need to provide an
-additional Metadata file which specifies the continuous and discrete columns.</p>
+additional Metadata file which specifies which columns are continuous and which ones are discrete.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ctgan path/to/input.csv path/to/output.csv -m path/to/metadata.json
 </pre></div>
 </div>
 <p>This Metadata file will be in JSON format, containing an entry called <code class="docutils literal notranslate"><span class="pre">columns</span></code>, with a list
-of subdocuments containing both the <code class="docutils literal notranslate"><span class="pre">name</span></code> of the column and its <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+of sub-documents containing both the <code class="docutils literal notranslate"><span class="pre">name</span></code> of the column and its <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
@@ -284,7 +284,7 @@ of subdocuments containing both the <code class="docutils literal notranslate"><
 <code class="docutils literal notranslate"><span class="pre">ordinal</span></code> or <code class="docutils literal notranslate"><span class="pre">discrete</span></code> for non-continuous columns.</p>
 </div>
 <p>Alternatively, if there is no Metadata file, the list of discrete column names can be provided
-as a comma separated list,without white spaces, directly on the command line:</p>
+as a comma separated list, without white spaces, directly on the command line:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ctgan path/to/input.csv path/to/output.csv -d <span class="s1">&#39;one_column,another_column,yet_another_column&#39;</span>
 </pre></div>
 </div>
