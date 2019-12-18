@@ -1,0 +1,7 @@
+ctgan.conditional module
+========================
+
+.. automodule:: ctgan.conditional
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+ctgan.synthesizer module
+========================
+
+.. automodule:: ctgan.synthesizer
+   :members:
+   :undoc-members:
+   :show-inheritance:

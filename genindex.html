@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; CTGAN 0.1.1.dev0 documentation</title>
+  <title>Index &mdash; CTGAN 0.2.0.dev0 documentation</title>
   
 
   
@@ -82,30 +82,49 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="readme.html">CTGAN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">CTGAN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#overview">Overview</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="readme.html#install">Install</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="readme.html#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="readme.html#install-from-pypi">Install from PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#install-from-source">Install from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#install-for-development">Install for Development</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#quickstart">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#data-format">Data format</a></li>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#run-model">Run model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#example">Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#what-s-next">What’s next?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#data-format">Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#python-quickstart">Python Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#model-the-data">1. Model the data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#step-1-prepare-your-data">Step 1: Prepare your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#step-2-fit-ctgan-to-your-data">Step 2: Fit CTGAN to your data</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#generate-synthetic-data">2. Generate synthetic data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#join-our-community">Join our community</a></li>
 <li class="toctree-l1"><a class="reference internal" href="readme.html#citing-tgan">Citing TGAN</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#working-with-csv-files">Working with CSV files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#json-metadata">JSON Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#tsv-tab-separated-values">TSV: Tab Separated Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#additional-options">Additional Options</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ctgan.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/ctgan.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/ctgan.cli.html">ctgan.cli module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/ctgan.model.html">ctgan.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.conditional.html">ctgan.conditional module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.data.html">ctgan.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.demo.html">ctgan.demo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.models.html">ctgan.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.sampler.html">ctgan.sampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.synthesizer.html">ctgan.synthesizer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.transformer.html">ctgan.transformer module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/ctgan.html#module-ctgan">Module contents</a></li>
@@ -130,7 +149,11 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#research-and-development-lead">Research and Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="history.html">History</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="history.html#v0-1-0-2019-11-07">v0.1.0 - 2019-11-07</a></li>
 </ul>
@@ -205,48 +228,47 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#A"><strong>A</strong></a>
- | <a href="#C"><strong>C</strong></a>
+ <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
- | <a href="#M"><strong>M</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
-<h2 id="A">A</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.apply_activate">apply_activate() (in module ctgan.model)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.calc_gradient_penalty">calc_gradient_penalty() (in module ctgan.model)</a>
+      <li><a href="api/ctgan.models.html#ctgan.models.Discriminator.calc_gradient_penalty">calc_gradient_penalty() (ctgan.models.Discriminator method)</a>
 </li>
-      <li><a href="api/ctgan.model.html#ctgan.model.Cond">Cond (class in ctgan.model)</a>
-</li>
-      <li><a href="api/ctgan.model.html#ctgan.model.cond_loss">cond_loss() (in module ctgan.model)</a>
+      <li><a href="api/ctgan.conditional.html#ctgan.conditional.ConditionalGenerator">ConditionalGenerator (class in ctgan.conditional)</a>
 </li>
       <li><a href="api/ctgan.html#module-ctgan">ctgan (module)</a>
 </li>
+      <li><a href="api/ctgan.conditional.html#module-ctgan.conditional">ctgan.conditional (module)</a>
+</li>
+      <li><a href="api/ctgan.data.html#module-ctgan.data">ctgan.data (module)</a>
+</li>
+      <li><a href="api/ctgan.demo.html#module-ctgan.demo">ctgan.demo (module)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.cli.html#module-ctgan.cli">ctgan.cli (module)</a>
+      <li><a href="api/ctgan.models.html#module-ctgan.models">ctgan.models (module)</a>
 </li>
-      <li><a href="api/ctgan.model.html#module-ctgan.model">ctgan.model (module)</a>
+      <li><a href="api/ctgan.sampler.html#module-ctgan.sampler">ctgan.sampler (module)</a>
+</li>
+      <li><a href="api/ctgan.synthesizer.html#module-ctgan.synthesizer">ctgan.synthesizer (module)</a>
+</li>
+      <li><a href="api/ctgan.transformer.html#module-ctgan.transformer">ctgan.transformer (module)</a>
 </li>
       <li><a href="api/ctgan.html#ctgan.CTGANSynthesizer">CTGANSynthesizer (class in ctgan)</a>
 
       <ul>
-        <li><a href="api/ctgan.model.html#ctgan.model.CTGANSynthesizer">(class in ctgan.model)</a>
+        <li><a href="api/ctgan.synthesizer.html#ctgan.synthesizer.CTGANSynthesizer">(class in ctgan.synthesizer)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -255,11 +277,11 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.DataTransformer">DataTransformer (class in ctgan.model)</a>
+      <li><a href="api/ctgan.transformer.html#ctgan.transformer.DataTransformer">DataTransformer (class in ctgan.transformer)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.Discriminator">Discriminator (class in ctgan.model)</a>
+      <li><a href="api/ctgan.models.html#ctgan.models.Discriminator">Discriminator (class in ctgan.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -270,19 +292,19 @@
       <li><a href="api/ctgan.html#ctgan.CTGANSynthesizer.fit">fit() (ctgan.CTGANSynthesizer method)</a>
 
       <ul>
-        <li><a href="api/ctgan.model.html#ctgan.model.CTGANSynthesizer.fit">(ctgan.model.CTGANSynthesizer method)</a>
+        <li><a href="api/ctgan.synthesizer.html#ctgan.synthesizer.CTGANSynthesizer.fit">(ctgan.synthesizer.CTGANSynthesizer method)</a>
 </li>
-        <li><a href="api/ctgan.model.html#ctgan.model.DataTransformer.fit">(ctgan.model.DataTransformer method)</a>
+        <li><a href="api/ctgan.transformer.html#ctgan.transformer.DataTransformer.fit">(ctgan.transformer.DataTransformer method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.Discriminator.forward">forward() (ctgan.model.Discriminator method)</a>
+      <li><a href="api/ctgan.models.html#ctgan.models.Discriminator.forward">forward() (ctgan.models.Discriminator method)</a>
 
       <ul>
-        <li><a href="api/ctgan.model.html#ctgan.model.Generator.forward">(ctgan.model.Generator method)</a>
+        <li><a href="api/ctgan.models.html#ctgan.models.Generator.forward">(ctgan.models.Generator method)</a>
 </li>
-        <li><a href="api/ctgan.model.html#ctgan.model.Residual.forward">(ctgan.model.Residual method)</a>
+        <li><a href="api/ctgan.models.html#ctgan.models.Residual.forward">(ctgan.models.Residual method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -291,11 +313,7 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.Generator">Generator (class in ctgan.model)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.DataTransformer.get_metadata">get_metadata() (ctgan.model.DataTransformer static method)</a>
+      <li><a href="api/ctgan.models.html#ctgan.models.Generator">Generator (class in ctgan.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -303,29 +321,35 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.DataTransformer.inverse_transform">inverse_transform() (ctgan.model.DataTransformer method)</a>
+      <li><a href="api/ctgan.transformer.html#ctgan.transformer.DataTransformer.inverse_transform">inverse_transform() (ctgan.transformer.DataTransformer method)</a>
 </li>
   </ul></td>
 </tr></table>
 
-<h2 id="M">M</h2>
+<h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.cli.html#ctgan.cli.main">main() (in module ctgan.cli)</a>
+      <li><a href="api/ctgan.html#ctgan.load_demo">load_demo() (in module ctgan)</a>
+
+      <ul>
+        <li><a href="api/ctgan.demo.html#ctgan.demo.load_demo">(in module ctgan.demo)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.random_choice_prob_index">random_choice_prob_index() (in module ctgan.model)</a>
+      <li><a href="api/ctgan.conditional.html#ctgan.conditional.ConditionalGenerator.random_choice_prob_index">random_choice_prob_index() (ctgan.conditional.ConditionalGenerator method)</a>
+</li>
+      <li><a href="api/ctgan.data.html#ctgan.data.read_csv">read_csv() (in module ctgan.data)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.cli.html#ctgan.cli.read_data">read_data() (in module ctgan.cli)</a>
+      <li><a href="api/ctgan.data.html#ctgan.data.read_tsv">read_tsv() (in module ctgan.data)</a>
 </li>
-      <li><a href="api/ctgan.model.html#ctgan.model.Residual">Residual (class in ctgan.model)</a>
+      <li><a href="api/ctgan.models.html#ctgan.models.Residual">Residual (class in ctgan.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -333,21 +357,21 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.html#ctgan.CTGANSynthesizer.sample">sample() (ctgan.CTGANSynthesizer method)</a>
+      <li><a href="api/ctgan.conditional.html#ctgan.conditional.ConditionalGenerator.sample">sample() (ctgan.conditional.ConditionalGenerator method)</a>
 
       <ul>
-        <li><a href="api/ctgan.model.html#ctgan.model.Cond.sample">(ctgan.model.Cond method)</a>
+        <li><a href="api/ctgan.html#ctgan.CTGANSynthesizer.sample">(ctgan.CTGANSynthesizer method)</a>
 </li>
-        <li><a href="api/ctgan.model.html#ctgan.model.CTGANSynthesizer.sample">(ctgan.model.CTGANSynthesizer method)</a>
+        <li><a href="api/ctgan.sampler.html#ctgan.sampler.Sampler.sample">(ctgan.sampler.Sampler method)</a>
 </li>
-        <li><a href="api/ctgan.model.html#ctgan.model.Sampler.sample">(ctgan.model.Sampler method)</a>
+        <li><a href="api/ctgan.synthesizer.html#ctgan.synthesizer.CTGANSynthesizer.sample">(ctgan.synthesizer.CTGANSynthesizer method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.Cond.sample_zero">sample_zero() (ctgan.model.Cond method)</a>
+      <li><a href="api/ctgan.conditional.html#ctgan.conditional.ConditionalGenerator.sample_zero">sample_zero() (ctgan.conditional.ConditionalGenerator method)</a>
 </li>
-      <li><a href="api/ctgan.model.html#ctgan.model.Sampler">Sampler (class in ctgan.model)</a>
+      <li><a href="api/ctgan.sampler.html#ctgan.sampler.Sampler">Sampler (class in ctgan.sampler)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -355,7 +379,7 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.model.html#ctgan.model.DataTransformer.transform">transform() (ctgan.model.DataTransformer method)</a>
+      <li><a href="api/ctgan.transformer.html#ctgan.transformer.DataTransformer.transform">transform() (ctgan.transformer.DataTransformer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -363,7 +387,7 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/ctgan.cli.html#ctgan.cli.write_data">write_data() (in module ctgan.cli)</a>
+      <li><a href="api/ctgan.data.html#ctgan.data.write_tsv">write_tsv() (in module ctgan.data)</a>
 </li>
   </ul></td>
 </tr></table>

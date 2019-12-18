@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ctgan.cli &mdash; CTGAN 0.1.1.dev0 documentation</title>
+  <title>ctgan.data &mdash; CTGAN 0.2.0.dev0 documentation</title>
   
 
   
@@ -81,30 +81,49 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html">CTGAN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">CTGAN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../readme.html#overview">Overview</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html#install">Install</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../readme.html#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../readme.html#install-from-pypi">Install from PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#install-from-source">Install from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#install-for-development">Install for Development</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#quickstart">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#data-format">Data format</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#run-model">Run model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#example">Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#what-s-next">What’s next?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#data-format">Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#python-quickstart">Python Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../readme.html#model-the-data">1. Model the data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../readme.html#step-1-prepare-your-data">Step 1: Prepare your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../readme.html#step-2-fit-ctgan-to-your-data">Step 2: Fit CTGAN to your data</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../readme.html#generate-synthetic-data">2. Generate synthetic data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#join-our-community">Join our community</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html#citing-tgan">Citing TGAN</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#working-with-csv-files">Working with CSV files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#json-metadata">JSON Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#tsv-tab-separated-values">TSV: Tab Separated Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#additional-options">Additional Options</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/ctgan.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/ctgan.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.cli.html">ctgan.cli module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.model.html">ctgan.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.conditional.html">ctgan.conditional module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.data.html">ctgan.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.demo.html">ctgan.demo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.models.html">ctgan.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.sampler.html">ctgan.sampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.synthesizer.html">ctgan.synthesizer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/ctgan.transformer.html">ctgan.transformer module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/ctgan.html#module-ctgan">Module contents</a></li>
@@ -129,7 +148,11 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../authors.html#research-and-development-lead">Research and Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../history.html#v0-1-0-2019-11-07">v0.1.0 - 2019-11-07</a></li>
 </ul>
@@ -181,7 +204,7 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
-      <li>ctgan.cli</li>
+      <li>ctgan.data</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -196,23 +219,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for ctgan.cli</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">absl</span> <span class="k">import</span> <span class="n">app</span><span class="p">,</span> <span class="n">flags</span>
+  <h1>Source code for ctgan.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
 
-<span class="kn">from</span> <span class="nn">ctgan.model</span> <span class="k">import</span> <span class="n">CTGANSynthesizer</span>
-
-<span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_string</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Filename of training data.&quot;</span><span class="p">)</span>
-<span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_string</span><span class="p">(</span><span class="s2">&quot;meta&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Filename of meta data.&quot;</span><span class="p">)</span>
-<span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_string</span><span class="p">(</span><span class="s2">&quot;model_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Path to save model.&quot;</span><span class="p">)</span>
-<span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_string</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Output filename.&quot;</span><span class="p">)</span>
-<span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_integer</span><span class="p">(</span><span class="s2">&quot;max_epoch&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;Epoches to train.&quot;</span><span class="p">)</span>
-<span class="n">flags</span><span class="o">.</span><span class="n">DEFINE_integer</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;Number of rows to generate.&quot;</span><span class="p">)</span>
-
-<span class="n">FLAGS</span> <span class="o">=</span> <span class="n">flags</span><span class="o">.</span><span class="n">FLAGS</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 
-<div class="viewcode-block" id="read_data"><a class="viewcode-back" href="../../api/ctgan.cli.html#ctgan.cli.read_data">[docs]</a><span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="read_csv"><a class="viewcode-back" href="../../api/ctgan.data.html#ctgan.data.read_csv">[docs]</a><span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="n">meta_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;infer&#39;</span> <span class="k">if</span> <span class="n">header</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">meta_filename</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">meta_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">meta_file</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">meta_file</span><span class="p">)</span>
+
+        <span class="n">discrete_columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">column</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">column</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;continuous&#39;</span>
+        <span class="p">]</span>
+
+    <span class="k">elif</span> <span class="n">discrete</span><span class="p">:</span>
+        <span class="n">discrete_columns</span> <span class="o">=</span> <span class="n">discrete</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">header</span><span class="p">:</span>
+            <span class="n">discrete_columns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">discrete_columns</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">discrete_columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">discrete_columns</span></div>
+
+
+<div class="viewcode-block" id="read_tsv"><a class="viewcode-back" href="../../api/ctgan.data.html#ctgan.data.read_tsv">[docs]</a><span class="k">def</span> <span class="nf">read_tsv</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">meta_filename</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">meta_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">column_info</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
@@ -256,10 +295,10 @@
 
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span> <span class="n">meta</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;discrete_columns&#39;</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="write_data"><a class="viewcode-back" href="../../api/ctgan.cli.html#ctgan.cli.write_data">[docs]</a><span class="k">def</span> <span class="nf">write_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">meta</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="write_tsv"><a class="viewcode-back" href="../../api/ctgan.data.html#ctgan.data.write_tsv">[docs]</a><span class="k">def</span> <span class="nf">write_tsv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">meta</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
@@ -270,22 +309,6 @@
                     <span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;column_info&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="p">)],</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
 
             <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span></div>
-
-
-<span class="k">def</span> <span class="nf">_main</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
-    <span class="n">data</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">CTGANSynthesizer</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">max_epoch</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;discrete_columns&#39;</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">())</span>
-    <span class="n">data_syn</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">sample</span><span class="p">)</span>
-    <span class="n">write_data</span><span class="p">(</span><span class="n">data_syn</span><span class="p">,</span> <span class="n">meta</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/ctgan.cli.html#ctgan.cli.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">_main</span><span class="p">)</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 
            </div>

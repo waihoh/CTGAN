@@ -6,8 +6,13 @@ Submodules
 
 .. toctree::
 
-   ctgan.cli
-   ctgan.model
+   ctgan.conditional
+   ctgan.data
+   ctgan.demo
+   ctgan.models
+   ctgan.sampler
+   ctgan.synthesizer
+   ctgan.transformer
 
 Module contents
 ---------------

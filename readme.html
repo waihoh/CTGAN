@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>CTGAN &mdash; CTGAN 0.1.1.dev0 documentation</title>
+  <title>CTGAN &mdash; CTGAN 0.2.0.dev0 documentation</title>
   
 
   
@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ctgan package" href="api/ctgan.html" />
+    <link rel="next" title="Command Line Interface" href="cli.html" />
     <link rel="prev" title="CTGAN" href="index.html" /> 
 </head>
 
@@ -83,30 +83,49 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">CTGAN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CTGAN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="#install">Install</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-from-pypi">Install from PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-from-source">Install from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-for-development">Install for Development</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#quickstart">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#data-format">Data format</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#run-model">Run model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#what-s-next">What’s next?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#data-format">Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#python-quickstart">Python Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-the-data">1. Model the data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-prepare-your-data">Step 1: Prepare your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-fit-ctgan-to-your-data">Step 2: Fit CTGAN to your data</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#generate-synthetic-data">2. Generate synthetic data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#join-our-community">Join our community</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#citing-tgan">Citing TGAN</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#working-with-csv-files">Working with CSV files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#json-metadata">JSON Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#tsv-tab-separated-values">TSV: Tab Separated Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#additional-options">Additional Options</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ctgan.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/ctgan.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/ctgan.cli.html">ctgan.cli module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/ctgan.model.html">ctgan.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.conditional.html">ctgan.conditional module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.data.html">ctgan.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.demo.html">ctgan.demo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.models.html">ctgan.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.sampler.html">ctgan.sampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.synthesizer.html">ctgan.synthesizer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ctgan.transformer.html">ctgan.transformer module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/ctgan.html#module-ctgan">Module contents</a></li>
@@ -131,7 +150,11 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#research-and-development-lead">Research and Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="history.html">History</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="history.html#v0-1-0-2019-11-07">v0.1.0 - 2019-11-07</a></li>
 </ul>
@@ -207,24 +230,31 @@
 <i>An open source project from Data to AI Lab at MIT.</i>
 </p><a class="reference external image-reference" href="https://pypi.python.org/pypi/ctgan"><img alt="PyPI Shield" src="https://img.shields.io/pypi/v/ctgan.svg" /></a>
 <a class="reference external image-reference" href="https://travis-ci.org/DAI-Lab/CTGAN"><img alt="Travis CI Shield" src="https://travis-ci.org/DAI-Lab/CTGAN.svg?branch=master" /></a>
-<!--[![Downloads](https://pepy.tech/badge/ctgan)](https://pepy.tech/project/ctgan)--><div class="section" id="ctgan">
+<a class="reference external image-reference" href="https://pepy.tech/project/ctgan"><img alt="Downloads" src="https://pepy.tech/badge/ctgan" /></a>
+<a class="reference external image-reference" href="https://codecov.io/gh/DAI-Lab/CTGAN"><img alt="Coverage Status" src="https://codecov.io/gh/DAI-Lab/CTGAN/branch/master/graph/badge.svg" /></a>
+<div class="section" id="ctgan">
 <h1>CTGAN<a class="headerlink" href="#ctgan" title="Permalink to this headline">¶</a></h1>
-<p>Implementation of our NeurIPS paper <strong>Modeling Tabular data using Conditional GAN</strong>.</p>
+<p>Implementation of our NeurIPS paper <a class="reference external" href="https://arxiv.org/abs/1907.00503">Modeling Tabular data using Conditional GAN</a>.</p>
 <p>CTGAN is a GAN-based data synthesizer that can generate synthetic tabular data with high fidelity.</p>
 <ul class="simple">
-<li><p>Free software: MIT license</p></li>
+<li><p>Free software: <a class="reference external" href="https://github.com/DAI-Lab/CTGAN/tree/master/LICENSE">MIT license</a></p></li>
 <li><p>Documentation: <a class="reference external" href="https://DAI-Lab.github.io/CTGAN">https://DAI-Lab.github.io/CTGAN</a></p></li>
 <li><p>Homepage: <a class="reference external" href="https://github.com/DAI-Lab/CTGAN">https://github.com/DAI-Lab/CTGAN</a></p></li>
 </ul>
-</div>
 <div class="section" id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>Based on previous work (<a class="reference external" href="https://github.com/DAI-Lab/tgan">TGAN</a>) on synthetic data generation, we develop a new model called CTGAN. Several major differences make CTGAN outperform TGAN.</p>
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Based on previous work (<a class="reference external" href="https://github.com/DAI-Lab/TGAN">TGAN</a>) on synthetic data generation,
+we develop a new model called CTGAN. Several major differences make CTGAN outperform TGAN.</p>
 <ul class="simple">
-<li><p><strong>Preprocessing</strong>: CTGAN uses more sophisticated Variational Gaussian Mixture Model to detect modes of continuous columns.</p></li>
-<li><p><strong>Network structure</strong>: TGAN uses LSTM to generate synthetic data column by column. CTGAN uses Fully-connected networks which is more efficient.</p></li>
-<li><p><strong>Features to prevent mode collapse</strong>: We design a conditional generator and resample the training data to prevent model collapse on discrete columns. We use WGANGP and PacGAN to stabilize the training of GAN.</p></li>
+<li><p><strong>Preprocessing</strong>: CTGAN uses more sophisticated Variational Gaussian Mixture Model to detect
+modes of continuous columns.</p></li>
+<li><p><strong>Network structure</strong>: TGAN uses LSTM to generate synthetic data column by column. CTGAN uses
+Fully-connected networks which is more efficient.</p></li>
+<li><p><strong>Features to prevent mode collapse</strong>: We design a conditional generator and resample the
+training data to prevent model collapse on discrete columns. We use WGANGP and PacGAN to
+stabilize the training of GAN.</p></li>
 </ul>
+</div>
 </div>
 <div class="section" id="install">
 <h1>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h1>
@@ -239,83 +269,295 @@
 </pre></div>
 </div>
 <p>This will pull and install the latest stable release from <a class="reference external" href="https://pypi.org/">PyPI</a>.</p>
-</div>
-<div class="section" id="install-from-source">
-<h2>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
-<p>Alternatively, you can clone the repository and install it from
-source by running <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> on the <code class="docutils literal notranslate"><span class="pre">stable</span></code> branch:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:DAI-Lab/CTGAN.git
-<span class="nb">cd</span> CTGAN
-git checkout stable
-make install
-</pre></div>
+<p>If you want to install from source or contribute to the project please read the
+<a class="reference external" href="https://DAI-Lab.github.io/CTGAN/contributing.html#get-started">Contributing Guide</a>.</p>
 </div>
 </div>
-<div class="section" id="install-for-development">
-<h2>Install for Development<a class="headerlink" href="#install-for-development" title="Permalink to this headline">¶</a></h2>
-<p>If you want to contribute to the project, a few more steps are required to make the project ready
-for development.</p>
-<p>Please head to the <a class="reference external" href="https://DAI-Lab.github.io/CTGAN/contributing.html#get-started">Contributing Guide</a>
-for more details about this process.</p>
+<div class="section" id="data-format">
+<h1>Data Format<a class="headerlink" href="#data-format" title="Permalink to this headline">¶</a></h1>
+<p><strong>CTGAN</strong> expects the input data to be a table given as either a <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> or a
+<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> object with two types of columns:</p>
+<ul class="simple">
+<li><p><strong>Continuous Columns</strong>: Columns that contain numerical values and which can take any value.</p></li>
+<li><p><strong>Discrete columns</strong>: Columns that only contain a finite number of possible values, wether
+these are string values or not.</p></li>
+</ul>
+<p>This is an example of a table with 4 columns:</p>
+<ul class="simple">
+<li><p>A continuous column with float values</p></li>
+<li><p>A continuous column with integer values</p></li>
+<li><p>A discrete column with string values</p></li>
+<li><p>A discrete column with integer values</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>C</p></th>
+<th class="head"><p>D</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>0.1</p></td>
+<td><p>100</p></td>
+<td><p>‘a’</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>-1.3</p></td>
+<td><p>28</p></td>
+<td><p>‘b’</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>0.3</p></td>
+<td><p>14</p></td>
+<td><p>‘a’</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>1.4</p></td>
+<td><p>87</p></td>
+<td><p>‘a’</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>-0.1</p></td>
+<td><p>69</p></td>
+<td><p>‘b’</p></td>
+<td><p>2</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE</strong>: CTGAN does not distinguish between float and integer columns, which means that it will
+sample float values in all cases. If integer values are required, the outputted float values
+must be rounded to integers in a later step, outside of CTGAN.</p>
 </div>
-</div>
-<div class="section" id="quickstart">
-<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="python-quickstart">
+<h1>Python Quickstart<a class="headerlink" href="#python-quickstart" title="Permalink to this headline">¶</a></h1>
 <p>In this short tutorial we will guide you through a series of steps that will help you
 getting started with <strong>CTGAN</strong>.</p>
-<div class="section" id="data-format">
-<h2>Data format<a class="headerlink" href="#data-format" title="Permalink to this headline">¶</a></h2>
-<p>The data is a space (or tab) separated file. For example,</p>
-<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="mi">100</span>        <span class="n">A</span>        <span class="k">True</span>
-<span class="mi">200</span>        <span class="n">B</span>        <span class="k">False</span>
-<span class="mi">105</span>        <span class="n">A</span>        <span class="k">True</span>
-<span class="mi">120</span>        <span class="k">C</span>        <span class="k">False</span>
-<span class="p">...</span>        <span class="p">...</span>        <span class="p">...</span>
+<div class="section" id="model-the-data">
+<h2>1. Model the data<a class="headerlink" href="#model-the-data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="step-1-prepare-your-data">
+<h3>Step 1: Prepare your data<a class="headerlink" href="#step-1-prepare-your-data" title="Permalink to this headline">¶</a></h3>
+<p>Before being able to use CTGAN you will need to prepare your data as specified above.</p>
+<p>For this example, we will be loading some data using the <code class="docutils literal notranslate"><span class="pre">ctgan.load_demo</span></code> function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ctgan</span> <span class="kn">import</span> <span class="n">load_demo</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">load_demo</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Metafile describes each column as one line. <code class="docutils literal notranslate"><span class="pre">C</span></code> or <code class="docutils literal notranslate"><span class="pre">D</span></code> at the beginning of each line represent continuous column or discrete column respectively. For continuous column, the following two number indicates the range of the column. For discrete column, the following strings indicate all possible values in the column. For example,</p>
-<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="k">C</span>    <span class="mi">0</span>    <span class="mi">500</span>
-<span class="n">D</span>    <span class="n">A</span>    <span class="n">B</span>    <span class="k">C</span>
-<span class="n">D</span>    <span class="k">True</span>     <span class="k">False</span>
+<p>This will download a copy of the <a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/adult">Adult Census Dataset</a> as a dataframe:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>age</p></th>
+<th class="head"><p>workclass</p></th>
+<th class="head"><p>fnlwgt</p></th>
+<th class="head"><p>…</p></th>
+<th class="head"><p>hours-per-week</p></th>
+<th class="head"><p>native-country</p></th>
+<th class="head"><p>income</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>39</p></td>
+<td><p>State-gov</p></td>
+<td><p>77516</p></td>
+<td><p>…</p></td>
+<td><p>40</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-odd"><td><p>50</p></td>
+<td><p>Self-emp-not-inc</p></td>
+<td><p>83311</p></td>
+<td><p>…</p></td>
+<td><p>13</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-even"><td><p>38</p></td>
+<td><p>Private</p></td>
+<td><p>215646</p></td>
+<td><p>…</p></td>
+<td><p>40</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-odd"><td><p>53</p></td>
+<td><p>Private</p></td>
+<td><p>234721</p></td>
+<td><p>…</p></td>
+<td><p>40</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-even"><td><p>28</p></td>
+<td><p>Private</p></td>
+<td><p>338409</p></td>
+<td><p>…</p></td>
+<td><p>40</p></td>
+<td><p>Cuba</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+</tbody>
+</table>
+<p>Aside from the table itself, you will need to create a list with the names of the discrete
+variables.</p>
+<p>For this example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">discrete_columns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;workclass&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;education&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;marital-status&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;occupation&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;relationship&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;race&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sex&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;native-country&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;income&#39;</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="run-model">
-<h2>Run model<a class="headerlink" href="#run-model" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="k">USAGE</span><span class="p">:</span>
-    <span class="n">python3</span> <span class="n">ctgan</span><span class="o">/</span><span class="n">cli</span><span class="p">.</span><span class="n">py</span> <span class="p">[</span><span class="n">flags</span><span class="p">]</span>
-<span class="n">flags</span><span class="p">:</span>
-  <span class="c1">--data: Filename of training data.</span>
-    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-  <span class="c1">--max_epoch: Epoches to train.</span>
-    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;100&#39;</span><span class="p">)</span>
-    <span class="p">(</span><span class="n">an</span> <span class="nb">integer</span><span class="p">)</span>
-  <span class="c1">--meta: Filename of meta data.</span>
-    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-  <span class="c1">--model_dir: Path to save model.</span>
-    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-  <span class="c1">--output: Output filename.</span>
-    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-  <span class="c1">--sample: Number of rows to generate.</span>
-    <span class="p">(</span><span class="k">default</span><span class="p">:</span> <span class="s1">&#39;1000&#39;</span><span class="p">)</span>
-    <span class="p">(</span><span class="n">an</span> <span class="nb">integer</span><span class="p">)</span>
+<div class="section" id="step-2-fit-ctgan-to-your-data">
+<h3>Step 2: Fit CTGAN to your data<a class="headerlink" href="#step-2-fit-ctgan-to-your-data" title="Permalink to this headline">¶</a></h3>
+<p>Once you have the data ready, you need to import and create an instance of the <code class="docutils literal notranslate"><span class="pre">CTGANSynthesizer</span></code>
+class and fit it passing your data and the list of discrete columns.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ctgan</span> <span class="kn">import</span> <span class="n">CTGANSynthesizer</span>
+
+<span class="n">ctgan</span> <span class="o">=</span> <span class="n">CTGANSynthesizer</span><span class="p">()</span>
+<span class="n">ctgan</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">discrete_columns</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This process is likely to take a long time to run.
+If you want to make the process shorter, or longer, you can control the number of training epochs
+that the model will be performing by adding it to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ctgan</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">discrete_columns</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="example">
-<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
-<p>It’s easy to try our model using example datasets.</p>
-<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="o">/</span><span class="n">DAI</span><span class="o">-</span><span class="n">Lab</span><span class="o">/</span><span class="n">ctgan</span>
-<span class="n">cd</span> <span class="n">ctgan</span>
-<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">ctgan</span><span class="p">.</span><span class="n">cli</span> <span class="c1">--data examples/adult.dat --meta examples/adult.meta</span>
+</div>
+<div class="section" id="generate-synthetic-data">
+<h2>2. Generate synthetic data<a class="headerlink" href="#generate-synthetic-data" title="Permalink to this headline">¶</a></h2>
+<p>Once the process has finished, all you need to do is call the <code class="docutils literal notranslate"><span class="pre">sample</span></code> method of your
+<code class="docutils literal notranslate"><span class="pre">CTGANSynthesizer</span></code> instance indicating the number of rows that you want to generate.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span> <span class="o">=</span> <span class="n">ctgan</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The output will be a table with the exact same format as the input and filled with the synthetic
+data generated by the model.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>age</p></th>
+<th class="head"><p>workclass</p></th>
+<th class="head"><p>fnlwgt</p></th>
+<th class="head"><p>…</p></th>
+<th class="head"><p>hours-per-week</p></th>
+<th class="head"><p>native-country</p></th>
+<th class="head"><p>income</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>26.3191</p></td>
+<td><p>Private</p></td>
+<td><p>124079</p></td>
+<td><p>…</p></td>
+<td><p>40.1557</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-odd"><td><p>39.8558</p></td>
+<td><p>Private</p></td>
+<td><p>133996</p></td>
+<td><p>…</p></td>
+<td><p>40.2507</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-even"><td><p>38.2477</p></td>
+<td><p>Self-emp-inc</p></td>
+<td><p>135955</p></td>
+<td><p>…</p></td>
+<td><p>40.1124</p></td>
+<td><p>Ecuador</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-odd"><td><p>29.6468</p></td>
+<td><p>Private</p></td>
+<td><p>3331.86</p></td>
+<td><p>…</p></td>
+<td><p>27.012</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-even"><td><p>20.9853</p></td>
+<td><p>Private</p></td>
+<td><p>120637</p></td>
+<td><p>…</p></td>
+<td><p>40.0238</p></td>
+<td><p>United-States</p></td>
+<td><p>&lt;=50K</p></td>
+</tr>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE</strong>: CTGAN does not distinguish between float and integer columns, which means that it will
+sample float values in all cases. If integer values are required, the outputted float values
+must be rounded to integers in a later step, outside of CTGAN.</p>
 </div>
-<div class="section" id="what-s-next">
-<h2>What’s next?<a class="headerlink" href="#what-s-next" title="Permalink to this headline">¶</a></h2>
-<p>For more details about <strong>CTGAN</strong> and all its possibilities
-and features, please check the <a class="reference external" href="https://DAI-Lab.github.io/CTGAN/">documentation site</a>.</p>
 </div>
+<div class="section" id="join-our-community">
+<h1>Join our community<a class="headerlink" href="#join-our-community" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic simple">
+<li><p>If you would like to try more dataset examples, please have a look at the <a class="reference external" href="https://github.com/DAI-Lab/CTGAN/tree/master/examples">examples folder</a> of the repository. Please contact us
+if you have a usage example that you would want to share with the community.</p></li>
+<li><p>If you want to contribute to the project code, please head to the <a class="reference external" href="https://DAI-Lab.github.io/CTGAN/contributing.html#get-started">Contributing Guide</a> for more details about how to do it.</p></li>
+<li><p>If you have any doubts, feature requests or detect an error, please <a class="reference external" href="https://github.com/DAI-Lab/CTGAN/issues">open an issue on github</a></p></li>
+<li><p>Also do not forget to check the <a class="reference external" href="https://DAI-Lab.github.io/CTGAN/">project documentation site</a>!</p></li>
+</ol>
 </div>
 <div class="section" id="citing-tgan">
 <h1>Citing TGAN<a class="headerlink" href="#citing-tgan" title="Permalink to this headline">¶</a></h1>
@@ -341,7 +583,7 @@ and features, please check the <a class="reference external" href="https://DAI-L
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api/ctgan.html" class="btn btn-neutral float-right" title="ctgan package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="cli.html" class="btn btn-neutral float-right" title="Command Line Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="CTGAN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

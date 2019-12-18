@@ -1,0 +1,7 @@
+ctgan.sampler module
+====================
+
+.. automodule:: ctgan.sampler
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ctgan package &mdash; CTGAN 0.2.0.dev0 documentation</title>
+  <title>ctgan.models module &mdash; CTGAN 0.2.0.dev0 documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ctgan.conditional module" href="ctgan.conditional.html" />
-    <link rel="prev" title="Command Line Interface" href="../cli.html" /> 
+    <link rel="next" title="ctgan.sampler module" href="ctgan.sampler.html" />
+    <link rel="prev" title="ctgan.demo module" href="ctgan.demo.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -117,18 +117,18 @@
 </ul>
 <p class="caption"><span class="caption-text">Resources</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="ctgan.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ctgan.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="ctgan.conditional.html">ctgan.conditional module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ctgan.data.html">ctgan.data module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ctgan.demo.html">ctgan.demo module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ctgan.models.html">ctgan.models module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ctgan.models module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ctgan.sampler.html">ctgan.sampler module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ctgan.synthesizer.html">ctgan.synthesizer module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ctgan.transformer.html">ctgan.transformer module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-ctgan">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctgan.html#module-ctgan">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
@@ -204,14 +204,16 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>ctgan package</li>
+          <li><a href="ctgan.html">ctgan package</a> &raquo;</li>
+        
+      <li>ctgan.models module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
             
-              <a href="https://github.com/DAI-Lab/CTGAN/blob/master/docs/api/ctgan.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/DAI-Lab/CTGAN/blob/master/docs/api/ctgan.models.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -225,25 +227,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="ctgan-package">
-<h1>ctgan package<a class="headerlink" href="#ctgan-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ctgan.conditional.html">ctgan.conditional module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctgan.data.html">ctgan.data module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctgan.demo.html">ctgan.demo module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctgan.models.html">ctgan.models module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctgan.sampler.html">ctgan.sampler module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctgan.synthesizer.html">ctgan.synthesizer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctgan.transformer.html">ctgan.transformer module</a></li>
-</ul>
-</div>
-</div>
-<div class="section" id="module-ctgan">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ctgan" title="Permalink to this headline">¶</a></h2>
-<p>Top-level package for ctgan.</p>
+  <div class="section" id="module-ctgan.models">
+<span id="ctgan-models-module"></span><h1>ctgan.models module<a class="headerlink" href="#module-ctgan.models" title="Permalink to this headline">¶</a></h1>
 <p><strong>Classes</strong></p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -251,45 +236,21 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.CTGANSynthesizer" title="ctgan.CTGANSynthesizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CTGANSynthesizer</span></code></a>([embedding_dim, gen_dim, …])</p></td>
-<td><p>Conditional Table GAN Synthesizer.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.models.Discriminator" title="ctgan.models.Discriminator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Discriminator</span></code></a>(input_dim, dis_dims[, pack])</p></td>
+<td><p></p></td>
 </tr>
-</tbody>
-</table>
-<p><strong>Functions</strong></p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.load_demo" title="ctgan.load_demo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_demo</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.models.Generator" title="ctgan.models.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a>(embedding_dim, gen_dims, data_dim)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.models.Residual" title="ctgan.models.Residual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Residual</span></code></a>(i, o)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
-<dt id="ctgan.CTGANSynthesizer">
-<em class="property">class </em><code class="sig-prename descclassname">ctgan.</code><code class="sig-name descname">CTGANSynthesizer</code><span class="sig-paren">(</span><em class="sig-param">embedding_dim=128</em>, <em class="sig-param">gen_dim=(256</em>, <em class="sig-param">256)</em>, <em class="sig-param">dis_dim=(256</em>, <em class="sig-param">256)</em>, <em class="sig-param">l2scale=1e-06</em>, <em class="sig-param">batch_size=500</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/synthesizer.html#CTGANSynthesizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.CTGANSynthesizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Conditional Table GAN Synthesizer.</p>
-<p>This is the core class of the CTGAN project, where the different components
-are orchestrated together.</p>
-<p>For more details about the process, please check the [Modeling Tabular data using
-Conditional GAN](<a class="reference external" href="https://arxiv.org/abs/1907.00503">https://arxiv.org/abs/1907.00503</a>) paper.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>embedding_dim</strong> (<em>int</em>) – Size of the random sample passed to the Generator. Defaults to 128.</p></li>
-<li><p><strong>gen_dim</strong> (<em>tuple</em><em> or </em><em>list of ints</em>) – Size of the output samples for each one of the Residuals. A Resiudal Layer
-will be created for each one of the values provided. Defaults to (256, 256).</p></li>
-<li><p><strong>dis_dim</strong> (<em>tuple</em><em> or </em><em>list of ints</em>) – Size of the output samples for each one of the Discriminator Layers. A Linear Layer
-will be created for each one of the values provided. Defaults to (256, 256).</p></li>
-<li><p><strong>l2scale</strong> (<em>float</em>) – Wheight Decay for the Adam Optimizer. Defaults to 1e-6.</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em>) – Number of data samples to process in each step.</p></li>
-</ul>
-</dd>
-</dl>
+<dt id="ctgan.models.Discriminator">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.models.</code><code class="sig-name descname">Discriminator</code><span class="sig-paren">(</span><em class="sig-param">input_dim</em>, <em class="sig-param">dis_dims</em>, <em class="sig-param">pack=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/models.html#Discriminator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.models.Discriminator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p><strong>Methods</strong></p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -297,55 +258,99 @@ will be created for each one of the values provided. Defaults to (256, 256).</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.CTGANSynthesizer.fit" title="ctgan.CTGANSynthesizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(train_data[, discrete_columns, epochs])</p></td>
-<td><p>Fit the CTGAN Synthesizer models to the training data.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.models.Discriminator.calc_gradient_penalty" title="ctgan.models.Discriminator.calc_gradient_penalty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_gradient_penalty</span></code></a>(real_data, fake_data)</p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.CTGANSynthesizer.sample" title="ctgan.CTGANSynthesizer.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>(n)</p></td>
-<td><p>Sample data similar to the training data.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.models.Discriminator.forward" title="ctgan.models.Discriminator.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(input)</p></td>
+<td><p>Defines the computation performed at every call.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="ctgan.CTGANSynthesizer.fit">
-<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">discrete_columns=()</em>, <em class="sig-param">epochs=300</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/synthesizer.html#CTGANSynthesizer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.CTGANSynthesizer.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit the CTGAN Synthesizer models to the training data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>train_data</strong> (<em>numpy.ndarray</em><em> or </em><em>pandas.DataFrame</em>) – Training Data. It must be a 2-dimensional numpy array or a
-pandas.DataFrame.</p></li>
-<li><p><strong>discrete_columns</strong> (<em>list-like</em>) – List of discrete columns to be used to generate the Conditional
-Vector. If <code class="docutils literal notranslate"><span class="pre">train_data</span></code> is a Numpy array, this list should
-contain the integer indices of the columns. Otherwise, if it is
-a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>, this list should contain the column names.</p></li>
-<li><p><strong>epochs</strong> (<em>int</em>) – Number of training epochs. Defaults to 300.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="ctgan.CTGANSynthesizer.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/synthesizer.html#CTGANSynthesizer.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.CTGANSynthesizer.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample data similar to the training data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Number of rows to sample.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>numpy.ndarray or pandas.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="ctgan.load_demo">
-<code class="sig-prename descclassname">ctgan.</code><code class="sig-name descname">load_demo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/demo.html#load_demo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.load_demo" title="Permalink to this definition">¶</a></dt>
+<dt id="ctgan.models.Discriminator.calc_gradient_penalty">
+<code class="sig-name descname">calc_gradient_penalty</code><span class="sig-paren">(</span><em class="sig-param">real_data</em>, <em class="sig-param">fake_data</em>, <em class="sig-param">device='cpu'</em>, <em class="sig-param">pac=10</em>, <em class="sig-param">lambda_=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/models.html#Discriminator.calc_gradient_penalty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.models.Discriminator.calc_gradient_penalty" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="ctgan.models.Discriminator.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/models.html#Discriminator.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.models.Discriminator.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
 </div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.models.Generator">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.models.</code><code class="sig-name descname">Generator</code><span class="sig-paren">(</span><em class="sig-param">embedding_dim</em>, <em class="sig-param">gen_dims</em>, <em class="sig-param">data_dim</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/models.html#Generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.models.Generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.models.Generator.forward" title="ctgan.models.Generator.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(input)</p></td>
+<td><p>Defines the computation performed at every call.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.models.Generator.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/models.html#Generator.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.models.Generator.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ctgan.models.Residual">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.models.</code><code class="sig-name descname">Residual</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">o</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/models.html#Residual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.models.Residual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.models.Residual.forward" title="ctgan.models.Residual.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(input)</p></td>
+<td><p>Defines the computation performed at every call.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.models.Residual.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/models.html#Residual.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.models.Residual.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -356,10 +361,10 @@ a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame<
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ctgan.conditional.html" class="btn btn-neutral float-right" title="ctgan.conditional module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="ctgan.sampler.html" class="btn btn-neutral float-right" title="ctgan.sampler module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../cli.html" class="btn btn-neutral float-left" title="Command Line Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ctgan.demo.html" class="btn btn-neutral float-left" title="ctgan.demo module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

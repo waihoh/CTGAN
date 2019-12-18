@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; CTGAN 0.2.0.dev0 documentation</title>
+  <title>ctgan.transformer module &mdash; CTGAN 0.2.0.dev0 documentation</title>
   
 
   
@@ -36,7 +36,9 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="ctgan.synthesizer module" href="ctgan.synthesizer.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -114,19 +116,19 @@
 </li>
 </ul>
 <p class="caption"><span class="caption-text">Resources</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/ctgan.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/ctgan.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/ctgan.conditional.html">ctgan.conditional module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/ctgan.data.html">ctgan.data module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/ctgan.demo.html">ctgan.demo module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/ctgan.models.html">ctgan.models module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/ctgan.sampler.html">ctgan.sampler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/ctgan.synthesizer.html">ctgan.synthesizer module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/ctgan.transformer.html">ctgan.transformer module</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="ctgan.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ctgan.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ctgan.conditional.html">ctgan.conditional module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ctgan.data.html">ctgan.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ctgan.demo.html">ctgan.demo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ctgan.models.html">ctgan.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ctgan.sampler.html">ctgan.sampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ctgan.synthesizer.html">ctgan.synthesizer module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ctgan.transformer module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api/ctgan.html#module-ctgan">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctgan.html#module-ctgan">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
@@ -202,10 +204,18 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Overview: module code</li>
+          <li><a href="ctgan.html">ctgan package</a> &raquo;</li>
+        
+      <li>ctgan.transformer module</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/DAI-Lab/CTGAN/blob/master/docs/api/ctgan.transformer.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
         
       </li>
     
@@ -217,20 +227,87 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="ctgan/conditional.html">ctgan.conditional</a></li>
-<li><a href="ctgan/data.html">ctgan.data</a></li>
-<li><a href="ctgan/demo.html">ctgan.demo</a></li>
-<li><a href="ctgan/models.html">ctgan.models</a></li>
-<li><a href="ctgan/sampler.html">ctgan.sampler</a></li>
-<li><a href="ctgan/synthesizer.html">ctgan.synthesizer</a></li>
-<li><a href="ctgan/transformer.html">ctgan.transformer</a></li>
+  <div class="section" id="module-ctgan.transformer">
+<span id="ctgan-transformer-module"></span><h1>ctgan.transformer module<a class="headerlink" href="#module-ctgan.transformer" title="Permalink to this headline">¶</a></h1>
+<p><strong>Classes</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.transformer.DataTransformer" title="ctgan.transformer.DataTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataTransformer</span></code></a>([n_clusters, epsilon])</p></td>
+<td><p>Data Transformer.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="ctgan.transformer.DataTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">ctgan.transformer.</code><code class="sig-name descname">DataTransformer</code><span class="sig-paren">(</span><em class="sig-param">n_clusters=10</em>, <em class="sig-param">epsilon=0.005</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/transformer.html#DataTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.transformer.DataTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data Transformer.</p>
+<p>Model continuous columns with a BayesianGMM and normalized to a scalar
+[0, 1] and a vector.
+Discrete columns are encoded using a scikit-learn OneHotEncoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_cluster</strong> (<em>int</em>) – Number of modes.</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – Epsilon value.</p></li>
 </ul>
+</dd>
+</dl>
+<p><strong>Methods</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.transformer.DataTransformer.fit" title="ctgan.transformer.DataTransformer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(data[, discrete_columns])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctgan.transformer.DataTransformer.inverse_transform" title="ctgan.transformer.DataTransformer.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(data, sigmas)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.transformer.DataTransformer.transform" title="ctgan.transformer.DataTransformer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(data)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ctgan.transformer.DataTransformer.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">discrete_columns=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/transformer.html#DataTransformer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.transformer.DataTransformer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.transformer.DataTransformer.inverse_transform">
+<code class="sig-name descname">inverse_transform</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">sigmas</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/transformer.html#DataTransformer.inverse_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.transformer.DataTransformer.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ctgan.transformer.DataTransformer.transform">
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/transformer.html#DataTransformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.transformer.DataTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ctgan.synthesizer.html" class="btn btn-neutral float-left" title="ctgan.synthesizer module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
