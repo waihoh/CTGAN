@@ -228,7 +228,7 @@
 
 
 <div class="viewcode-block" id="ConditionalGenerator"><a class="viewcode-back" href="../../api/ctgan.conditional.html#ctgan.conditional.ConditionalGenerator">[docs]</a><span class="k">class</span> <span class="nc">ConditionalGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">output_info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">output_info</span><span class="p">,</span> <span class="n">log_frequency</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
@@ -276,7 +276,8 @@
                     <span class="k">continue</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tmp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">log_frequency</span><span class="p">:</span>
+                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tmp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_col</span><span class="p">,</span> <span class="p">:</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">tmp</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_opt</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>

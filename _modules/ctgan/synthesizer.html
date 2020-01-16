@@ -321,7 +321,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="n">loss</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="CTGANSynthesizer.fit"><a class="viewcode-back" href="../../api/ctgan.synthesizer.html#ctgan.CTGANSynthesizer.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">discrete_columns</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+<div class="viewcode-block" id="CTGANSynthesizer.fit"><a class="viewcode-back" href="../../api/ctgan.synthesizer.html#ctgan.CTGANSynthesizer.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">discrete_columns</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">log_frequency</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fit the CTGAN Synthesizer models to the training data.</span>
 
 <span class="sd">        Args:</span>
@@ -335,6 +335,9 @@
 <span class="sd">                a ``pandas.DataFrame``, this list should contain the column names.</span>
 <span class="sd">            epochs (int):</span>
 <span class="sd">                Number of training epochs. Defaults to 300.</span>
+<span class="sd">            log_frequency (boolean):</span>
+<span class="sd">                Whether to use log frequency of categorical levels in conditional</span>
+<span class="sd">                sampling. Defaults to ``True``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">DataTransformer</span><span class="p">()</span>
@@ -344,7 +347,11 @@
         <span class="n">data_sampler</span> <span class="o">=</span> <span class="n">Sampler</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">output_info</span><span class="p">)</span>
 
         <span class="n">data_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">output_dimensions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cond_generator</span> <span class="o">=</span> <span class="n">ConditionalGenerator</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">output_info</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cond_generator</span> <span class="o">=</span> <span class="n">ConditionalGenerator</span><span class="p">(</span>
+            <span class="n">train_data</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">output_info</span><span class="p">,</span>
+            <span class="n">log_frequency</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cond_generator</span><span class="o">.</span><span class="n">n_opt</span><span class="p">,</span>

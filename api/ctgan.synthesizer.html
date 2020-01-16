@@ -274,7 +274,7 @@ will be created for each one of the values provided. Defaults to (256, 256).</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.synthesizer.CTGANSynthesizer.fit" title="ctgan.synthesizer.CTGANSynthesizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(train_data[, discrete_columns, epochs])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctgan.synthesizer.CTGANSynthesizer.fit" title="ctgan.synthesizer.CTGANSynthesizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(train_data[, discrete_columns, epochs, …])</p></td>
 <td><p>Fit the CTGAN Synthesizer models to the training data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ctgan.synthesizer.CTGANSynthesizer.sample" title="ctgan.synthesizer.CTGANSynthesizer.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>(n)</p></td>
@@ -284,7 +284,7 @@ will be created for each one of the values provided. Defaults to (256, 256).</p>
 </table>
 <dl class="method">
 <dt id="ctgan.synthesizer.CTGANSynthesizer.fit">
-<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">discrete_columns=()</em>, <em class="sig-param">epochs=300</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/synthesizer.html#CTGANSynthesizer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.synthesizer.CTGANSynthesizer.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">discrete_columns=()</em>, <em class="sig-param">epochs=300</em>, <em class="sig-param">log_frequency=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctgan/synthesizer.html#CTGANSynthesizer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctgan.synthesizer.CTGANSynthesizer.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the CTGAN Synthesizer models to the training data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -296,6 +296,8 @@ Vector. If <code class="docutils literal notranslate"><span class="pre">train_da
 contain the integer indices of the columns. Otherwise, if it is
 a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>, this list should contain the column names.</p></li>
 <li><p><strong>epochs</strong> (<em>int</em>) – Number of training epochs. Defaults to 300.</p></li>
+<li><p><strong>log_frequency</strong> (<em>boolean</em>) – Whether to use log frequency of categorical levels in conditional
+sampling. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
