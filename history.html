@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>History &mdash; CTGAN 0.2.1.dev0 documentation</title>
+  <title>History &mdash; CTGAN 0.2.2.dev0 documentation</title>
   
 
   
@@ -103,6 +103,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="readme.html#join-our-community">Join our community</a></li>
 <li class="toctree-l1"><a class="reference internal" href="readme.html#citing-tgan">Citing TGAN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#related-projects">Related Projects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#r-interface-for-ctgan">R interface for CTGAN</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Advanced Usage</span></p>
 <ul>
@@ -155,8 +159,12 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">History</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#v0-2-0-2019-12-18">v0.2.0 - 2019-12-18</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v0-2-1-2020-01-27">v0.2.1 - 2020-01-27</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#issues-resolved">Issues Resolved:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-2-0-2019-12-18">v0.2.0 - 2019-12-18</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Issues Resolved:</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-1-0-2019-11-07">v0.1.0 - 2019-11-07</a></li>
@@ -230,12 +238,25 @@
             
   <div class="section" id="history">
 <h1>History<a class="headerlink" href="#history" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v0-2-1-2020-01-27">
+<h2>v0.2.1 - 2020-01-27<a class="headerlink" href="#v0-2-1-2020-01-27" title="Permalink to this headline">¶</a></h2>
+<p>Minor version including changes to ensure the logs are properly printed and
+the option to disable the log transformation to the discrete column frequencies.</p>
+<p>Special thanks to &#64;kevinykuo for the contributions!</p>
+<div class="section" id="issues-resolved">
+<h3>Issues Resolved:<a class="headerlink" href="#issues-resolved" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Option to sample from true data frequency instead of logged frequency - <a class="reference external" href="https://github.com/sdv-dev/CTGAN/issues/16">Issue #16</a> by &#64;kevinykuo</p></li>
+<li><p>Flush stdout buffer for epoch updates - <a class="reference external" href="https://github.com/sdv-dev/CTGAN/issues/14">Issue #14</a> by &#64;kevinykuo</p></li>
+</ul>
+</div>
+</div>
 <div class="section" id="v0-2-0-2019-12-18">
 <h2>v0.2.0 - 2019-12-18<a class="headerlink" href="#v0-2-0-2019-12-18" title="Permalink to this headline">¶</a></h2>
 <p>Reorganization of the project structure with a new Python API, new Command Line Interface
 and increased data format support.</p>
-<div class="section" id="issues-resolved">
-<h3>Issues Resolved:<a class="headerlink" href="#issues-resolved" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3>Issues Resolved:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Reorganize the project structure - <a class="reference external" href="https://github.com/sdv-dev/CTGAN/issues/10">Issue #10</a> by &#64;csala</p></li>
 <li><p>Move epochs to the fit method - <a class="reference external" href="https://github.com/sdv-dev/CTGAN/issues/5">Issue #5</a> by &#64;csala</p></li>
