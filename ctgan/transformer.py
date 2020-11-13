@@ -8,9 +8,13 @@ from sklearn.mixture import BayesianGaussianMixture
 
 # NOTE: 2020-11-09. To fix FutureWarning. Use filterwarnings instead of ignore_warnings.
 # from sklearn.utils.testing import ignore_warnings
-import warnings
-warnings.filterwarnings('ignore', category=ConvergenceWarning)
+#import warnings
+#warnings.filterwarnings('ignore', category=ConvergenceWarning)
+from warnings import simplefilter
+simplefilter(action='ignore',category=FutureWarning)
 
+CATEGORICAL = "categorical"
+CONTINUOUS = "continuous"
 
 class DataTransformer(object):
     """Data Transformer.
@@ -26,7 +30,7 @@ class DataTransformer(object):
             Epsilon value.
     """
 
-    def __init__(self, n_clusters=10, epsilon=0.005):
+    def __init__(self, n_clusters=10, epsilon=0.05): ##change to 0.05
         self.n_clusters = n_clusters
         self.epsilon = epsilon
         self.side = 0  # for tablegan
@@ -78,9 +82,10 @@ class DataTransformer(object):
             'output_dimensions': categories
         }
 
-    def fit(self, data, discrete_columns=tuple()):
+    def fit(self, data, discrete_columns=tuple(),trans="VGM"):
         self.output_info = []
         self.output_dimensions = 0
+        self.trans = trans
 
         if not isinstance(data, pd.DataFrame):
             self.dataframe = False
@@ -90,16 +95,39 @@ class DataTransformer(object):
 
         self.dtypes = data.infer_objects().dtypes
         self.meta = []
-        for column in data.columns:
-            column_data = data[[column]].values
-            if column in discrete_columns:
-                meta = self._fit_discrete(column, column_data)
-            else:
-                meta = self._fit_continuous(column, column_data)
-
-            self.output_info += meta['output_info']
-            self.output_dimensions += meta['output_dimensions']
-            self.meta.append(meta)
+        if self.trans == "VGM":
+            for column in data.columns:
+                column_data = data[[column]].values
+                if column in discrete_columns:
+                    meta = self._fit_discrete(column, column_data)
+                else:
+                    meta = self._fit_continuous(column, column_data)
+                self.output_info += meta['output_info']
+                self.output_dimensions += meta['output_dimensions']
+                self.meta.append(meta)
+        else:
+            for column in data.columns:
+                column_data = data[[column]].values
+                if column in discrete_columns:
+                    meta = self._fit_discrete(column, column_data)
+                    # column_data = data[column]
+                    # mapper = column_data.value_counts().index.tolist()
+                    # meta = {
+                    # "name": column,
+                    # "type": CATEGORICAL,
+                    # 'output_info': [(len(mapper), 'softmax')], #instead of len(mapper); not use one-hot vector
+                    # 'output_dimensions': len(mapper)
+                    # }
+                else:
+                    meta = {
+                    "name": column,
+                    "type": CONTINUOUS,
+                    'output_info': [(1, 'tanh'), (0, 'softmax')],
+                    'output_dimensions': 1
+                    }
+                self.output_info += meta['output_info']
+                self.output_dimensions += meta['output_dimensions']
+                self.meta.append(meta)
 
     def _transform_continuous(self, column_meta, data):
         components = column_meta['components']
@@ -136,15 +164,29 @@ class DataTransformer(object):
     def transform(self, data):
         if not isinstance(data, pd.DataFrame):
             data = pd.DataFrame(data)
-
+        print(self.trans)
         values = []
-        for meta in self.meta:
-            column_data = data[[meta['name']]].values
-            if 'model' in meta:
-                values += self._transform_continuous(meta, column_data)
-            else:
-                values.append(self._transform_discrete(meta, column_data))
 
+        if self.trans == "VGM":
+            for meta in self.meta:
+                column_data = data[[meta['name']]].values
+                if 'model' in meta:
+                     values += self._transform_continuous(meta, column_data)
+                else:
+                     values.append(self._transform_discrete(meta, column_data))
+        else:
+            for meta in self.meta:
+                column_data = data[[meta['name']]].values
+                if 'type' in meta:
+                    minn = column_data.min() - 1e-3
+                    maxx = column_data.min() + 1e-3
+                    values.append((column_data - minn) / (maxx - minn) * 2 - 1)  ##range [-1,1]
+                else:
+                    ## use one-hot encoder
+                    values.append(self._transform_discrete(meta, column_data))
+                    # minn = -1e-3
+                    # maxx = meta['output_dimensions'] - 1 + 1e-3
+                    # values.append(np.expand_dims((column_data - minn) / (maxx - minn) * 2 - 1,axis=1))
         return np.concatenate(values, axis=1).astype(float)
 
     # For tablegan, there is an additional transformation of training data to square matrices.
