@@ -8,13 +8,14 @@ from sklearn.mixture import BayesianGaussianMixture
 
 # NOTE: 2020-11-09. To fix FutureWarning. Use filterwarnings instead of ignore_warnings.
 # from sklearn.utils.testing import ignore_warnings
-#import warnings
-#warnings.filterwarnings('ignore', category=ConvergenceWarning)
+# import warnings
+# warnings.filterwarnings('ignore', category=ConvergenceWarning)
 from warnings import simplefilter
-simplefilter(action='ignore',category=FutureWarning)
 
-CATEGORICAL = "categorical"
+simplefilter(action='ignore', category=FutureWarning)
+
 CONTINUOUS = "continuous"
+
 
 class DataTransformer(object):
     """Data Transformer.
@@ -30,7 +31,7 @@ class DataTransformer(object):
             Epsilon value.
     """
 
-    def __init__(self, n_clusters=10, epsilon=0.05): ##change to 0.05
+    def __init__(self, n_clusters=10, epsilon=0.05):  ##change to 0.05
         self.n_clusters = n_clusters
         self.epsilon = epsilon
         self.side = 0  # for tablegan
@@ -82,7 +83,7 @@ class DataTransformer(object):
             'output_dimensions': categories
         }
 
-    def fit(self, data, discrete_columns=tuple(),trans="VGM"):
+    def fit(self, data, discrete_columns=tuple(), trans="VGM"):
         self.output_info = []
         self.output_dimensions = 0
         self.trans = trans
@@ -95,7 +96,7 @@ class DataTransformer(object):
 
         self.dtypes = data.infer_objects().dtypes
         self.meta = []
-        if self.trans == "VGM":
+        if self.trans == "VGM":  ##use VGM transformation for continuous variables
             for column in data.columns:
                 column_data = data[[column]].values
                 if column in discrete_columns:
@@ -105,7 +106,7 @@ class DataTransformer(object):
                 self.output_info += meta['output_info']
                 self.output_dimensions += meta['output_dimensions']
                 self.meta.append(meta)
-        else:
+        else:  ##use Min-Max transformation for continuous variables
             for column in data.columns:
                 column_data = data[[column]].values
                 if column in discrete_columns:
@@ -120,10 +121,12 @@ class DataTransformer(object):
                     # }
                 else:
                     meta = {
-                    "name": column,
-                    "type": CONTINUOUS,
-                    'output_info': [(1, 'tanh'), (0, 'softmax')],
-                    'output_dimensions': 1
+                        "name": column,
+                        "type": CONTINUOUS,
+                        "min": column_data.min(),
+                        "max": column_data.max(),
+                        'output_info': [(1, 'tanh'), (0, 'softmax')],
+                        'output_dimensions': 1
                     }
                 self.output_info += meta['output_info']
                 self.output_dimensions += meta['output_dimensions']
@@ -164,23 +167,21 @@ class DataTransformer(object):
     def transform(self, data):
         if not isinstance(data, pd.DataFrame):
             data = pd.DataFrame(data)
-        print(self.trans)
         values = []
-
         if self.trans == "VGM":
             for meta in self.meta:
                 column_data = data[[meta['name']]].values
                 if 'model' in meta:
-                     values += self._transform_continuous(meta, column_data)
+                    values += self._transform_continuous(meta, column_data)
                 else:
-                     values.append(self._transform_discrete(meta, column_data))
+                    values.append(self._transform_discrete(meta, column_data))
         else:
             for meta in self.meta:
                 column_data = data[[meta['name']]].values
                 if 'type' in meta:
-                    minn = column_data.min() - 1e-3
-                    maxx = column_data.min() + 1e-3
-                    values.append((column_data - minn) / (maxx - minn) * 2 - 1)  ##range [-1,1]
+                    minn = meta['min'] - 1e-3
+                    maxx = meta['max'] + 1e-3
+                    values.append((column_data - minn) / (maxx - minn) * 2 - 1)  ##range (-1,1)
                 else:
                     ## use one-hot encoder
                     values.append(self._transform_discrete(meta, column_data))
@@ -196,7 +197,7 @@ class DataTransformer(object):
         print('shape of data after VGM transformation:', data.shape)
         self.datalen = data.shape[1]
 
-        sides = [4, 8, 16, 24, 32, 48]  # added 48 to accommodate OVS dataset
+        sides = [4, 8, 16, 24, 32, 40, 48]  # added 40 and 48 to accommodate OVS dataset
         for i in sides:
             if i * i >= self.datalen:
                 self.side = i
@@ -236,29 +237,40 @@ class DataTransformer(object):
         return encoder.reverse_transform(data)
 
     def inverse_transform(self, data, sigmas):
+    #def inverse_transform(self, data):
         start = 0
         output = []
         column_names = []
-        for meta in self.meta:
-            dimensions = meta['output_dimensions']
-            columns_data = data[:, start:start + dimensions]
 
-            if 'model' in meta:
-                # NOTE: 2020-11-09.
-                # ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
-                # sigma = sigmas[start] if sigmas else None
-                if sigmas is not None:
-                    sigma = sigmas[start]
+        if self.trans == "VGM":  ##use VGM transformation
+            for meta in self.meta:
+                dimensions = meta['output_dimensions']
+                columns_data = data[:, start:start + dimensions]
+                if 'model' in meta: ##choose continuous variables
+                    # NOTE: 2020-11-09.
+                    # ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+                    # sigma = sigmas[start] if sigmas else None
+                    if sigmas is not None:
+                        sigma = sigmas[start]
+                    else:
+                        sigma = None
+                    inverted = self._inverse_transform_continuous(meta, columns_data, sigma)
                 else:
-                    sigma = None
-                inverted = self._inverse_transform_continuous(meta, columns_data, sigma)
-            else:
-                inverted = self._inverse_transform_discrete(meta, columns_data)
-
-            output.append(inverted)
-            column_names.append(meta['name'])
-            start += dimensions
-
+                    inverted = self._inverse_transform_discrete(meta, columns_data)
+                output.append(inverted)
+                column_names.append(meta['name'])
+                start += dimensions
+        else: ## use Min-Max transformation
+            for meta in self.meta:
+                dimensions = meta['output_dimensions']
+                columns_data = data[:, start:start + dimensions]
+                if 'type' in meta:
+                    inverted = ((columns_data + 1)/2)*(meta['max']-meta['min']) + meta['min']
+                else:
+                    inverted = self._inverse_transform_discrete(meta, columns_data)
+                output.append(inverted)
+                column_names.append(meta['name'])
+                start += dimensions
         output = np.column_stack(output)
         output = pd.DataFrame(output, columns=column_names).astype(self.dtypes)
         if not self.dataframe:
