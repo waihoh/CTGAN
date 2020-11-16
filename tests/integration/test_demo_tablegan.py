@@ -1,13 +1,13 @@
 import os
 from ctgan import load_demo
-from ctgan import TableganSynthesizer
+from ctgan.tablegan import TableganSynthesizer
 import numpy as np
 import pandas as pd
 
 cwd = os.getcwd()
 print("Current working directory is:", cwd)
 
-# # using a toy example to test tablegan
+# # # using a toy example to test tablegan
 # data = pd.DataFrame({
 #     'continuous1': np.random.random(1000),
 #     'discrete1': np.repeat([1, 2, 3], [950, 25, 25]),
@@ -17,6 +17,7 @@ print("Current working directory is:", cwd)
 #
 # # index of columns
 # discrete_columns = ['discrete1', 'discrete2', 'discrete3']
+
 
 # 1. Model the data
 # Step 1: Prepare your data
@@ -34,14 +35,17 @@ discrete_columns = [
     'income'
 ]
 
-# Step 2: Fit tableGan to your data
+# # Step 2: Fit tableGan to your data
 tablegan = TableganSynthesizer()
 print('Training tablegan is starting')
-# NOTE: This runs much slower than ctgan and tvae
-tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True)
+# # NOTE: This runs much slower than ctgan and tvae
+tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True,trans="Min-Max")
+## use VGM transformation
+tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True,trans="VGM")
 print('Training tablegan is completed')
-
+#
 # 2. Generate synthetic data
 samples_1 = tablegan.sample(10)
 print('size of sample_1', samples_1.shape)
+
 
