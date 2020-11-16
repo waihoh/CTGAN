@@ -1,6 +1,6 @@
 import os
 from ctgan import load_demo
-from ctgan.tablegan import TableganSynthesizer
+from ctgan.tablegan import TableganSynthesizer,
 import numpy as np
 import pandas as pd
 
@@ -41,7 +41,7 @@ print('Training tablegan is starting')
 # # NOTE: This runs much slower than ctgan and tvae
 tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True,trans="Min-Max")
 ## use VGM transformation
-tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True,trans="VGM")
+##tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True,trans="VGM")
 print('Training tablegan is completed')
 #
 # 2. Generate synthetic data
