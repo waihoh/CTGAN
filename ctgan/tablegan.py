@@ -14,6 +14,7 @@ from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
 CATEGORICAL = "categorical"
 
+
 # NOTE: Added conditional generator to the code.
 
 class Discriminator(Module):
@@ -40,6 +41,8 @@ class Generator(Module):
         return self.seq(input_)
 
 
+## used for classification problem
+## may not be used in OVS dataset
 class Classifier(Module):
     def __init__(self, meta, side, layers, device):
         super(Classifier, self).__init__()
@@ -47,7 +50,8 @@ class Classifier(Module):
         self.side = side
         self.seq = Sequential(*layers)
         self.valid = True
-        if meta[-1]['name'] != 'label' or meta[-1]['type'] != CATEGORICAL or meta[-1]['size'] != 2:
+        # if meta[-1]['name'] != 'label' or meta[-1]['type'] != CATEGORICAL or meta[-1]['size'] != 2:
+        if meta[-1]['name'] != 'label':  ##check whether the last column is "label"
             self.valid = False
 
         masking = np.ones((1, 1, side, side), dtype='float32')
@@ -64,19 +68,24 @@ class Classifier(Module):
 
 
 def determine_layers(side, random_dim, num_channels):
-    assert side >= 4 and side <= 32
+    assert side >= 4 and side <= 64  ##change to 64 for OVS dataset
 
     layer_dims = [(1, side), (num_channels, side // 2)]
 
-    while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
+    #while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
+    while layer_dims[-1][1] > 3 and len(layer_dims) < 5: ## for the case side = 64
         layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
+    print(layer_dims)
 
     layers_D = []
     for prev, curr in zip(layer_dims, layer_dims[1:]):
         layers_D += [
+           ## Conv2d(in_channels = prev[0], out_channels = curr[0], kernel_size = 4,
+           ## stride = 2, padding = 1, bias=False)
             Conv2d(prev[0], curr[0], 4, 2, 1, bias=False),
             BatchNorm2d(curr[0]),
-            LeakyReLU(0.2, inplace=True)
+            ## the slope of the leak was set to 0.2
+            LeakyReLU(0.2, inplace=True) ##y=0.2x when x<0
         ]
     layers_D += [
         Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0),
@@ -84,6 +93,9 @@ def determine_layers(side, random_dim, num_channels):
     ]
 
     layers_G = [
+        # ConvTranspose2d(
+        #     in_channels = random_dim, out_channels = layer_dims[-1][0], kernel_size = layer_dims[-1][1],
+        #     stride = 1, padding = 0, output_padding=0, bias=False)
         ConvTranspose2d(
             random_dim, layer_dims[-1][0], layer_dims[-1][1], 1, 0, output_padding=0, bias=False)
     ]
@@ -92,6 +104,8 @@ def determine_layers(side, random_dim, num_channels):
         layers_G += [
             BatchNorm2d(prev[0]),
             ReLU(True),
+        ## ConvTranspose2d(in_channels = prev[0], out_channels = curr[0], kernel_size = 4,
+        ## stride = 2, padding = 1, output_padding=0, bias=True)
             ConvTranspose2d(prev[0], curr[0], 4, 2, 1, output_padding=0, bias=True)
         ]
     layers_G += [Tanh()]
@@ -112,20 +126,24 @@ def determine_layers(side, random_dim, num_channels):
 def weights_init(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
+        ###All weights for convolutional and de-convolutional layers were initialized
+        # from a zero-centered Normal distribution with standard deviation 0.02.
         init.normal_(m.weight.data, 0.0, 0.02)
 
     elif classname.find('BatchNorm') != -1:
         init.normal_(m.weight.data, 1.0, 0.02)
         init.constant_(m.bias.data, 0)
 
+
 def get_side(total_dims):
     output = 0
-    sides = [4, 8, 16, 24, 32, 48]  # added 48 to accommodate OVS dataset
+    sides = [4, 8, 16, 24, 32, 64]  # added 64 to accommodate OVS dataset
     for i in sides:
         if i * i >= total_dims:
             output = i
             break
     return output
+
 
 def reshape_data(data, side):
     data = data.copy().astype('float32')
@@ -200,7 +218,9 @@ class TableganSynthesizer(object):
         return noise, real
 
     # def fit(self, data, categorical_columns=tuple(), ordinal_columns=tuple(), epochs=300):
-    def fit(self, data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
+    def fit(self, data, discrete_columns=tuple(), epochs=300, log_frequency=True,
+            model_summary=False, trans="VGM"):
+        self.trans = trans
         # sides = [4, 8, 16, 24, 32]
         # for i in sides:
         #     if i * i >= data.shape[1]:
@@ -216,7 +236,7 @@ class TableganSynthesizer(object):
         # we'll reshape the data later.
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(data, discrete_columns)
+            self.transformer.fit(data, discrete_columns, self.trans)
         data = self.transformer.transform(data)
         print('data shape', data.shape)
 
@@ -253,7 +273,8 @@ class TableganSynthesizer(object):
             print("*" * 100)
             print("GENERATOR")
             # in determine_layers, see side//2.
-            summary(self.generator, (self.random_dim + self.cond_generator.n_opt, self.side//2, self.side//2))
+            summary(self.generator,
+                    (self.random_dim + self.cond_generator.n_opt, self.side // 2, self.side // 2))
             print("*" * 100)
 
             print("DISCRIMINATOR")
@@ -264,6 +285,7 @@ class TableganSynthesizer(object):
             summary(classifier, (1, self.side, self.side))
             print("*" * 100)
 
+        ##learning rate is 0.0002
         optimizer_params = dict(lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(discriminator.parameters(), **optimizer_params)
@@ -362,4 +384,3 @@ class TableganSynthesizer(object):
         print('inverse_transform_tablegan, after slicing:', data.shape)
 
         return self.transformer.inverse_transform(data[:n], None)
-
