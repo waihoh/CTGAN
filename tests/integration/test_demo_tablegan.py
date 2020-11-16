@@ -1,6 +1,6 @@
 import os
 from ctgan import load_demo
-from ctgan.tablegan import TableganSynthesizer,
+from ctgan.tablegan import TableganSynthesizer
 import numpy as np
 import pandas as pd
 
