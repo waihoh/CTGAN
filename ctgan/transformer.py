@@ -237,7 +237,6 @@ class DataTransformer(object):
         return encoder.reverse_transform(data)
 
     def inverse_transform(self, data, sigmas):
-    #def inverse_transform(self, data):
         start = 0
         output = []
         column_names = []
