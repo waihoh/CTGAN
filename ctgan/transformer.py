@@ -197,7 +197,7 @@ class DataTransformer(object):
         print('shape of data after VGM transformation:', data.shape)
         self.datalen = data.shape[1]
 
-        sides = [4, 8, 16, 24, 32, 40, 48]  # added 40 and 48 to accommodate OVS dataset
+        sides = [4, 8, 16, 24, 32, 64]  # added 64 to accommodate OVS dataset
         for i in sides:
             if i * i >= self.datalen:
                 self.side = i
