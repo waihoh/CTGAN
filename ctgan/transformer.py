@@ -264,7 +264,9 @@ class DataTransformer(object):
                 dimensions = meta['output_dimensions']
                 columns_data = data[:, start:start + dimensions]
                 if 'type' in meta:
-                    inverted = ((columns_data + 1)/2)*(meta['max']-meta['min']) + meta['min']
+                    minn = meta['min'] - 1e-3
+                    maxx = meta['max'] + 1e-3
+                    inverted = ((columns_data + 1)/2)*(maxx-minn) + minn
                 else:
                     inverted = self._inverse_transform_discrete(meta, columns_data)
                 output.append(inverted)
