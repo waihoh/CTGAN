@@ -108,7 +108,7 @@ def determine_layers(side, random_dim, num_channels):
         ## stride = 2, padding = 1, output_padding=0, bias=True)
             ConvTranspose2d(prev[0], curr[0], 4, 2, 1, output_padding=0, bias=True)
         ]
-    layers_G += [Tanh()]
+    #layers_G += [Tanh()] ##TODO: should we remove it?
 
     layers_C = []
     for prev, curr in zip(layer_dims, layer_dims[1:]):
@@ -299,9 +299,9 @@ class TableganSynthesizer(object):
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
-                noise, real = self.get_noise_real(True)
+                noise, real = self.get_noise_real(True) ## cond is added
                 fake = self.generator(noise)
-                fake = self._apply_activate(fake)
+                fake = self._apply_activate(fake) ##TODO: do we need to apply this function when min-max transformation is used?
 
                 # Use reshape function to add zero padding and reshape to 2D.
                 real = reshape_data(real, self.side)
@@ -310,12 +310,13 @@ class TableganSynthesizer(object):
                 optimizerD.zero_grad()
                 y_real = discriminator(real)
                 y_fake = discriminator(fake)
+                ## L_orig^D
                 loss_d = (
                     -(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
                 loss_d.backward()
                 optimizerD.step()
 
-                # TODO: why do we need a new fake data?
+                # TODO: why do we need a new fake data? To train the generator with L_orig^G first
                 noise, _ = self.get_noise_real(False)
                 # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
                 fake = self.generator(noise)
@@ -323,10 +324,14 @@ class TableganSynthesizer(object):
 
                 optimizerG.zero_grad()
                 y_fake = discriminator(fake)
+                ## L_orig^G
                 loss_g = -(torch.log(y_fake + 1e-4).mean())
-                loss_g.backward(retain_graph=True)
+                loss_g.backward(retain_graph=True) ##by setting retain_graph = True, generator is trained by L_orig^G+L_info^G
+                ## L_mean in eq(2)
                 loss_mean = torch.norm(torch.mean(fake, dim=0) - torch.mean(real, dim=0), 1)
+                ## L_sd in eq (3)
                 loss_std = torch.norm(torch.std(fake, dim=0) - torch.std(real, dim=0), 1)
+                ## L_info in eq (4) with delta_mean = 0 and delta_sd =0
                 loss_info = loss_mean + loss_std
                 loss_info.backward()
                 optimizerG.step()
@@ -361,6 +366,7 @@ class TableganSynthesizer(object):
 
     def sample(self, n):
         self.generator.eval()
+        print(self.trans)
 
         steps = n // self.batch_size + 1
         data = []
