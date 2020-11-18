@@ -365,15 +365,42 @@ class TableganSynthesizer(object):
                 if (id_ + 1) % 1 == 0:
                     print("epoch", i + 1, "step", id_ + 1, loss_d, loss_g, loss_c, flush=True)
 
-    def sample(self, n):
+
+  ### following ctgan and tvae, added the parts updated by the authors.
+    def sample(self, n, condition_column=None, condition_value=None):
+    #def sample(self, n):
         self.generator.eval()
         print(self.trans)
+
+        if condition_column is not None and condition_value is not None:
+            condition_info = self.transformer.covert_column_name_value_to_id(condition_column, condition_value)
+            global_condition_vec = self.cond_generator.generate_cond_from_condition_column_info(condition_info, self.batch_size)
+        else:
+            global_condition_vec = None
 
         steps = n // self.batch_size + 1
         data = []
         for i in range(steps):
             # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
-            noise, _ = self.get_noise_real(False)
+            #noise, _ = self.get_noise_real(False)
+            noise = torch.randn(self.batch_size, self.random_dim, device=self.device)
+
+            if global_condition_vec is not None:
+                condvec = global_condition_vec.copy()
+            else:
+                condvec = self.cond_generator.sample_zero(self.batch_size)
+
+            if condvec is None:
+                pass
+            else:
+                c1 = condvec
+                c1 = torch.from_numpy(c1).to(self.device)
+                noise = torch.cat([noise, c1], dim=1)
+
+            # Add 2 dimensions at the back: final dims: batch_size x (random_dim + cond_generator.n_opt) x 1 x 1
+            noise = noise.unsqueeze(-1)
+            noise = noise.unsqueeze(-1)
+
             fake = self.generator(noise)
             fake = self._apply_activate(fake) ##added by 18 Nov
             data.append(fake.detach().cpu().numpy())
