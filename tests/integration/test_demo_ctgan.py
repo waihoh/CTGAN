@@ -2,32 +2,45 @@
 import os
 from ctgan import load_demo
 from ctgan import CTGANSynthesizer
+import pandas as pd
+import numpy as np
 
 cwd = os.getcwd()
 print("Current working directory is:", cwd)
 
-# 1. Model the data
-# Step 1: Prepare your data
-data = load_demo()
+# using a toy example to test tablegan
+data = pd.DataFrame({
+    'continuous1': np.random.random(1000),
+    'discrete1': np.repeat([1, 2, 3], [950, 25, 25]),
+    'discrete2': np.repeat(["a", "b"], [580, 420]),
+    'discrete3': np.repeat([6, 7], [100, 900])
+})
 
-discrete_columns = [
-    'workclass',
-    'education',
-    'marital-status',
-    'occupation',
-    'relationship',
-    'race',
-    'sex',
-    'native-country',
-    'income'
-]
+# index of columns
+discrete_columns = ['discrete1', 'discrete2', 'discrete3']
+
+# # 1. Model the data
+# # Step 1: Prepare your data
+# data = load_demo()
+#
+# discrete_columns = [
+#     'workclass',
+#     'education',
+#     'marital-status',
+#     'occupation',
+#     'relationship',
+#     'race',
+#     'sex',
+#     'native-country',
+#     'income'
+# ]
 
 # Step 2: Fit CTGAN to your data
 ctgan = CTGANSynthesizer()
-ctgan.fit(data, discrete_columns, epochs=5, model_summary=True)
+ctgan.fit(data, discrete_columns, epochs=1, model_summary=True, trans="Min-Max")
 
 # 2. Generate synthetic data
-samples_1 = ctgan.sample(10)
+samples_1 = ctgan.sample(10, condition_column='discrete1', condition_value=1)
 print('size of sample_1', samples_1.shape)
 
 # NOTE: the next test runs into an error currently.

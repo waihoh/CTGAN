@@ -4,7 +4,7 @@ import numpy as np
 class Sampler(object):
     """docstring for Sampler."""
 
-    def __init__(self, data, output_info):
+    def __init__(self, data, output_info, trans="VGM"):
         super(Sampler, self).__init__()
         self.data = data
         self.model = []
@@ -15,7 +15,8 @@ class Sampler(object):
         for item in output_info:
             if item[1] == 'tanh':
                 st += item[0]
-                skip = True
+                if trans == "VGM":
+                    skip = True
             elif item[1] == 'softmax':
                 if skip:
                     skip = False

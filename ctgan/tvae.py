@@ -2,14 +2,15 @@ import numpy as np
 import torch
 from torch.nn import Linear, Module, Parameter, ReLU, Sequential
 from torch.nn.functional import cross_entropy
-from torch.nn import functional
+# from torch.nn import functional
 
 from torch.optim import Adam
-from torch.utils.data import DataLoader, TensorDataset
+# from torch.utils.data import DataLoader, TensorDataset
 from torchsummary import summary
 from ctgan.transformer import DataTransformer
 from ctgan.conditional import ConditionalGenerator
 from ctgan.sampler import Sampler
+from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
 
 class Encoder(Module):
@@ -109,28 +110,35 @@ class TVAESynthesizer(object):
                 st = ed
             elif item[1] == 'softmax':
                 ed = st + item[0]
-                data_t.append(functional.gumbel_softmax(data[:, st:ed], tau=0.2))
+                transformed = CTGANSynthesizer()._gumbel_softmax(data[:, st:ed], tau=0.2)
+                data_t.append(transformed)
                 st = ed
             else:
                 assert 0
 
         return torch.cat(data_t, dim=1)
 
-    def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
+    def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True,
+            model_summary=False, trans="VGM", use_cond_gen=True):
+        self.trans = trans
+
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(train_data, discrete_columns)
+            self.transformer.fit(train_data, discrete_columns, trans=self.trans)
         train_data = self.transformer.transform(train_data)
 
-        data_sampler = Sampler(train_data, self.transformer.output_info)
+        data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
+        print("data_dim", data_dim)
 
         if not hasattr(self, "cond_generator"):
             self.cond_generator = ConditionalGenerator(
                 train_data,
                 self.transformer.output_info,
-                log_frequency
+                log_frequency,
+                trans=self.trans,
+                use_cond_gen=use_cond_gen
             )
 
         # NOTE: these steps are different from ctgan
@@ -138,13 +146,13 @@ class TVAESynthesizer(object):
         # loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
 
         # Note: vectors from conditional generator are appended latent space
-        encoder = Encoder(data_dim, self.compress_dims, self.embedding_dim).to(self.device)
+        self.encoder = Encoder(data_dim, self.compress_dims, self.embedding_dim).to(self.device)
         self.decoder = Decoder(self.embedding_dim+self.cond_generator.n_opt, self.compress_dims, data_dim).to(self.device)
 
         if model_summary:
             print("*" * 100)
             print("ENCODER")
-            summary(encoder, (data_dim, ))
+            summary(self.encoder, (data_dim, ))
             print("*" * 100)
 
             print("DECODER")
@@ -152,7 +160,7 @@ class TVAESynthesizer(object):
             print("*" * 100)
 
         optimizerAE = Adam(
-            list(encoder.parameters()) + list(self.decoder.parameters()),
+            list(self.encoder.parameters()) + list(self.decoder.parameters()),
             weight_decay=self.l2scale)
 
         assert self.batch_size % 2 == 0
@@ -177,7 +185,7 @@ class TVAESynthesizer(object):
                 optimizerAE.zero_grad()
                 real = torch.from_numpy(real.astype('float32')).to(self.device)
 
-                mu, std, logvar = encoder(real)
+                mu, std, logvar = self.encoder(real)
                 eps = torch.randn_like(std)
                 emb = eps * std + mu
                 # NEW
@@ -231,3 +239,25 @@ class TVAESynthesizer(object):
         data = np.concatenate(data, axis=0)
         data = data[:samples]
         return self.transformer.inverse_transform(data, sigmas.detach().cpu().numpy())
+
+    def save(self, path):
+        # always save a cpu model.
+        device_bak = self.device
+        self.device = torch.device("cpu")
+        self.encoder.to(self.device)
+        self.decoder.to(self.device)
+
+        torch.save(self, path)
+
+        self.device = device_bak
+        self.encoder.to(self.device)
+        self.decoder.to(self.device)
+
+    @classmethod
+    def load(cls, path):
+        model = torch.load(path)
+        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.encoder.to(model.device)
+        model.decoder.to(model.device)
+
+        return model
