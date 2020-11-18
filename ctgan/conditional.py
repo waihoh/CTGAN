@@ -4,80 +4,90 @@ import numpy as np
 class ConditionalGenerator(object):
     # ConditionalGenerator does the sampling of categorical columns.
     # output_info comes from transformer, basically whether the column is continuous or categorical.
-    def __init__(self, data, output_info, log_frequency):
-        self.model = []
+    def __init__(self, data, output_info, log_frequency, trans="VGM", use_cond_gen=True):
 
-        start = 0
-        skip = False
-        max_interval = 0
-        counter = 0
-        for item in output_info:
-            # NOTE:
-            # in transformer.py, the output_info of _fit_continuous contains tanh and softmax.
-            # Thus, the reason for skip = True in the for loop.
-            # the output_info of _fit_discrete contains only softmax.
-            if item[1] == 'tanh':
-                start += item[0]
-                skip = True
-                continue
+        if use_cond_gen:
 
-            elif item[1] == 'softmax':
-                if skip:
-                    skip = False
-                    start += item[0]
-                    continue
+            self.model = []
 
-                end = start + item[0]
-                max_interval = max(max_interval, end - start)
-                counter += 1
-                self.model.append(np.argmax(data[:, start:end], axis=-1))
-                start = end
-
-            else:
-                assert 0
-
-        assert start == data.shape[1]
-
-        # NOTE:
-        # n_col is the number of categorical columns.
-        # n_opt is total number of categories in all categorical columns.
-        self.interval = []
-        self.n_col = 0
-        self.n_opt = 0
-        skip = False
-        start = 0
-        self.p = np.zeros((counter, max_interval))
-        for item in output_info:
-            if item[1] == 'tanh':
-                skip = True
-                start += item[0]
-                continue
-            elif item[1] == 'softmax':
-                if skip:
-                    start += item[0]
-                    skip = False
-                    continue
-                end = start + item[0]
-                tmp = np.sum(data[:, start:end], axis=0)
-
+            start = 0
+            skip = False
+            max_interval = 0
+            counter = 0
+            for item in output_info:
                 # NOTE:
-                # See explanation in Figure 2 of the paper.
-                # "training data are sampled according to the log-frequency of each category,
-                # thus CTGAN can evenly explore all possible discrete values."
-                if log_frequency:
-                    tmp = np.log(tmp + 1)
-                tmp = tmp / np.sum(tmp)
+                # in transformer.py, the output_info of _fit_continuous
+                # contains tanh and softmax for VGM transformation
+                # Thus, the reason for skip = True in the for loop.
+                # the output_info of _fit_discrete contains only softmax.
+                if item[1] == 'tanh':
+                    start += item[0]
+                    if trans == "VGM":
+                        skip = True
+                    continue
 
-                # NOTE: p records the probability mass function of corresponding categorical columns.
-                self.p[self.n_col, :item[0]] = tmp
-                self.interval.append((self.n_opt, item[0]))
-                self.n_opt += item[0]
-                self.n_col += 1
-                start = end
-            else:
-                assert 0
+                elif item[1] == 'softmax':
+                    if skip:
+                        skip = False
+                        start += item[0]
+                        continue
 
-        self.interval = np.asarray(self.interval)
+                    end = start + item[0]
+                    max_interval = max(max_interval, end - start)
+                    counter += 1
+                    self.model.append(np.argmax(data[:, start:end], axis=-1))
+                    start = end
+
+                else:
+                    assert 0
+
+            assert start == data.shape[1]
+
+            # NOTE:
+            # n_col is the number of categorical columns.
+            # n_opt is total number of categories in all categorical columns.
+            self.interval = []
+            self.n_col = 0
+            self.n_opt = 0
+            skip = False
+            start = 0
+            self.p = np.zeros((counter, max_interval))
+            for item in output_info:
+                if item[1] == 'tanh':
+                    if trans == "VGM":
+                        skip = True
+                    start += item[0]
+                    continue
+                elif item[1] == 'softmax':
+                    if skip:
+                        start += item[0]
+                        skip = False
+                        continue
+                    end = start + item[0]
+                    tmp = np.sum(data[:, start:end], axis=0)
+
+                    # NOTE:
+                    # See explanation in Figure 2 of the paper.
+                    # "training data are sampled according to the log-frequency of each category,
+                    # thus CTGAN can evenly explore all possible discrete values."
+                    if log_frequency:
+                        tmp = np.log(tmp + 1)
+                    tmp = tmp / np.sum(tmp)
+
+                    # NOTE: p records the probability mass function of corresponding categorical columns.
+                    self.p[self.n_col, :item[0]] = tmp
+                    self.interval.append((self.n_opt, item[0]))
+                    self.n_opt += item[0]
+                    self.n_col += 1
+                    start = end
+                else:
+                    assert 0
+
+            self.interval = np.asarray(self.interval)
+
+        else:
+            self.n_col = 0
+            self.n_opt = 0
 
     def random_choice_prob_index(self, idx):
         # NOTE: inverse transform sampling

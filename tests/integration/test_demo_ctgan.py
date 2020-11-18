@@ -37,7 +37,7 @@ discrete_columns = [
 
 # Step 2: Fit CTGAN to your data
 ctgan = CTGANSynthesizer()
-ctgan.fit(data, discrete_columns, epochs=5, model_summary=True)
+ctgan.fit(data, discrete_columns, epochs=1, model_summary=True, trans="Min-Max")
 
 # 2. Generate synthetic data
 samples_1 = ctgan.sample(10)

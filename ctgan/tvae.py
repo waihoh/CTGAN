@@ -118,21 +118,27 @@ class TVAESynthesizer(object):
 
         return torch.cat(data_t, dim=1)
 
-    def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
+    def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True,
+            model_summary=False, trans="VGM", use_cond_gen=True):
+        self.trans = trans
+
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(train_data, discrete_columns)
+            self.transformer.fit(train_data, discrete_columns, trans=self.trans)
         train_data = self.transformer.transform(train_data)
 
-        data_sampler = Sampler(train_data, self.transformer.output_info)
+        data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
+        print("data_dim", data_dim)
 
         if not hasattr(self, "cond_generator"):
             self.cond_generator = ConditionalGenerator(
                 train_data,
                 self.transformer.output_info,
-                log_frequency
+                log_frequency,
+                trans=self.trans,
+                use_cond_gen=use_cond_gen
             )
 
         # NOTE: these steps are different from ctgan

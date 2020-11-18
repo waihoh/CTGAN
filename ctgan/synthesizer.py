@@ -106,7 +106,8 @@ class CTGANSynthesizer(object):
         for item in self.transformer.output_info:
             if item[1] == 'tanh':
                 st += item[0]
-                skip = True
+                if self.trans == "VGM":
+                    skip = True
 
             elif item[1] == 'softmax':
                 if skip:
@@ -132,7 +133,9 @@ class CTGANSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
+    # def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
+    def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True,
+            model_summary=False, trans="VGM", use_cond_gen=True):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -150,14 +153,13 @@ class CTGANSynthesizer(object):
                 Whether to use log frequency of categorical levels in conditional
                 sampling. Defaults to ``True``.
         """
-
+        self.trans = trans
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(train_data, discrete_columns)
+            self.transformer.fit(train_data, discrete_columns, self.trans)
         train_data = self.transformer.transform(train_data)
 
-        print(train_data.shape)
-        data_sampler = Sampler(train_data, self.transformer.output_info)
+        data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
 
@@ -165,7 +167,9 @@ class CTGANSynthesizer(object):
             self.cond_generator = ConditionalGenerator(
                 train_data,
                 self.transformer.output_info,
-                log_frequency
+                log_frequency,
+                trans=self.trans,
+                use_cond_gen=use_cond_gen
             )
 
         if not hasattr(self, "generator"):
