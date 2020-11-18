@@ -11,9 +11,6 @@ from ctgan.conditional import ConditionalGenerator
 from ctgan.sampler import Sampler
 from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
-CATEGORICAL = "categorical"
-
-
 # NOTE: Added conditional generator to the code.
 
 class Discriminator(Module):
@@ -266,8 +263,8 @@ class TableganSynthesizer(object):
             self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels)
 
         self.generator = Generator(self.transformer.meta, self.side, layers_G).to(self.device)
-        discriminator = Discriminator(self.transformer.meta, self.side, layers_D).to(self.device)
-        classifier = Classifier(
+        self.discriminator = Discriminator(self.transformer.meta, self.side, layers_D).to(self.device)
+        self.classifier = Classifier(
             self.transformer.meta, self.side, layers_C, self.device).to(self.device)
 
         if model_summary:
@@ -279,22 +276,22 @@ class TableganSynthesizer(object):
             print("*" * 100)
 
             print("DISCRIMINATOR")
-            summary(discriminator, (1, self.side, self.side))
+            summary(self.discriminator, (1, self.side, self.side))
             print("*" * 100)
 
             print("CLASSIFIER")
-            summary(classifier, (1, self.side, self.side))
+            summary(self.classifier, (1, self.side, self.side))
             print("*" * 100)
 
         ##learning rate is 0.0002
         optimizer_params = dict(lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
-        optimizerD = Adam(discriminator.parameters(), **optimizer_params)
-        optimizerC = Adam(classifier.parameters(), **optimizer_params)
+        optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
+        optimizerC = Adam(self.classifier.parameters(), **optimizer_params)
 
         self.generator.apply(weights_init)
-        discriminator.apply(weights_init)
-        classifier.apply(weights_init)
+        self.discriminator.apply(weights_init)
+        self.classifier.apply(weights_init)
 
         steps_per_epoch = max(len(data) // self.batch_size, 1)
         for i in range(epochs):
@@ -309,8 +306,8 @@ class TableganSynthesizer(object):
                 real = torch.from_numpy(real.astype('float32')).to(self.device)
 
                 optimizerD.zero_grad()
-                y_real = discriminator(real)
-                y_fake = discriminator(fake)
+                y_real = self.discriminator(real)
+                y_fake = self.discriminator(fake)
                 ## L_orig^D
                 loss_d = (
                     -(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
@@ -324,7 +321,7 @@ class TableganSynthesizer(object):
                 fake = self._apply_activate(fake)
 
                 optimizerG.zero_grad()
-                y_fake = discriminator(fake)
+                y_fake = self.discriminator(fake)
                 ## L_orig^G
                 loss_g = -(torch.log(y_fake + 1e-4).mean())
                 loss_g.backward(retain_graph=True) ##by setting retain_graph = True, generator is trained by L_orig^G+L_info^G
@@ -339,13 +336,13 @@ class TableganSynthesizer(object):
 
                 # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
                 # fake = self.generator(noise)
-                if classifier.valid:
+                if self.classifier.valid:
                     noise, real = self.get_noise_real(True)
                     fake = self.generator(noise)
                     fake = self._apply_activate(fake)
 
-                    real_pre, real_label = classifier(real)
-                    fake_pre, fake_label = classifier(fake)
+                    real_pre, real_label = self.classifier(real)
+                    fake_pre, fake_label = self.classifier(fake)
 
                     loss_cc = binary_cross_entropy_with_logits(real_pre, real_label)
                     loss_cg = binary_cross_entropy_with_logits(fake_pre, fake_label)
@@ -420,3 +417,28 @@ class TableganSynthesizer(object):
 
        # return self.transformer.inverse_transform(data[:n], None)
         return self.transformer.inverse_transform(data, None)
+
+    def save(self, path):
+        # always save a cpu model.
+        device_bak = self.device
+        self.device = torch.device("cpu")
+        self.generator.to(self.device)
+        self.discriminator.to(self.device)
+        self.classifier.to(self.device)
+
+        torch.save(self, path)
+
+        self.device = device_bak
+        self.generator.to(self.device)
+        self.discriminator.to(self.device)
+        self.classifier.to(self.device)
+
+    @classmethod
+    def load(cls, path):
+        model = torch.load(path)
+        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.generator.to(model.device)
+        model.discriminator.to(model.device)
+        model.classifier.to(model.device)
+
+        return model

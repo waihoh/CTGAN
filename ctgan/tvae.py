@@ -2,10 +2,10 @@ import numpy as np
 import torch
 from torch.nn import Linear, Module, Parameter, ReLU, Sequential
 from torch.nn.functional import cross_entropy
-from torch.nn import functional
+# from torch.nn import functional
 
 from torch.optim import Adam
-from torch.utils.data import DataLoader, TensorDataset
+# from torch.utils.data import DataLoader, TensorDataset
 from torchsummary import summary
 from ctgan.transformer import DataTransformer
 from ctgan.conditional import ConditionalGenerator
@@ -146,13 +146,13 @@ class TVAESynthesizer(object):
         # loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
 
         # Note: vectors from conditional generator are appended latent space
-        encoder = Encoder(data_dim, self.compress_dims, self.embedding_dim).to(self.device)
+        self.encoder = Encoder(data_dim, self.compress_dims, self.embedding_dim).to(self.device)
         self.decoder = Decoder(self.embedding_dim+self.cond_generator.n_opt, self.compress_dims, data_dim).to(self.device)
 
         if model_summary:
             print("*" * 100)
             print("ENCODER")
-            summary(encoder, (data_dim, ))
+            summary(self.encoder, (data_dim, ))
             print("*" * 100)
 
             print("DECODER")
@@ -160,7 +160,7 @@ class TVAESynthesizer(object):
             print("*" * 100)
 
         optimizerAE = Adam(
-            list(encoder.parameters()) + list(self.decoder.parameters()),
+            list(self.encoder.parameters()) + list(self.decoder.parameters()),
             weight_decay=self.l2scale)
 
         assert self.batch_size % 2 == 0
@@ -185,7 +185,7 @@ class TVAESynthesizer(object):
                 optimizerAE.zero_grad()
                 real = torch.from_numpy(real.astype('float32')).to(self.device)
 
-                mu, std, logvar = encoder(real)
+                mu, std, logvar = self.encoder(real)
                 eps = torch.randn_like(std)
                 emb = eps * std + mu
                 # NEW
@@ -239,3 +239,25 @@ class TVAESynthesizer(object):
         data = np.concatenate(data, axis=0)
         data = data[:samples]
         return self.transformer.inverse_transform(data, sigmas.detach().cpu().numpy())
+
+    def save(self, path):
+        # always save a cpu model.
+        device_bak = self.device
+        self.device = torch.device("cpu")
+        self.encoder.to(self.device)
+        self.decoder.to(self.device)
+
+        torch.save(self, path)
+
+        self.device = device_bak
+        self.encoder.to(self.device)
+        self.decoder.to(self.device)
+
+    @classmethod
+    def load(cls, path):
+        model = torch.load(path)
+        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.encoder.to(model.device)
+        model.decoder.to(model.device)
+
+        return model

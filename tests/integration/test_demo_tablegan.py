@@ -43,9 +43,9 @@ tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=Tr
 ## use VGM transformation
 ##tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True,trans="VGM")
 print('Training tablegan is completed')
-#
+
 # 2. Generate synthetic data
-samples_1 = tablegan.sample(10)
+samples_1 = tablegan.sample(10, condition_column='discrete1', condition_value=1)
 print('size of sample_1', samples_1.shape)
 
 
