@@ -61,6 +61,7 @@ class DataTransformer(object):
         components = gm.weights_ > self.epsilon
         # (JY) 'num_components' is the optimal number of modes identified
         num_components = components.sum()
+        print("num_components", num_components)
 
         return {
             'name': column,
@@ -125,7 +126,8 @@ class DataTransformer(object):
                         "type": CONTINUOUS,
                         "min": column_data.min(),
                         "max": column_data.max(),
-                        'output_info': [(1, 'tanh'), (0, 'softmax')],
+                        # 'output_info': [(1, 'tanh'), (0, 'softmax')],
+                        'output_info': [(1, 'tanh')],
                         'output_dimensions': 1
                     }
                 self.output_info += meta['output_info']

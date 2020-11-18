@@ -1,7 +1,6 @@
 import numpy as np
 import torch
-from torch.nn import (
-    BatchNorm2d, Conv2d, ConvTranspose2d, LeakyReLU, Module, ReLU, Sequential, Sigmoid, Tanh, init)
+from torch.nn import BatchNorm2d, Conv2d, ConvTranspose2d, LeakyReLU, Module, ReLU, Sequential, Sigmoid, init
 from torch.nn.functional import binary_cross_entropy_with_logits
 from torch.optim import Adam
 # from torch.utils.data import DataLoader, TensorDataset
@@ -219,7 +218,7 @@ class TableganSynthesizer(object):
 
     # def fit(self, data, categorical_columns=tuple(), ordinal_columns=tuple(), epochs=300):
     def fit(self, data, discrete_columns=tuple(), epochs=300, log_frequency=True,
-            model_summary=False, trans="VGM"):
+            model_summary=False, trans="VGM", use_cond_gen=True):
         self.trans = trans
         # sides = [4, 8, 16, 24, 32]
         # for i in sides:
@@ -240,7 +239,7 @@ class TableganSynthesizer(object):
         data = self.transformer.transform(data)
         print('data shape', data.shape)
 
-        self.data_sampler = Sampler(data, self.transformer.output_info)
+        self.data_sampler = Sampler(data, self.transformer.output_info, trans=self.trans)
 
         # NOTE: changed data_dim to self.data_dim. It'll be used later in sample function.
         self.data_dim = self.transformer.output_dimensions
@@ -250,7 +249,9 @@ class TableganSynthesizer(object):
             self.cond_generator = ConditionalGenerator(
                 data,
                 self.transformer.output_info,
-                log_frequency
+                log_frequency,
+                trans=self.trans,
+                use_cond_gen=use_cond_gen
             )
 
         # compute side after transformation

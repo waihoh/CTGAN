@@ -15,14 +15,33 @@
         <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
         <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
       </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:upstream" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
     </expand>
-    <select />
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:origin/gh-pages" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="72bec8f5-acc9-4974-af70-2701389bd64f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ctgan/conditional.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/conditional.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ctgan/sampler.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/sampler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ctgan/synthesizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/synthesizer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ctgan/tablegan.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/tablegan.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ctgan/tablegan_wo_cond_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/tablegan_wo_cond_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ctgan/transformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/transformer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ctgan/tvae.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/tvae.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/integration/test_demo_ctgan.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration/test_demo_ctgan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/integration/test_demo_tablegan.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration/test_demo_tablegan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/integration/test_demo_tvae.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration/test_demo_tvae.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +69,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="tablegan_transformer" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -67,7 +86,7 @@
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.test_demo_tablegan">
+  <component name="RunManager" selected="Python.test_demo_ctgan">
     <configuration name="test_demo_ctgan" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CTGAN" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -110,7 +129,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_demo_tablegan_original" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="test_demo_tvae" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CTGAN" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -122,7 +141,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/integration/test_demo_tablegan_original.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/integration/test_demo_tvae.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -175,9 +194,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test_demo_tablegan" />
         <item itemvalue="Python.test_demo_ctgan" />
-        <item itemvalue="Python.test_demo_tablegan_original" />
+        <item itemvalue="Python.test_demo_tvae" />
+        <item itemvalue="Python.test_demo_tablegan" />
         <item itemvalue="Python.test_deterministic_ctgan" />
         <item itemvalue="Python.test_demo_tvae_original" />
       </list>
@@ -343,7 +362,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/gh-pages" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -393,32 +424,32 @@
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state x="661" y="248" key="FileChooserDialogImpl/0.23.1680.957@0.23.1680.957" timestamp="1604726813315" />
-    <state width="772" height="286" key="GridCell.Tab.0.bottom" timestamp="1605158577698">
+    <state width="1659" height="282" key="GridCell.Tab.0.bottom" timestamp="1605633425066">
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state width="830" height="266" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460598" />
-    <state width="772" height="286" key="GridCell.Tab.0.bottom/0.23.1680.957@0.23.1680.957" timestamp="1605158577698" />
+    <state width="1659" height="282" key="GridCell.Tab.0.bottom/0.23.1680.957@0.23.1680.957" timestamp="1605633425066" />
     <state width="1544" height="286" key="GridCell.Tab.0.bottom/0.23.1680.959@0.23.1680.959" timestamp="1605084303282" />
     <state width="1400" height="325" key="GridCell.Tab.0.bottom/0.23.1680.961@0.23.1680.961" timestamp="1604984791597" />
-    <state width="772" height="286" key="GridCell.Tab.0.center" timestamp="1605158577698">
+    <state width="1659" height="282" key="GridCell.Tab.0.center" timestamp="1605633425066">
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state width="830" height="266" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460597" />
-    <state width="772" height="286" key="GridCell.Tab.0.center/0.23.1680.957@0.23.1680.957" timestamp="1605158577698" />
+    <state width="1659" height="282" key="GridCell.Tab.0.center/0.23.1680.957@0.23.1680.957" timestamp="1605633425066" />
     <state width="1544" height="286" key="GridCell.Tab.0.center/0.23.1680.959@0.23.1680.959" timestamp="1605084303281" />
     <state width="1400" height="325" key="GridCell.Tab.0.center/0.23.1680.961@0.23.1680.961" timestamp="1604984791596" />
-    <state width="772" height="286" key="GridCell.Tab.0.left" timestamp="1605158577697">
+    <state width="1659" height="282" key="GridCell.Tab.0.left" timestamp="1605633425065">
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state width="830" height="266" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460596" />
-    <state width="772" height="286" key="GridCell.Tab.0.left/0.23.1680.957@0.23.1680.957" timestamp="1605158577697" />
+    <state width="1659" height="282" key="GridCell.Tab.0.left/0.23.1680.957@0.23.1680.957" timestamp="1605633425065" />
     <state width="1544" height="286" key="GridCell.Tab.0.left/0.23.1680.959@0.23.1680.959" timestamp="1605084303280" />
     <state width="1400" height="325" key="GridCell.Tab.0.left/0.23.1680.961@0.23.1680.961" timestamp="1604984791596" />
-    <state width="772" height="286" key="GridCell.Tab.0.right" timestamp="1605158577698">
+    <state width="1659" height="282" key="GridCell.Tab.0.right" timestamp="1605633425066">
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state width="830" height="266" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460598" />
-    <state width="772" height="286" key="GridCell.Tab.0.right/0.23.1680.957@0.23.1680.957" timestamp="1605158577698" />
+    <state width="1659" height="282" key="GridCell.Tab.0.right/0.23.1680.957@0.23.1680.957" timestamp="1605633425066" />
     <state width="1544" height="286" key="GridCell.Tab.0.right/0.23.1680.959@0.23.1680.959" timestamp="1605084303281" />
     <state width="1400" height="325" key="GridCell.Tab.0.right/0.23.1680.961@0.23.1680.961" timestamp="1604984791597" />
     <state width="1544" height="322" key="GridCell.Tab.1.bottom" timestamp="1605156365018">

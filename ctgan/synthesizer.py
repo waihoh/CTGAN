@@ -106,7 +106,8 @@ class CTGANSynthesizer(object):
         for item in self.transformer.output_info:
             if item[1] == 'tanh':
                 st += item[0]
-                skip = True
+                if self.trans == "VGM":
+                    skip = True
 
             elif item[1] == 'softmax':
                 if skip:
@@ -134,7 +135,7 @@ class CTGANSynthesizer(object):
 
     # def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
     def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True,
-            model_summary=False, trans="VGM"):
+            model_summary=False, trans="VGM", use_cond_gen=True):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -158,8 +159,7 @@ class CTGANSynthesizer(object):
             self.transformer.fit(train_data, discrete_columns, self.trans)
         train_data = self.transformer.transform(train_data)
 
-        print(train_data.shape)
-        data_sampler = Sampler(train_data, self.transformer.output_info)
+        data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
 
@@ -167,7 +167,9 @@ class CTGANSynthesizer(object):
             self.cond_generator = ConditionalGenerator(
                 train_data,
                 self.transformer.output_info,
-                log_frequency
+                log_frequency,
+                trans=self.trans,
+                use_cond_gen=use_cond_gen
             )
 
         if not hasattr(self, "generator"):
