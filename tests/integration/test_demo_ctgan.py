@@ -8,40 +8,48 @@ import numpy as np
 cwd = os.getcwd()
 print("Current working directory is:", cwd)
 
-# # using a toy example to test tablegan
-# data = pd.DataFrame({
-#     'continuous1': np.random.random(1000),
-#     'discrete1': np.repeat([1, 2, 3], [950, 25, 25]),
-#     'discrete2': np.repeat(["a", "b"], [580, 420]),
-#     'discrete3': np.repeat([6, 7], [100, 900])
-# })
+# using a toy example to test tablegan
+data = pd.DataFrame({
+    'continuous1': np.random.random(1000),
+    'discrete1': np.repeat([1, 2, 3], [950, 25, 25]),
+    'discrete2': np.repeat(["a", "b"], [580, 420]),
+    'discrete3': np.repeat([6, 7], [100, 900])
+})
+
+# index of columns
+discrete_columns = ['discrete1', 'discrete2', 'discrete3']
+
+# # 1. Model the data
+# # Step 1: Prepare your data
+# data = load_demo()
 #
-# # index of columns
-# discrete_columns = ['discrete1', 'discrete2', 'discrete3']
-
-# 1. Model the data
-# Step 1: Prepare your data
-data = load_demo()
-
-discrete_columns = [
-    'workclass',
-    'education',
-    'marital-status',
-    'occupation',
-    'relationship',
-    'race',
-    'sex',
-    'native-country',
-    'income'
-]
+# discrete_columns = [
+#     'workclass',
+#     'education',
+#     'marital-status',
+#     'occupation',
+#     'relationship',
+#     'race',
+#     'sex',
+#     'native-country',
+#     'income'
+# ]
 
 # Step 2: Fit CTGAN to your data
-ctgan = CTGANSynthesizer()
-ctgan.fit(data, discrete_columns, epochs=5, model_summary=True)
+ctgan1 = CTGANSynthesizer()
+ctgan1.fit(data, discrete_columns, epochs=5, model_summary=True,trans="VGM") ##VGM transformation
 
 # 2. Generate synthetic data
-samples_1 = ctgan.sample(10)
+samples_1 = ctgan1.sample(10)
 print('size of sample_1', samples_1.shape)
+
+
+ctgan2 = CTGANSynthesizer()
+ctgan2.fit(data, discrete_columns, epochs=5, model_summary=True,trans="Min-Max") ##VGM transformation
+
+# 2. Generate synthetic data
+samples_2 = ctgan2.sample(10)
+print('size of sample_2', samples_2.shape)
 
 # NOTE: the next test runs into an error currently.
 # # 3. Generate synthetic data conditioning on one column
