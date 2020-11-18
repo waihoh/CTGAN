@@ -375,6 +375,7 @@ class TableganSynthesizer(object):
             # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
             noise, _ = self.get_noise_real(False)
             fake = self.generator(noise)
+            fake = self._apply_activate(fake) ##added by 18 Nov
             data.append(fake.detach().cpu().numpy())
 
         data = np.concatenate(data, axis=0)
@@ -390,4 +391,5 @@ class TableganSynthesizer(object):
         data = data[:, :self.data_dim]
         print('inverse_transform_tablegan, after slicing:', data.shape)
 
-        return self.transformer.inverse_transform(data[:n], None)
+       # return self.transformer.inverse_transform(data[:n], None)
+        return self.transformer.inverse_transform(data, None)
