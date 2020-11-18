@@ -16,13 +16,22 @@
         <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
       </path>
     </expand>
-    <select />
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:Tianming_16Nov" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="72bec8f5-acc9-4974-af70-2701389bd64f" name="Default Changelist" comment="">
+    <list default="true" id="72bec8f5-acc9-4974-af70-2701389bd64f" name="Default Changelist" comment="adult census dataset example by using VGM transformer or min-max transformer">
+      <change beforePath="$PROJECT_DIR$/.idea/CTGAN.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CTGAN.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ctgan/tablegan.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/tablegan.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ctgan/tablegan_wo_cond_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/ctgan/tablegan_wo_cond_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/integration/test_demo_ctgan.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration/test_demo_ctgan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/integration/test_demo_tablegan.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration/test_demo_tablegan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/integration/test_tablegan_ovs.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration/test_tablegan_ovs.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,39 +65,34 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1jwsYrIEBKDUEgzrdijrVPcBBTA" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/tests/integration" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.test_demo_tablegan">
-    <configuration name="test_demo_ctgan" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="CTGAN" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/integration" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/integration/test_demo_ctgan.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings>
+        <option name="useSoftWraps" value="true" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\stazt\PycharmProjects\CTGAN\tests\integration" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.transformer">
     <configuration name="test_demo_tablegan" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CTGAN" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -103,7 +107,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/integration/test_demo_tablegan.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
@@ -173,13 +177,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="transformer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CTGAN" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ctgan" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ctgan/transformer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test_demo_tablegan" />
-        <item itemvalue="Python.test_demo_ctgan" />
-        <item itemvalue="Python.test_demo_tablegan_original" />
+        <item itemvalue="Python.transformer" />
         <item itemvalue="Python.test_deterministic_ctgan" />
         <item itemvalue="Python.test_demo_tvae_original" />
+        <item itemvalue="Python.test_demo_tablegan_original" />
+        <item itemvalue="Python.test_demo_tablegan" />
       </list>
     </recent_temporary>
   </component>
@@ -335,7 +360,105 @@
       <option name="project" value="LOCAL" />
       <updated>1605159916257</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="added Min-Max transformation in transform and inverse_transform functions">
+      <created>1605499920071</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1605499920071</updated>
+    </task>
+    <task id="LOCAL-00022" summary="added Min-Max transformation in transform and inverse_transform functions">
+      <created>1605500012979</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1605500012979</updated>
+    </task>
+    <task id="LOCAL-00023" summary="adult census dataset example by using VGM transformer or min-max transformer">
+      <created>1605500528590</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1605500528590</updated>
+    </task>
+    <task id="LOCAL-00024" summary="updated tablegan by adding conditional generator and some comments">
+      <created>1605511347142</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1605511347142</updated>
+    </task>
+    <task id="LOCAL-00025" summary="adult census dataset example by using VGM transformer or min-max transformer">
+      <created>1605511412595</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1605511412596</updated>
+    </task>
+    <task id="LOCAL-00026" summary="test for tablegan by using OVS dataset">
+      <created>1605522515296</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1605522515296</updated>
+    </task>
+    <task id="LOCAL-00027" summary="adult census dataset example by using VGM transformer of min-max transformer">
+      <created>1605522783046</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1605522783046</updated>
+    </task>
+    <task id="LOCAL-00028" summary="ovs dataset with ctgan and tablegan">
+      <created>1605600957124</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1605600957124</updated>
+    </task>
+    <task id="LOCAL-00029" summary="add trans=&quot;VGM&quot; into fit function">
+      <created>1605601071903</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1605601071903</updated>
+    </task>
+    <task id="LOCAL-00030" summary="updated transformer">
+      <created>1605603151036</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1605603151036</updated>
+    </task>
+    <task id="LOCAL-00031" summary="updated inverse_transform function for min-max transformation">
+      <created>1605604187762</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1605604187762</updated>
+    </task>
+    <task id="LOCAL-00032" summary="added some comments and removed tanh layer form generator">
+      <created>1605605536235</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1605605536235</updated>
+    </task>
+    <task id="LOCAL-00033" summary="added some comments and removed tanh layer form generator">
+      <created>1605605564986</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1605605564986</updated>
+    </task>
+    <task id="LOCAL-00034" summary="added some comments and removed tanh layer from generator">
+      <created>1605605588351</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1605605588351</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -343,7 +466,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="Tianming_16Nov" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -351,10 +486,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Test test_ctgan.py" />
-    <MESSAGE value="Created test_conditional.py to test ConditionalGenerator" />
-    <MESSAGE value="Added comments to conditional.py" />
-    <MESSAGE value="Added TVAE synthesizer and a test file." />
     <MESSAGE value="Added tableGAN synthesizer and a test file." />
     <MESSAGE value="Created a branch for integration of tablegan." />
     <MESSAGE value="Added model_summary for ctgan and tvae models." />
@@ -368,7 +499,19 @@
     <MESSAGE value="test commit/merge untracked files" />
     <MESSAGE value="updated tablegan original and transformer_tablegan." />
     <MESSAGE value="created a tablegan_backup.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="created a tablegan_backup.py" />
+    <MESSAGE value="added Min-Max transformation in transform and inverse_transform functions" />
+    <MESSAGE value="updated tablegan by adding conditional generator and some comments" />
+    <MESSAGE value="adult census dataset example by using VGM transformer or min-max transformer" />
+    <MESSAGE value="test for tablegan by using OVS dataset" />
+    <MESSAGE value="adult census dataset example by using VGM transformer of min-max transformer" />
+    <MESSAGE value="ovs dataset with ctgan and tablegan" />
+    <MESSAGE value="add trans=&quot;VGM&quot; into fit function" />
+    <MESSAGE value="updated transformer" />
+    <MESSAGE value="updated inverse_transform function for min-max transformation" />
+    <MESSAGE value="added some comments" />
+    <MESSAGE value="added some comments and removed tanh layer form generator" />
+    <MESSAGE value="added some comments and removed tanh layer from generator" />
+    <option name="LAST_COMMIT_MESSAGE" value="added some comments and removed tanh layer from generator" />
   </component>
   <component name="WindowStateProjectService">
     <state x="506" y="225" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1604728851471">
@@ -384,58 +527,72 @@
     </state>
     <state x="272" y="69" key="CommitChangelistDialog2/0.23.1680.957@0.23.1680.957" timestamp="1605158370736" />
     <state x="405" y="58" key="CommitChangelistDialog2/0.23.1680.959@0.23.1680.959" timestamp="1605159916064" />
-    <state x="91" y="97" key="DiffContextDialog" timestamp="1605087938776">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state x="69" y="56" width="1024" height="605" key="DiffContextDialog" timestamp="1605522844252">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state x="69" y="56" width="1024" height="605" key="DiffContextDialog/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1605522844252" />
+    <state x="69" y="56" width="1024" height="605" key="DiffContextDialog/0.0.1280.720@0.0.1280.720" timestamp="1605280214804" />
     <state x="91" y="97" key="DiffContextDialog/0.23.1680.957@0.23.1680.957" timestamp="1605087938776" />
     <state x="91" y="97" key="DiffContextDialog/0.23.1680.959@0.23.1680.959" timestamp="1605084536544" />
     <state x="661" y="248" key="FileChooserDialogImpl" timestamp="1604726813315">
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state x="661" y="248" key="FileChooserDialogImpl/0.23.1680.957@0.23.1680.957" timestamp="1604726813315" />
-    <state width="772" height="286" key="GridCell.Tab.0.bottom" timestamp="1605158577698">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1254" height="443" key="GridCell.Tab.0.bottom" timestamp="1605607782500">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1254" height="443" key="GridCell.Tab.0.bottom/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1605607782500" />
+    <state width="1259" height="220" key="GridCell.Tab.0.bottom/0.0.1280.720@0.0.1280.720" timestamp="1605280336072" />
     <state width="830" height="266" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460598" />
     <state width="772" height="286" key="GridCell.Tab.0.bottom/0.23.1680.957@0.23.1680.957" timestamp="1605158577698" />
     <state width="1544" height="286" key="GridCell.Tab.0.bottom/0.23.1680.959@0.23.1680.959" timestamp="1605084303282" />
     <state width="1400" height="325" key="GridCell.Tab.0.bottom/0.23.1680.961@0.23.1680.961" timestamp="1604984791597" />
-    <state width="772" height="286" key="GridCell.Tab.0.center" timestamp="1605158577698">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1254" height="443" key="GridCell.Tab.0.center" timestamp="1605607782500">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1254" height="443" key="GridCell.Tab.0.center/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1605607782500" />
+    <state width="1259" height="220" key="GridCell.Tab.0.center/0.0.1280.720@0.0.1280.720" timestamp="1605280336072" />
     <state width="830" height="266" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460597" />
     <state width="772" height="286" key="GridCell.Tab.0.center/0.23.1680.957@0.23.1680.957" timestamp="1605158577698" />
     <state width="1544" height="286" key="GridCell.Tab.0.center/0.23.1680.959@0.23.1680.959" timestamp="1605084303281" />
     <state width="1400" height="325" key="GridCell.Tab.0.center/0.23.1680.961@0.23.1680.961" timestamp="1604984791596" />
-    <state width="772" height="286" key="GridCell.Tab.0.left" timestamp="1605158577697">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1254" height="443" key="GridCell.Tab.0.left" timestamp="1605607782500">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1254" height="443" key="GridCell.Tab.0.left/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1605607782500" />
+    <state width="1259" height="220" key="GridCell.Tab.0.left/0.0.1280.720@0.0.1280.720" timestamp="1605280336071" />
     <state width="830" height="266" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460596" />
     <state width="772" height="286" key="GridCell.Tab.0.left/0.23.1680.957@0.23.1680.957" timestamp="1605158577697" />
     <state width="1544" height="286" key="GridCell.Tab.0.left/0.23.1680.959@0.23.1680.959" timestamp="1605084303280" />
     <state width="1400" height="325" key="GridCell.Tab.0.left/0.23.1680.961@0.23.1680.961" timestamp="1604984791596" />
-    <state width="772" height="286" key="GridCell.Tab.0.right" timestamp="1605158577698">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1254" height="443" key="GridCell.Tab.0.right" timestamp="1605607782500">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1254" height="443" key="GridCell.Tab.0.right/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1605607782500" />
+    <state width="1259" height="220" key="GridCell.Tab.0.right/0.0.1280.720@0.0.1280.720" timestamp="1605280336072" />
     <state width="830" height="266" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1605023460598" />
     <state width="772" height="286" key="GridCell.Tab.0.right/0.23.1680.957@0.23.1680.957" timestamp="1605158577698" />
     <state width="1544" height="286" key="GridCell.Tab.0.right/0.23.1680.959@0.23.1680.959" timestamp="1605084303281" />
     <state width="1400" height="325" key="GridCell.Tab.0.right/0.23.1680.961@0.23.1680.961" timestamp="1604984791597" />
-    <state width="1544" height="322" key="GridCell.Tab.1.bottom" timestamp="1605156365018">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1259" height="220" key="GridCell.Tab.1.bottom" timestamp="1605280336072">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1259" height="220" key="GridCell.Tab.1.bottom/0.0.1280.720@0.0.1280.720" timestamp="1605280336072" />
     <state width="1544" height="322" key="GridCell.Tab.1.bottom/0.23.1680.957@0.23.1680.957" timestamp="1605156365018" />
-    <state width="1544" height="322" key="GridCell.Tab.1.center" timestamp="1605156365018">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1259" height="220" key="GridCell.Tab.1.center" timestamp="1605280336072">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1259" height="220" key="GridCell.Tab.1.center/0.0.1280.720@0.0.1280.720" timestamp="1605280336072" />
     <state width="1544" height="322" key="GridCell.Tab.1.center/0.23.1680.957@0.23.1680.957" timestamp="1605156365018" />
-    <state width="1544" height="322" key="GridCell.Tab.1.left" timestamp="1605156365016">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1259" height="220" key="GridCell.Tab.1.left" timestamp="1605280336072">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1259" height="220" key="GridCell.Tab.1.left/0.0.1280.720@0.0.1280.720" timestamp="1605280336072" />
     <state width="1544" height="322" key="GridCell.Tab.1.left/0.23.1680.957@0.23.1680.957" timestamp="1605156365016" />
-    <state width="1544" height="322" key="GridCell.Tab.1.right" timestamp="1605156365018">
-      <screen x="0" y="23" width="1680" height="957" />
+    <state width="1259" height="220" key="GridCell.Tab.1.right" timestamp="1605280336072">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state width="1259" height="220" key="GridCell.Tab.1.right/0.0.1280.720@0.0.1280.720" timestamp="1605280336072" />
     <state width="1544" height="322" key="GridCell.Tab.1.right/0.23.1680.957@0.23.1680.957" timestamp="1605156365018" />
     <state x="153" y="113" key="MergeDialog" timestamp="1605157673705">
       <screen x="0" y="23" width="1680" height="957" />
@@ -449,14 +606,20 @@
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state x="673" y="120" key="SettingsEditor/0.23.1680.957@0.23.1680.957" timestamp="1604765730053" />
-    <state x="418" y="222" key="Vcs.Push.Dialog.v2" timestamp="1605159918475">
-      <screen x="0" y="23" width="1680" height="959" />
+    <state x="318" y="149" key="Vcs.Push.Dialog.v2" timestamp="1605605597551">
+      <screen x="0" y="0" width="1280" height="720" />
     </state>
+    <state x="318" y="149" key="Vcs.Push.Dialog.v2/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1605605597551" />
+    <state x="318" y="149" key="Vcs.Push.Dialog.v2/0.0.1280.720@0.0.1280.720" timestamp="1605280204622" />
     <state x="418" y="222" key="Vcs.Push.Dialog.v2/0.23.1680.957@0.23.1680.957" timestamp="1605158372223" />
     <state x="418" y="222" key="Vcs.Push.Dialog.v2/0.23.1680.959@0.23.1680.959" timestamp="1605159918475" />
     <state x="626" y="427" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1605157378661">
       <screen x="0" y="23" width="1680" height="957" />
     </state>
     <state x="626" y="427" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1680.957@0.23.1680.957" timestamp="1605157378661" />
+    <state x="484" y="146" key="refactoring.ChangeSignatureDialog" timestamp="1605497457765">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="484" y="146" key="refactoring.ChangeSignatureDialog/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1605497457765" />
   </component>
 </project>
