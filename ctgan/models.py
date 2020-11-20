@@ -49,6 +49,7 @@ class Discriminator(Module):
 
 
 class Residual(Module):
+    # NOTE: a Residual layer will be created for each one of the values in gen_dims provided
     def __init__(self, i, o):
         super(Residual, self).__init__()
         self.fc = Linear(i, o)
