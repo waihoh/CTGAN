@@ -104,7 +104,7 @@ def determine_layers(side, random_dim, num_channels):
         ## stride = 2, padding = 1, output_padding=0, bias=True)
             ConvTranspose2d(prev[0], curr[0], 4, 2, 1, output_padding=0, bias=True)
         ]
-    #layers_G += [Tanh()] ##TODO: should we remove it?
+    #layers_G += [Tanh()] ##revmoved and use _apply_activate function instead
 
     layers_C = []
     for prev, curr in zip(layer_dims, layer_dims[1:]):
@@ -184,7 +184,10 @@ class TableganSynthesizer(object):
                 st = ed
             else:
                 assert 0
-
+        ### TODO: How to deal with those values padded with 0
+        ### cannot replaced by 0; try to apply gumbel_softmax first
+        transformed0 = CTGANSynthesizer()._gumbel_softmax(data[:, self.transformer.output_dimensions:data.shape[1]], tau=0.2)
+        data_t.append(transformed0)
         return torch.cat(data_t, dim=1)
 
     def get_noise_real(self, get_actual_data=False):
@@ -299,8 +302,12 @@ class TableganSynthesizer(object):
             for id_ in range(steps_per_epoch):
                 noise, real = self.get_noise_real(True) ## cond is added
                 fake = self.generator(noise)
-                fake = self._apply_activate(fake) ##TODO: do we need to apply this function when min-max transformation is used?
-
+                print(fake.shape)
+                ## reshape to vector then apply activate function
+                fake = torch.reshape(fake,(self.batch_size,self.side * self.side))
+                fake = self._apply_activate(fake)
+                ## reshape to 2D.
+                fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
                 # Use reshape function to add zero padding and reshape to 2D.
                 real = reshape_data(real, self.side)
                 real = torch.from_numpy(real.astype('float32')).to(self.device)
@@ -314,11 +321,13 @@ class TableganSynthesizer(object):
                 loss_d.backward()
                 optimizerD.step()
 
-                # TODO: why do we need a new fake data? To train the generator with L_orig^G first
+                #  To train the generator with L_orig^G first
                 noise, _ = self.get_noise_real(False)
                 # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
                 fake = self.generator(noise)
+                fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
                 fake = self._apply_activate(fake)
+                fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
 
                 optimizerG.zero_grad()
                 y_fake = self.discriminator(fake)
@@ -339,7 +348,9 @@ class TableganSynthesizer(object):
                 if self.classifier.valid:
                     noise, real = self.get_noise_real(True)
                     fake = self.generator(noise)
+                    fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
                     fake = self._apply_activate(fake)
+                    fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
 
                     real_pre, real_label = self.classifier(real)
                     fake_pre, fake_label = self.classifier(fake)
@@ -367,7 +378,6 @@ class TableganSynthesizer(object):
     def sample(self, n, condition_column=None, condition_value=None):
     #def sample(self, n):
         self.generator.eval()
-        print(self.trans)
 
         if condition_column is not None and condition_value is not None:
             condition_info = self.transformer.covert_column_name_value_to_id(condition_column, condition_value)
@@ -399,24 +409,27 @@ class TableganSynthesizer(object):
             noise = noise.unsqueeze(-1)
 
             fake = self.generator(noise)
-            fake = self._apply_activate(fake) ##added by 18 Nov
+            ## reshape to vector then apply activate function
+            fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
+            fake = self._apply_activate(fake)
+            ## no need to reshape to 2D here
             data.append(fake.detach().cpu().numpy())
 
         data = np.concatenate(data, axis=0)
         # return self.transformer.inverse_transform(data[:n])
 
-        # 2020-11-12
-        # first, reshape the square matrices to 1D
-        data = data[:n].reshape(-1, self.side * self.side)
+        # # 2020-11-12
+        # # first, reshape the square matrices to 1D
+        #data = data[:n].reshape(-1, self.side * self.side)
         print('inverse_transform_tablegan, after reshaping to 1D:', data.shape)
-        # second, remove the padded values.
-        # however, this line does not seem to be required.
-        # it'll work just fine by calling inverse_transform directly.
+        # # second, remove the padded values.
+        # # however, this line does not seem to be required.
+        # # it'll work just fine by calling inverse_transform directly.
         data = data[:, :self.data_dim]
-        print('inverse_transform_tablegan, after slicing:', data.shape)
+        # print('inverse_transform_tablegan, after slicing:', data.shape)
 
        # return self.transformer.inverse_transform(data[:n], None)
-        return self.transformer.inverse_transform(data, None)
+        return self.transformer.inverse_transform(data[:n], None)
 
     def save(self, path):
         # always save a cpu model.
