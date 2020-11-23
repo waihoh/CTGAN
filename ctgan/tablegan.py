@@ -5,7 +5,6 @@ from torch.nn.functional import binary_cross_entropy_with_logits
 from torch.optim import Adam
 # from torch.utils.data import DataLoader, TensorDataset
 from ctgan.transformer import DataTransformer
-# from ctgan.transformer_tablegan import TableganTransformer
 from torchsummary import summary
 from ctgan.conditional import ConditionalGenerator
 from ctgan.sampler import Sampler
@@ -169,7 +168,7 @@ class TableganSynthesizer(object):
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def _apply_activate(self, data):
+    def _apply_activate(self, data, padding = True):
         data_t = []
         st = 0
         for item in self.transformer.output_info:
@@ -186,8 +185,9 @@ class TableganSynthesizer(object):
                 assert 0
         ### TODO: How to deal with those values padded with 0
         ### cannot replaced by 0; try to apply gumbel_softmax first
-        transformed0 = CTGANSynthesizer()._gumbel_softmax(data[:, self.transformer.output_dimensions:data.shape[1]], tau=0.2)
-        data_t.append(transformed0)
+        if padding:
+            transformed0 = CTGANSynthesizer()._gumbel_softmax(data[:, self.transformer.output_dimensions:data.shape[1]], tau=0.2)
+            data_t.append(transformed0)
         return torch.cat(data_t, dim=1)
 
     def get_noise_real(self, get_actual_data=False):
@@ -288,7 +288,7 @@ class TableganSynthesizer(object):
 
         ##learning rate is 0.0002
         optimizer_params = dict(lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
-        optimizerG = Adam(self.generator.parameters(), **optimizer_params)
+        optimizerG = Adam(self.generator.parameters(), **optimizer_params) ##nn.parameters() returns the trainable parameters
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
         optimizerC = Adam(self.classifier.parameters(), **optimizer_params)
 
@@ -302,10 +302,9 @@ class TableganSynthesizer(object):
             for id_ in range(steps_per_epoch):
                 noise, real = self.get_noise_real(True) ## cond is added
                 fake = self.generator(noise)
-                print(fake.shape)
                 ## reshape to vector then apply activate function
                 fake = torch.reshape(fake,(self.batch_size,self.side * self.side))
-                fake = self._apply_activate(fake)
+                fake = self._apply_activate(fake,True)
                 ## reshape to 2D.
                 fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
                 # Use reshape function to add zero padding and reshape to 2D.
@@ -326,7 +325,7 @@ class TableganSynthesizer(object):
                 # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
                 fake = self.generator(noise)
                 fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
-                fake = self._apply_activate(fake)
+                fake = self._apply_activate(fake,True)
                 fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
 
                 optimizerG.zero_grad()
@@ -349,7 +348,7 @@ class TableganSynthesizer(object):
                     noise, real = self.get_noise_real(True)
                     fake = self.generator(noise)
                     fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
-                    fake = self._apply_activate(fake)
+                    fake = self._apply_activate(fake,True)
                     fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
 
                     real_pre, real_label = self.classifier(real)
@@ -411,11 +410,12 @@ class TableganSynthesizer(object):
             fake = self.generator(noise)
             ## reshape to vector then apply activate function
             fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
-            fake = self._apply_activate(fake)
+            fake = self._apply_activate(fake,False)
             ## no need to reshape to 2D here
             data.append(fake.detach().cpu().numpy())
 
         data = np.concatenate(data, axis=0)
+        data = data[:n]
         # return self.transformer.inverse_transform(data[:n])
 
         # # 2020-11-12
@@ -425,11 +425,11 @@ class TableganSynthesizer(object):
         # # second, remove the padded values.
         # # however, this line does not seem to be required.
         # # it'll work just fine by calling inverse_transform directly.
-        data = data[:, :self.data_dim]
+        # data = data[:, :self.data_dim]
         # print('inverse_transform_tablegan, after slicing:', data.shape)
 
        # return self.transformer.inverse_transform(data[:n], None)
-        return self.transformer.inverse_transform(data[:n], None)
+        return self.transformer.inverse_transform(data, None)
 
     def save(self, path):
         # always save a cpu model.
@@ -439,7 +439,11 @@ class TableganSynthesizer(object):
         self.discriminator.to(self.device)
         self.classifier.to(self.device)
 
-        torch.save(self, path)
+        torch.save(self, path) ##saving the entire model
+       ## torch.save(self.state_dict(),path) ##save only parameters
+        ### load this model
+        ## model = torch.load(path)
+        ## print(model)
 
         self.device = device_bak
         self.generator.to(self.device)
