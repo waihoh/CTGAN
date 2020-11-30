@@ -8,8 +8,8 @@ from sklearn.mixture import BayesianGaussianMixture
 
 # NOTE: 2020-11-09. To fix FutureWarning. Use filterwarnings instead of ignore_warnings.
 # from sklearn.utils.testing import ignore_warnings
-# import warnings
-# warnings.filterwarnings('ignore', category=ConvergenceWarning)
+import warnings
+warnings.filterwarnings('ignore', category=ConvergenceWarning)
 from warnings import simplefilter
 
 simplefilter(action='ignore', category=FutureWarning)
