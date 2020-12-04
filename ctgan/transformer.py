@@ -14,8 +14,6 @@ from warnings import simplefilter
 
 simplefilter(action='ignore', category=FutureWarning)
 
-CONTINUOUS = "continuous"
-
 
 class DataTransformer(object):
     """Data Transformer.
@@ -123,7 +121,7 @@ class DataTransformer(object):
                 else:
                     meta = {
                         "name": column,
-                        "type": CONTINUOUS,
+                        "type": "continuous",
                         "min": column_data.min(),
                         "max": column_data.max(),
                         # 'output_info': [(1, 'tanh'), (0, 'softmax')],
@@ -136,7 +134,7 @@ class DataTransformer(object):
 
     def _transform_continuous(self, column_meta, data):
         components = column_meta['components']
-        model = column_meta['model']
+        model = column_meta['model']  # corresponds to gm.
 
         means = model.means_.reshape((1, self.n_clusters))
         stds = np.sqrt(model.covariances_).reshape((1, self.n_clusters))

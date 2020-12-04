@@ -12,7 +12,6 @@ from torchsummary import summary
 
 from ctgan import config as cfg
 
-
 class CTGANSynthesizer(object):
     """Conditional Table GAN Synthesizer.
 
@@ -199,8 +198,6 @@ class CTGANSynthesizer(object):
             self.optimizerD = optim.Adam(
                 # self.discriminator.parameters(), lr=2e-4, betas=(0.5, 0.9))
                 self.discriminator.parameters(), lr=cfg.LEARNING_RATE, betas=(0.5, 0.9))
-
-        print('LEARNING RATE:', cfg.LEARNING_RATE)
 
         assert self.batch_size % 2 == 0
         mean = torch.zeros(self.batch_size, self.embedding_dim, device=self.device)
