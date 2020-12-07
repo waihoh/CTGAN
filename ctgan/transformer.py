@@ -34,6 +34,7 @@ class DataTransformer(object):
     def __init__(self, n_clusters=10, epsilon=0.005):  ##change to 0.05
         self.n_clusters = n_clusters
         self.epsilon = epsilon
+        print(self.epsilon)
         self.side = 0  # for tablegan
         self.datalen = 0  # for tablegan
 
