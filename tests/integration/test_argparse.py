@@ -16,17 +16,17 @@ def _parse_args():
 
 def parser_func():
     # this function is a placeholder to update cfg with values from argparse
-    cfg.LEARNING_RATE = 0.1
+    cfg.LEARNING_RATE = 0.05
 
-    # TEST
-    args = _parse_args()
-
-    if args.learningrate is not None:
-        cfg.LEARNING_RATE = args.learningrate
+    # # TEST
+    # args = _parse_args()
+    #
+    # if args.learningrate is not None:
+    #     cfg.LEARNING_RATE = args.learningrate
 
 
 if __name__ == '__main__':
-    # parser_func()
+    parser_func()
 
     # using a toy example to test tablegan
     data = pd.DataFrame({
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     # Step 2: Fit CTGAN to your data
     ctgan = CTGANSynthesizer()
-    ctgan.fit(data, discrete_columns, epochs=1, trans="Min-Max")
+    ctgan.fit(data, discrete_columns, epochs=3, trans="Min-Max")
 
     # 2. Generate synthetic data
     samples_1 = ctgan.sample(10, condition_column='discrete1', condition_value=1)

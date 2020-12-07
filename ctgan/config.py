@@ -25,5 +25,6 @@ TABLEGAN = tablegan_setting()
 # Common parameters across all models.
 LEARNING_RATE = 2e-4
 OPTIMIZER = "ADAM"
+ctgan_depth = 999
 
 

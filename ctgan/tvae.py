@@ -54,16 +54,22 @@ class Decoder(Module):
 
 
 def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor):
+    # Evidence loss lower bound
+    # See equation 10 in Kingma and Welling 2013.
+    # See also useful information in https://www.cs.princeton.edu/courses/archive/fall11/cos597C/lectures/variational-inference-i.pdf
     st = 0
     loss = []
+
+    # loss of decoder
     for item in output_info:
+        # negative log Gaussian likelihood lost for alpha
         if item[1] == 'tanh':
             ed = st + item[0]
             std = sigmas[st]
             loss.append(((x[:, st] - torch.tanh(recon_x[:, st])) ** 2 / 2 / (std ** 2)).sum())
             loss.append(torch.log(std) * x.size()[0])
             st = ed
-
+        # cross entropy loss for
         elif item[1] == 'softmax':
             ed = st + item[0]
             loss.append(cross_entropy(
@@ -73,7 +79,10 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor):
             assert 0
 
     assert st == recon_x.size()[1]
+
+    # loss of encoder.
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    # return average loss per batch
     return sum(loss) * factor / x.size()[0], KLD / x.size()[0]
 
 
@@ -95,8 +104,14 @@ class TVAESynthesizer(object):
 
         self.l2scale = l2scale
         self.batch_size = batch_size
-        self.loss_factor = 2
+        self.loss_factor = 1  # 2 TODO: why 2 in original code? Should be 1 based on loss function.
         self.trained_epoches = 0
+
+        # exponential moving average of latent space, mu and sigma
+        # use these values to sample from N(ema_mu, ema_sig**2) iso N(0,1)
+        self.ema_fraction = 0.9
+        self.ema_mu = 0
+        self.ema_std = 0
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -188,6 +203,12 @@ class TVAESynthesizer(object):
                 mu, std, logvar = self.encoder(real)
                 eps = torch.randn_like(std)
                 emb = eps * std + mu
+
+                # NEW. 2020-12-03.
+                # compute exponetial moving average
+                self.ema_mu = self.ema_fraction * mu.mean() + (1 - self.ema_fraction) * self.ema_mu
+                self.ema_std = self.ema_fraction * std.mean() + (1 - self.ema_fraction) * self.ema_std
+
                 # NEW
                 # Conditional vector is added to latent space.
                 if c1 is not None:
@@ -216,8 +237,14 @@ class TVAESynthesizer(object):
         steps = samples // self.batch_size + 1
         data = []
         for _ in range(steps):
-            mean = torch.zeros(self.batch_size, self.embedding_dim)
-            std = mean + 1
+            print("ema_mu, ema_std", self.ema_mu, self.ema_std)
+            # NOTE: Instead of using N(0,1), we use the mean and std 'learnt' during encoding.
+            # i.e. N(self.ema_mu, self.ema_std**2).
+            # It is nonetheless observed from tests that ema_mu and ema_std are close to 0 and 1 respectively.
+            # mean = torch.zeros(self.batch_size, self.embedding_dim)
+            # std = mean + 1
+            mean = torch.zeros(self.batch_size, self.embedding_dim) + self.ema_mu
+            std = torch.zeros(self.batch_size, self.embedding_dim) + self.ema_std
             fakez = torch.normal(mean=mean, std=std).to(self.device)
 
             if global_condition_vec is not None:
