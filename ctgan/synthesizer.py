@@ -12,6 +12,7 @@ from torchsummary import summary
 
 from ctgan import config as cfg
 
+
 class CTGANSynthesizer(object):
     """Conditional Table GAN Synthesizer.
 
@@ -205,7 +206,10 @@ class CTGANSynthesizer(object):
                 # self.discriminator.parameters(), lr=2e-4, betas=(0.5, 0.9))
                 self.discriminator.parameters(), lr=cfg.LEARNING_RATE, betas=(0.5, 0.9))
 
-        assert self.batch_size % 2 == 0
+        # assert self.batch_size % 2 == 0
+        # NOTE: in models.py, Discriminator forward function,
+        # there is a reshape of input data, i.e. input.view() that is dependent on self.pack.
+        assert self.batch_size % self.pack == 0
         mean = torch.zeros(self.batch_size, self.embedding_dim, device=self.device)
         std = mean + 1
 
