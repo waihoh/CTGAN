@@ -3,16 +3,23 @@ from torch.nn import BatchNorm1d, Dropout, LeakyReLU, Linear, Module, ReLU, Sequ
 
 
 class Discriminator(Module):
-
+    # Note: The lambda_ is based on WGAN + gradient penalty.
+    # See Algorithm 1 in Gulrajani et. al. (2017)
     def calc_gradient_penalty(self, real_data, fake_data, device='cpu', pac=10, lambda_=10):
+        # real_data.size(0) is batch size, eg. 500
+        # real_data.size(1) is number of columns, eg. 15
+        alpha = torch.rand(real_data.size(0) // pac, 1, 1, device=device)  # eg. ([50, 1, 1])
+        # duplicates alpha. For each alpha, # cols is real_data.size(1), # rows is pac.
+        alpha = alpha.repeat(1, pac, real_data.size(1))  # eg. [(50, 10 , 15)]
+        # change shape so that alpha is the same dimension as real_data and fake_data.
+        alpha = alpha.view(-1, real_data.size(1))  # eg[(500, 15)]
 
-        alpha = torch.rand(real_data.size(0) // pac, 1, 1, device=device)
-        alpha = alpha.repeat(1, pac, real_data.size(1))
-        alpha = alpha.view(-1, real_data.size(1))
-
+        # Element-wise multiplication.
+        # real_data.shape == fake_data.shape == interpolates.shape == eg. ([500, 15])
+        # Note: See section 4 of Gulrajani et. al. (2017), Sampling distribution
         interpolates = alpha * real_data + ((1 - alpha) * fake_data)
-
-        disc_interpolates = self(interpolates)
+        # Note interpolates passes through the Discriminator forward function.
+        disc_interpolates = self(interpolates)  # disc_interpolates.shape == eg. ([50, 1])
 
         gradients = torch.autograd.grad(
             outputs=disc_interpolates, inputs=interpolates,
@@ -20,10 +27,13 @@ class Discriminator(Module):
             create_graph=True, retain_graph=True, only_inputs=True
         )[0]
 
+        # gradients.shape == [(500, 15)]
         gradient_penalty = ((
+            # reshape to pac * real_data.size(1) sums all
+            # the norm is a Frobenius norm.
+            # It sums over all interpolates/gradients multiplied to same alpha previously.
             gradients.view(-1, pac * real_data.size(1)).norm(2, dim=1) - 1
         ) ** 2).mean() * lambda_
-
         return gradient_penalty
 
     def __init__(self, input_dim, dis_dims, pack=10):
@@ -44,7 +54,14 @@ class Discriminator(Module):
         # this is because batch_size of input x is hardcoded in torchsummary.py.
         # See row 60 of torchsummary.py in torchsummary library
         # See also if model_summary in synthesizer.py
+        # instead, this is imposed in synthesizer.py instead.
+        # See assert self.batch_size % self.pack == 0.
         # assert input.size()[0] % self.pack == 0
+
+        # input.view reshapes the input data by dividing the 1st dim, i.e. batch size
+        # and group the data in concatenate manner in 2nd dim
+        # example, if input dim is ([500, 15]) and pack is 10,
+        # then it is reshaped to ([500/10, 15*10)] = ([50, 150])
         return self.seq(input.view(-1, self.packdim))
 
 
@@ -60,6 +77,8 @@ class Residual(Module):
         out = self.fc(input)
         out = self.bn(out)
         out = self.relu(out)
+        # concatenate the columns. See 4.4 of Xu et. al (2019),
+        # where h2 concat h1 concat h0 before passing through last FCs to generate alpha, beta and d.
         return torch.cat([out, input], dim=1)
 
 

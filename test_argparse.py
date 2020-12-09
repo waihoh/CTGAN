@@ -15,14 +15,17 @@ def _parse_args():
     return parser.parse_args()
 
 def parser_func():
-    # this function is a placeholder to update cfg with values from argparse
-    cfg.LEARNING_RATE = 0.1
+    # # this function is a placeholder to update cfg with values from argparse
+    # cfg.LEARNING_RATE = 0.1
 
     # TEST
     args = _parse_args()
 
     if args.learningrate is not None:
         cfg.LEARNING_RATE = args.learningrate
+
+    if args.optimizer is not None:
+        cfg.OPTIMIZER = args.optimizer
 
 
 if __name__ == '__main__':
