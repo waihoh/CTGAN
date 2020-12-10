@@ -62,26 +62,54 @@ class Classifier(Module):
         return self.seq(input).view(-1), label
 
 
-def determine_layers(side, random_dim, num_channels):
+def determine_layers(side, random_dim, num_channels, dlayer=1):
+    """
+    Args:
+        side: length of square matrix
+        random_dim: dim of z vector
+        num_channels: number of filters / feature maps
+        dlayer: 0: no changes. -1: remove last item in layer_dims, 1: add a 1X1 Convolution layer.
+
+    Returns:
+        lists of layers in Discriminator, Generator and Classifier.
+    """
+
     assert side >= 4 and side <= 64  ##change to 64 for OVS dataset
 
-    layer_dims = [(1, side), (num_channels, side // 2)]
+    scale_factor = 2  # ini value: 2
+    kernel_size = 4 # 4  # ini value: 4
+    stride = 2 # 2  # ini value: 2
+
+    # layer_dims = [(1, side), (num_channels, side // 2)]
+    layer_dims = [(1, side), (num_channels, side // scale_factor)]
 
     #while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
-    while layer_dims[-1][1] > 3 and len(layer_dims) < 5: ## for the case side = 64
-        layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
-    print(layer_dims)
+    while layer_dims[-1][1] > 3 and len(layer_dims) < 5: ## max of 5 for the case side = 64
+        # layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
+        layer_dims.append((layer_dims[-1][0] * scale_factor, layer_dims[-1][1] // scale_factor))
+
+    # WH: Remove last layer
+    if dlayer == -1:
+        layer_dims.pop()
 
     layers_D = []
     for prev, curr in zip(layer_dims, layer_dims[1:]):
         layers_D += [
            ## Conv2d(in_channels = prev[0], out_channels = curr[0], kernel_size = 4,
            ## stride = 2, padding = 1, bias=False)
-            Conv2d(prev[0], curr[0], 4, 2, 1, bias=False),
+            Conv2d(prev[0], curr[0], kernel_size, stride, 1, bias=False),
             BatchNorm2d(curr[0]),
             ## the slope of the leak was set to 0.2
             LeakyReLU(0.2, inplace=True) ##y=0.2x when x<0
         ]
+
+    # WH: Add a 1X1 convolution layer to increase depth of network
+    if dlayer == 1:
+        layers_D += [Conv2d(layer_dims[-1][0], layer_dims[-1][0], 1, 1, 0),
+                     BatchNorm2d(layer_dims[-1][0]),
+                     LeakyReLU(0.2, inplace=True)
+                     ]
+
     layers_D += [
         Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0),
         Sigmoid()
@@ -95,20 +123,27 @@ def determine_layers(side, random_dim, num_channels):
             random_dim, layer_dims[-1][0], layer_dims[-1][1], 1, 0, output_padding=0, bias=False)
     ]
 
+    # WH: Add a 1X1 convolution layer to increase depth of network
+    if dlayer == 1:
+        layers_G += [BatchNorm2d(layer_dims[-1][0]),
+                     ReLU(True),
+                     ConvTranspose2d(layer_dims[-1][0], layer_dims[-1][0], 1, 1, 0, output_padding=0, bias=False)
+                     ]
+
     for prev, curr in zip(reversed(layer_dims), reversed(layer_dims[:-1])):
         layers_G += [
             BatchNorm2d(prev[0]),
             ReLU(True),
         ## ConvTranspose2d(in_channels = prev[0], out_channels = curr[0], kernel_size = 4,
         ## stride = 2, padding = 1, output_padding=0, bias=True)
-            ConvTranspose2d(prev[0], curr[0], 4, 2, 1, output_padding=0, bias=True)
+            ConvTranspose2d(prev[0], curr[0], kernel_size, stride, 1, output_padding=0, bias=True)
         ]
     #layers_G += [Tanh()] ##revmoved and use _apply_activate function instead
 
     layers_C = []
     for prev, curr in zip(layer_dims, layer_dims[1:]):
         layers_C += [
-            Conv2d(prev[0], curr[0], 4, 2, 1, bias=False),
+            Conv2d(prev[0], curr[0], kernel_size, stride, 1, bias=False),
             BatchNorm2d(curr[0]),
             LeakyReLU(0.2, inplace=True)
         ]

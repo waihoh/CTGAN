@@ -21,6 +21,7 @@ class Discriminator(Module):
         # Note interpolates passes through the Discriminator forward function.
         disc_interpolates = self(interpolates)  # disc_interpolates.shape == eg. ([50, 1])
 
+        # Computes and returns the sum of gradients of outputs w.r.t. the inputs.
         gradients = torch.autograd.grad(
             outputs=disc_interpolates, inputs=interpolates,
             grad_outputs=torch.ones(disc_interpolates.size(), device=device),
