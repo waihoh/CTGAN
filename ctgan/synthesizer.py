@@ -12,6 +12,10 @@ from torchsummary import summary
 
 from ctgan import config as cfg
 
+### added for validation
+from sklearn.model_selection import train_test_split
+import ctgan.metric as M
+
 
 class CTGANSynthesizer(object):
     """Conditional Table GAN Synthesizer.
@@ -145,17 +149,17 @@ class CTGANSynthesizer(object):
         return (loss * m).sum() / data.size()[0]
 
     # def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
-    def fit(self, train_data, discrete_columns=tuple(), epochs=300,
+    def fit(self, data, discrete_columns=tuple(), epochs=300,
             model_summary=False, trans="VGM", use_cond_gen=True):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
-            train_data (numpy.ndarray or pandas.DataFrame):
-                Training Data. It must be a 2-dimensional numpy array or a
+            data (numpy.ndarray or pandas.DataFrame):
+                Whole Data. It must be a 2-dimensional numpy array or a
                 pandas.DataFrame.
             discrete_columns (list-like):
                 List of discrete columns to be used to generate the Conditional
-                Vector. If ``train_data`` is a Numpy array, this list should
+                Vector. If ``data`` is a Numpy array, this list should
                 contain the integer indices of the columns. Otherwise, if it is
                 a ``pandas.DataFrame``, this list should contain the column names.
             epochs (int):
@@ -164,12 +168,21 @@ class CTGANSynthesizer(object):
         self.trans = trans
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(train_data, discrete_columns, self.trans)
-        train_data = self.transformer.transform(train_data)
+            self.transformer.fit(data, discrete_columns, self.trans)
+        whole_data = self.transformer.transform(data)
+        print('data shape', whole_data.shape)
+
+        ## split the data into train and validation (80/20 rule)
+        train_data, val_data = train_test_split(whole_data, test_size=0.2, random_state=42)
+        print('training data shape: ', train_data.shape)
+        print('validation data shape: ', val_data.shape)
+
+        val_data = torch.from_numpy(val_data.astype('float32')).to(self.device)
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
+        print('data dimension:', data_dim)
 
         if not hasattr(self, "cond_generator"):
             self.cond_generator = ConditionalGenerator(
@@ -226,6 +239,7 @@ class CTGANSynthesizer(object):
 
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
+        Validation_Loss = []
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -306,7 +320,16 @@ class CTGANSynthesizer(object):
                   (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
                   flush=True)
 
-    def sample(self, n, condition_column=None, condition_value=None):
+            sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None, inv_trans=False)
+            sampled_train = torch.from_numpy(sampled_train.astype('float32')).to(self.device)
+            # val_loss = -(torch.log(val_data + 1e-4).mean()) - (torch.log(1. - sampled_train + 1e-4).mean())
+            val_loss = M.js_div(val_data, sampled_train, True)  ## JS-divergence
+            val_loss1 = M.kl_div(val_data, sampled_train, True)  ## KL-divergence
+            Validation_Loss.append(val_loss.detach().cpu().numpy())
+            print("epoch", self.trained_epoches, "JS Divergence:", val_loss.detach().cpu().numpy())
+            print("epoch", self.trained_epoches, "KL Divergence:", val_loss1.detach().cpu().numpy())
+
+    def sample(self, n, condition_column=None, condition_value=None, inv_trans=True):
         """Sample data similar to the training data.
 
         Choosing a condition_column and condition_value will increase the probability of the
@@ -358,8 +381,10 @@ class CTGANSynthesizer(object):
 
         data = np.concatenate(data, axis=0)
         data = data[:n]
-
-        return self.transformer.inverse_transform(data, None)
+        if inv_trans:
+            return self.transformer.inverse_transform(data, None)
+        else:
+            return data
 
     def save(self, path):
         assert hasattr(self, "generator")
