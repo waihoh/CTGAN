@@ -272,6 +272,7 @@ class TableganSynthesizer(object):
             self.transformer = DataTransformer()
             self.transformer.fit(data, discrete_columns, self.trans)
         data = self.transformer.transform(data)
+
         print('data shape', data.shape)
 
         self.data_sampler = Sampler(data, self.transformer.output_info, trans=self.trans)
