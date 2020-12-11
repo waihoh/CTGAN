@@ -165,19 +165,18 @@ class CTGANSynthesizer(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
-        self.trans = trans
-        if not hasattr(self, "transformer"):
-            self.transformer = DataTransformer()
-            self.transformer.fit(data, discrete_columns, self.trans)
-        whole_data = self.transformer.transform(data)
-        print('data shape', whole_data.shape)
-
-        ## split the data into train and validation (80/20 rule)
-        train_data, val_data = train_test_split(whole_data, test_size=0.2, random_state=42)
+        ## split the data into train and validation (70/15 rule)
+        train_data, val_data = train_test_split(data, test_size=0.18, random_state=42)
         print('training data shape: ', train_data.shape)
         print('validation data shape: ', val_data.shape)
 
-        val_data = torch.from_numpy(val_data.astype('float32')).to(self.device)
+        self.trans = trans
+        if not hasattr(self, "transformer"):
+            self.transformer = DataTransformer()
+            self.transformer.fit(train_data, discrete_columns, self.trans)
+        train_data = self.transformer.transform(train_data)
+        print('transformed data shape: ',train_data.shape)
+
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -239,7 +238,8 @@ class CTGANSynthesizer(object):
 
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        Validation_Loss = []
+        KLD = []
+        JSD = []
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -319,17 +319,15 @@ class CTGANSynthesizer(object):
             print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
                   (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
                   flush=True)
+            ## synthetic data by the generator for each epoch
+            sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
+            KL_loss, JS_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
+            KLD.append(KL_loss)
+            JSD.append(JS_loss)
+            print("epoch", self.trained_epoches, "KL Divergence:", KL_loss)
+            print("epoch", self.trained_epoches, "JS Divergence:", JS_loss)
 
-            sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None, inv_trans=False)
-            sampled_train = torch.from_numpy(sampled_train.astype('float32')).to(self.device)
-            # val_loss = -(torch.log(val_data + 1e-4).mean()) - (torch.log(1. - sampled_train + 1e-4).mean())
-            val_loss = M.js_div(val_data, sampled_train, True)  ## JS-divergence
-            val_loss1 = M.kl_div(val_data, sampled_train, True)  ## KL-divergence
-            Validation_Loss.append(val_loss.detach().cpu().numpy())
-            print("epoch", self.trained_epoches, "JS Divergence:", val_loss.detach().cpu().numpy())
-            print("epoch", self.trained_epoches, "KL Divergence:", val_loss1.detach().cpu().numpy())
-
-    def sample(self, n, condition_column=None, condition_value=None, inv_trans=True):
+    def sample(self, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
 
         Choosing a condition_column and condition_value will increase the probability of the
@@ -381,10 +379,7 @@ class CTGANSynthesizer(object):
 
         data = np.concatenate(data, axis=0)
         data = data[:n]
-        if inv_trans:
-            return self.transformer.inverse_transform(data, None)
-        else:
-            return data
+        return self.transformer.inverse_transform(data, None)
 
     def save(self, path):
         assert hasattr(self, "generator")
