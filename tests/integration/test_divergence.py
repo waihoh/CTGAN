@@ -1,0 +1,82 @@
+import pandas as pd
+import numpy as np
+import ctgan.metric as M
+
+np.random.seed(0)
+
+# index of columns
+discrete_columns = ['discrete1']
+
+# reference data
+data_continuous_a = np.random.uniform(low=0, high=1, size=1000)
+data_discreet_a = np.repeat([1,2], [950, 50])
+np.random.shuffle(data_discreet_a)
+list_discreet_a = data_discreet_a.tolist()
+
+# ------------------------------------------------------------------------------------------------
+# using a toy example to test tablegan
+data_a = pd.DataFrame({
+    'continuous1': data_continuous_a,
+    'discrete1': data_discreet_a
+})
+
+# ------------------------------------------------------------------------------------------------
+# data_b is an exact copy of data_a.
+# We anticipate the KL or JS divergence to be minimum
+data_b = data_a.copy()
+
+KL_loss_ab, JS_loss_ab = M.KLD_JSD(data_a, data_b, discrete_columns)
+print("Case 1: Minimum divergence")
+print(KL_loss_ab, JS_loss_ab)
+
+# ------------------------------------------------------------------------------------------------
+# data_c will be non-overlapping / complement to data_c.
+# We anticipate the KL or JS divergence to be minimum
+data_continuous_c = np.random.uniform(low=3, high=4, size=1000)
+list_discreet_c = []
+rand_num_list = np.random.uniform(size=1000).tolist()
+for i in range(len(list_discreet_a)):
+    val = list_discreet_a[i]
+    # flip the value half of the time
+    if val == 1:
+        val = 2
+    else:
+        val = 1
+    list_discreet_c.append(val)
+data_discreet_c = np.array(list_discreet_c)
+
+data_c = pd.DataFrame({
+    'continuous1': data_continuous_c,
+    'discrete1': data_discreet_c
+})
+
+KL_loss_ac, JS_loss_ac = M.KLD_JSD(data_a, data_c, discrete_columns)
+print("Case 2: Maximum divergence")
+print(KL_loss_ac, JS_loss_ac)
+
+
+# ------------------------------------------------------------------------------------------------
+# data_d will be overlapping with data_a
+data_continuous_d = np.random.uniform(low=0.5, high=1.5, size=1000)
+list_discreet_d = []
+rand_num_list = np.random.uniform(size=1000).tolist()
+for i in range(len(list_discreet_a)):
+    val = list_discreet_a[i]
+    # flip the value half of the time
+    if rand_num_list[i] < 0.5:
+        if val == 1:
+            val = 2
+        else:
+            val = 1
+    list_discreet_d.append(val)
+data_discreet_d = np.array(list_discreet_d)
+
+data_d = pd.DataFrame({
+    'continuous1': data_continuous_d,
+    'discrete1': data_discreet_d
+})
+
+print("Case 3: Some overlap")
+KL_loss_ad, JS_loss_ad = M.KLD_JSD(data_a, data_d, discrete_columns)
+print(KL_loss_ad, JS_loss_ad)
+

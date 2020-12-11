@@ -19,6 +19,7 @@ import torch.nn.functional as F ## For JSD
 #         q_output = F.softmax(q_output,dim=1)
 #     return criterion(p_output.log(),q_output)
 
+
 # For discrete data
 def discrete_probs(column):
     column = pd.Series(column)
@@ -28,6 +29,7 @@ def discrete_probs(column):
     for k,v in freqs.items():
         probs.append(v/len(column))
     return np.array(probs)
+
 
 def continuous_probs(column,bins):
     column = pd.Series(np.digitize(column, bins))
@@ -44,17 +46,23 @@ def continuous_probs(column,bins):
         probs.append(v/len(column))
     return np.array(probs)
 
+
 # KL-divergence formula
 def kl_divergence(p, q):
+    # TODO: how to handle q == 0?
     return np.sum(np.where(p != 0, p * np.log(p / q), 0))
 
-def KLD_JSD(fake,real,discrete_columns):
+
+def KLD_JSD(fake, real, discrete_columns):
     KLD = []
     JSD = []
     for column in fake.columns:
+        print(column)
         column_fake = fake[column].values
         column_real = real[column].values
-        bins = np.arange(min(min(column_real),min(column_fake)),max(max(column_real),max(column_fake)), 20)
+        maxval = max(max(column_real), max(column_fake))
+        minval = min(min(column_real), min(column_fake))
+        bins = np.linspace(start=minval, stop=maxval, num=20)
         if column in discrete_columns:
             fake_prob = discrete_probs(column_fake)
             real_prob = discrete_probs(column_real)
@@ -62,8 +70,8 @@ def KLD_JSD(fake,real,discrete_columns):
             fake_prob = continuous_probs(column_fake,bins)
             real_prob = continuous_probs(column_real,bins)
         mean_prob = (fake_prob+real_prob)/2
-        JSD.append((kl_divergence(fake_prob,mean_prob)+kl_divergence(real_prob,mean_prob))/2)
-        KLD.append(kl_divergence(fake_prob,real_prob))
+        JSD.append((kl_divergence(fake_prob, mean_prob)+kl_divergence(real_prob, mean_prob))/2)
+        KLD.append(kl_divergence(fake_prob, real_prob))
 
+    return sum(KLD), sum(JSD)
 
-    return sum(KLD),sum(JSD)

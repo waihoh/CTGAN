@@ -353,6 +353,7 @@ class TableganSynthesizer(object):
                 ## L_orig^D
                 loss_d = (
                     -(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
+                print('loss_d', loss_d.size)
                 loss_d.backward()
                 optimizerD.step()
 
