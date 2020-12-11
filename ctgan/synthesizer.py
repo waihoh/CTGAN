@@ -238,8 +238,8 @@ class CTGANSynthesizer(object):
 
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        KLD = []
-        JSD = []
+        self.KLD = []
+        self.JSD = []
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -322,8 +322,8 @@ class CTGANSynthesizer(object):
             ## synthetic data by the generator for each epoch
             sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
             KL_loss, JS_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
-            KLD.append(KL_loss)
-            JSD.append(JS_loss)
+            self.KLD.append(KL_loss)
+            self.JSD.append(JS_loss)
             print("epoch", self.trained_epoches, "KL Divergence:", KL_loss)
             print("epoch", self.trained_epoches, "JS Divergence:", JS_loss)
 
