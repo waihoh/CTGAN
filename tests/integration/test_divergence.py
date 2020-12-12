@@ -30,33 +30,31 @@ print("Case 1: Minimum divergence")
 print(KL_loss_ab, JS_loss_ab)
 
 # ------------------------------------------------------------------------------------------------
-# data_c will be non-overlapping / complement to data_c.
-# We anticipate the KL or JS divergence to be minimum
-data_continuous_c = np.random.uniform(low=3, high=4, size=1000)
-list_discreet_c = []
-rand_num_list = np.random.uniform(size=1000).tolist()
-for i in range(len(list_discreet_a)):
-    val = list_discreet_a[i]
-    # flip the value half of the time
-    if val == 1:
-        val = 2
-    else:
-        val = 1
-    list_discreet_c.append(val)
-data_discreet_c = np.array(list_discreet_c)
+# data_c will be non-overlapping with data_a2.
+# We anticipate the KL or JS divergence to be maximum
+data_list_a2 = [4] * 1000
+data_discreet_a2 = np.array(data_list_a2)
+data_a2 = pd.DataFrame({
+    'continuous1': data_continuous_a,
+    'discrete1': data_discreet_a2
+})
 
+data_continuous_c = np.random.uniform(low=3, high=4, size=1000)
+data_list_c = [3] * 1000
+data_discreet_c = np.array(data_list_c)
 data_c = pd.DataFrame({
     'continuous1': data_continuous_c,
     'discrete1': data_discreet_c
 })
 
-KL_loss_ac, JS_loss_ac = M.KLD_JSD(data_a, data_c, discrete_columns)
+KL_loss_a2c, JS_loss_a2c = M.KLD_JSD(data_a2, data_c, discrete_columns)
 print("Case 2: Maximum divergence")
-print(KL_loss_ac, JS_loss_ac)
+print(KL_loss_a2c, JS_loss_a2c)
 
 
 # ------------------------------------------------------------------------------------------------
 # data_d will be overlapping with data_a
+# We anticipate the KL or JS divergence to be between the minimum and maximum values.
 data_continuous_d = np.random.uniform(low=0.5, high=1.5, size=1000)
 list_discreet_d = []
 rand_num_list = np.random.uniform(size=1000).tolist()
@@ -79,4 +77,3 @@ data_d = pd.DataFrame({
 print("Case 3: Some overlap")
 KL_loss_ad, JS_loss_ad = M.KLD_JSD(data_a, data_d, discrete_columns)
 print(KL_loss_ad, JS_loss_ad)
-
