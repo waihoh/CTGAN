@@ -95,7 +95,7 @@ def KLD_JSD(fake, real, discrete_columns):
             maxval = max(max(column_real), max(column_fake))
             minval = min(min(column_real), min(column_fake))
             # bins = np.linspace(start=minval, stop=maxval, num=20) ##Is number of bins too small?
-            bins = np.histogram_bin_edges(np.arange(minval, maxval), bins='fd')
+            bins = np.histogram_bin_edges(np.arange(minval, maxval), bins='auto')
             print("number of bins:", len(bins))
             fake_prob = continuous_probs(column_fake, bins)
             real_prob = continuous_probs(column_real, bins)
