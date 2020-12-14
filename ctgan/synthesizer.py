@@ -327,8 +327,8 @@ class CTGANSynthesizer(object):
             KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
             self.train_KLD.append(KL_train_loss)
             self.train_JSD.append(JS_train_loss)
-            self.validation_KLD.append(KL_val_loss)
-            self.validation_JSD.append(JS_val_loss)
+            self.val_KLD.append(KL_val_loss)
+            self.val_JSD.append(JS_val_loss)
 
             #print("epoch", self.trained_epoches, "KL Divergence:", KL_loss)
            # print("epoch", self.trained_epoches, "JS Divergence:", JS_loss)
