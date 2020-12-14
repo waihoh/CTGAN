@@ -166,15 +166,15 @@ class CTGANSynthesizer(object):
                 Number of training epochs. Defaults to 300.
         """
         ## split the data into train and validation (70/15 rule)
-        train_data, val_data = train_test_split(data, test_size=0.18, random_state=42)
-        print('training data shape: ', train_data.shape)
+        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        print('training data shape: ', train_data0.shape)
         print('validation data shape: ', val_data.shape)
 
         self.trans = trans
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(train_data, discrete_columns, self.trans)
-        train_data = self.transformer.transform(train_data)
+            self.transformer.fit(train_data0, discrete_columns, self.trans)
+        train_data = self.transformer.transform(train_data0)
         print('transformed data shape: ',train_data.shape)
 
 
@@ -238,8 +238,10 @@ class CTGANSynthesizer(object):
 
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        self.KLD = []
-        self.JSD = []
+        self.train_KLD = []
+        self.train_JSD = []
+        self.validation_KLD = []
+        self.validation_JSD = []
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -321,11 +323,15 @@ class CTGANSynthesizer(object):
                   flush=True)
             ## synthetic data by the generator for each epoch
             sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
-            KL_loss, JS_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
-            self.KLD.append(KL_loss)
-            self.JSD.append(JS_loss)
-            print("epoch", self.trained_epoches, "KL Divergence:", KL_loss)
-            print("epoch", self.trained_epoches, "JS Divergence:", JS_loss)
+            KL_val_loss, JS_val_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
+            KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
+            self.train_KLD.append(KL_train_loss)
+            self.train_JSD.append(JS_train_loss)
+            self.val_KLD.append(KL_val_loss)
+            self.val_JSD.append(JS_val_loss)
+
+            #print("epoch", self.trained_epoches, "KL Divergence:", KL_loss)
+           # print("epoch", self.trained_epoches, "JS Divergence:", JS_loss)
 
     def sample(self, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
