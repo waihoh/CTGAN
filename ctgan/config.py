@@ -10,20 +10,23 @@ class ctgan_setting:
     EPOCHS = 300 ## or 600
     DROPOUT = 0.5 ## or 0.25
 
-###tvae and tablegan are not finished
 
 class tvae_setting:
     EMBEDDING = 128
-    DEPTH = 2
-    WIDTH = 8
+    DEPTH = 2 ## or 3 hidden layers
+    WIDTH = 128
     LEARNING_RATE = 1e-3 ## 1e-2; 1e-4
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
 
 
 class tablegan_setting:
-    NUM_FEATURES = 60
-    FILTER_WIDTH = 3
+    EMBEDDING = 100
+    NUM_CHANNELS = 64
+    DLAYER = 0 # 0: no changes. -1: remove last item in layer_dims, 1: add a 1X1 Convolution layer.
+    STRIDE = 2
+    KERNEL_SIZE = 4
+    SCALE_FACTOR = 2
     LEARNING_RATE = 2e-4 ## 2e-3;2e-5
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
