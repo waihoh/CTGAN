@@ -12,6 +12,7 @@ from ctgan.conditional import ConditionalGenerator
 from ctgan.sampler import Sampler
 from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
+from ctgan.config import tvae_setting as cfg
 
 class Encoder(Module):
     def __init__(self, data_dim, compress_dims, embedding_dim):
@@ -89,13 +90,21 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor):
 class TVAESynthesizer(object):
     """TVAESynthesizer."""
 
+    # def __init__(
+    #     self,
+    #     embedding_dim=128,
+    #     compress_dims=(128, 128),
+    #     decompress_dims=(128, 128),
+    #     l2scale=1e-5,
+    #     batch_size=500
+    # ):
     def __init__(
-        self,
-        embedding_dim=128,
-        compress_dims=(128, 128),
-        decompress_dims=(128, 128),
-        l2scale=1e-5,
-        batch_size=500
+            self,
+            embedding_dim=cfg.EMBEDDING,
+            compress_dims=np.repeat(cfg.WIDTH, cfg.DEPTH),
+            decompress_dims=np.repeat(cfg.WIDTH, cfg.DEPTH),
+            l2scale=1e-5,
+            batch_size=cfg.BATCH_SIZE
     ):
 
         self.embedding_dim = embedding_dim
@@ -133,8 +142,12 @@ class TVAESynthesizer(object):
 
         return torch.cat(data_t, dim=1)
 
-    def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True,
+    def fit(self, train_data, discrete_columns=tuple(), epochs=cfg.EPOCHS, log_frequency=True,
             model_summary=False, trans="VGM", use_cond_gen=True):
+        print("Learning rate: ",cfg.LEARNING_RATE)
+        print("Number of epochs ", cfg.EPOCHS)
+        print("Batch Size: ", self.batch_size)
+
         self.trans = trans
 
         if not hasattr(self, "transformer"):
@@ -175,9 +188,9 @@ class TVAESynthesizer(object):
             print("*" * 100)
 
         optimizerAE = Adam(
-            list(self.encoder.parameters()) + list(self.decoder.parameters()),
+            list(self.encoder.parameters()) + list(self.decoder.parameters()), lr=cfg.LEARNING_RATE,
             weight_decay=self.l2scale)
-
+        print(optimizerAE)
         assert self.batch_size % 2 == 0
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
