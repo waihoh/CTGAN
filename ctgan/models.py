@@ -1,5 +1,6 @@
 import torch
 from torch.nn import BatchNorm1d, Dropout, LeakyReLU, Linear, Module, ReLU, Sequential
+from ctgan.config import ctgan_setting as cfg
 
 
 class Discriminator(Module):
@@ -43,8 +44,10 @@ class Discriminator(Module):
         self.pack = pack
         self.packdim = dim
         seq = []
+        print('Dropout rate: ', cfg.DROPOUT)
         for item in list(dis_dims):
-            seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(0.5)]
+            #seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(0.5)]
+            seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(cfg.DROPOUT)]
             dim = item
 
         seq += [Linear(dim, 1)]
