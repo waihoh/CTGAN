@@ -10,6 +10,7 @@ from ctgan.conditional import ConditionalGenerator
 from ctgan.sampler import Sampler
 from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
+from ctgan.config import tablegan_setting as cfg
 # NOTE: Added conditional generator to the code.
 
 class Discriminator(Module):
@@ -62,7 +63,7 @@ class Classifier(Module):
         return self.seq(input).view(-1), label
 
 
-def determine_layers(side, random_dim, num_channels, dlayer=1):
+def determine_layers(side, random_dim, num_channels, dlayer):
     """
     Args:
         side: length of square matrix
@@ -76,9 +77,9 @@ def determine_layers(side, random_dim, num_channels, dlayer=1):
 
     assert side >= 4 and side <= 64  ##change to 64 for OVS dataset
 
-    scale_factor = 2  # ini value: 2
-    kernel_size = 4 # 4  # ini value: 4
-    stride = 2 # 2  # ini value: 2
+    scale_factor = cfg.SCALE_FACTOR  # ini value: 2
+    kernel_size = cfg.KERNEL_SIZE # 4  # ini value: 4
+    stride = cfg.STRIDE # 2  # ini value: 2
 
     # layer_dims = [(1, side), (num_channels, side // 2)]
     layer_dims = [(1, side), (num_channels, side // scale_factor)]
@@ -186,15 +187,23 @@ def reshape_data(data, side):
 class TableganSynthesizer(object):
     """docstring for TableganSynthesizer??"""
 
+    # def __init__(self,
+    #              random_dim=100,
+    #              num_channels=64,
+    #              l2scale=1e-5,
+    #              batch_size=500):
     def __init__(self,
-                 random_dim=100,
-                 num_channels=64,
-                 l2scale=1e-5,
-                 batch_size=500):
+                     random_dim=cfg.EMBEDDING,
+                     num_channels=cfg.NUM_CHANNELS,
+                     l2scale=1e-5,
+                     batch_size=cfg.BATCH_SIZE,
+                     dlayer = cfg.DLAYER
+                ):
 
         self.random_dim = random_dim
         self.num_channels = num_channels
         self.l2scale = l2scale
+        self.dlayer = dlayer
 
         self.batch_size = batch_size
         self.trained_epoches = 0
@@ -252,8 +261,12 @@ class TableganSynthesizer(object):
         return noise, real
 
     # def fit(self, data, categorical_columns=tuple(), ordinal_columns=tuple(), epochs=300):
-    def fit(self, data, discrete_columns=tuple(), epochs=300, log_frequency=True,
+    def fit(self, data, discrete_columns=tuple(), epochs=cfg.EPOCHS, log_frequency=True,
             model_summary=False, trans="VGM", use_cond_gen=True):
+        print('Learning rate: ', cfg.LEARNING_RATE)
+        print('Batch size: ', self.batch_size)
+        print('Number of Epochs: ', cfg.EPOCHS)
+        print('Depth of layer: ',self.dlayer)
         self.trans = trans
         # sides = [4, 8, 16, 24, 32]
         # for i in sides:
@@ -299,7 +312,7 @@ class TableganSynthesizer(object):
         # loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
 
         layers_D, layers_G, layers_C = determine_layers(
-            self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels)
+            self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels, self.dlayer)
 
         self.generator = Generator(self.transformer.meta, self.side, layers_G).to(self.device)
         self.discriminator = Discriminator(self.transformer.meta, self.side, layers_D).to(self.device)
@@ -318,12 +331,12 @@ class TableganSynthesizer(object):
             summary(self.discriminator, (1, self.side, self.side))
             print("*" * 100)
 
-            print("CLASSIFIER")
-            summary(self.classifier, (1, self.side, self.side))
-            print("*" * 100)
+            # print("CLASSIFIER")
+            # summary(self.classifier, (1, self.side, self.side))
+            # print("*" * 100)
 
         ##learning rate is 0.0002
-        optimizer_params = dict(lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
+        optimizer_params = dict(lr=cfg.LEARNING_RATE, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
         optimizerG = Adam(self.generator.parameters(), **optimizer_params) ##nn.parameters() returns the trainable parameters
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
         optimizerC = Adam(self.classifier.parameters(), **optimizer_params)
@@ -353,7 +366,6 @@ class TableganSynthesizer(object):
                 ## L_orig^D
                 loss_d = (
                     -(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
-                print('loss_d', loss_d.size)
                 loss_d.backward()
                 optimizerD.step()
 
