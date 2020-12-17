@@ -10,7 +10,7 @@ from ctgan.sampler import Sampler
 from ctgan.transformer import DataTransformer
 from torchsummary import summary
 
-from ctgan import config as cfg
+from ctgan.config import ctgan_setting as cfg
 
 ### added for validation
 from sklearn.model_selection import train_test_split
@@ -48,9 +48,10 @@ class CTGANSynthesizer(object):
             sampling. Defaults to ``True``.
     """
 
-    def __init__(self, embedding_dim=128, gen_dim=(256, 256), dis_dim=(256, 256),
-                 l2scale=1e-6, batch_size=500, discriminator_steps=1, log_frequency=True):
-
+    # def __init__(self, embedding_dim=128, gen_dim=(256, 256), dis_dim=(256, 256),
+    #              l2scale=1e-6, batch_size=500, discriminator_steps=1, log_frequency=True):
+    def __init__(self, embedding_dim=cfg.EMBEDDING, gen_dim=np.repeat(cfg.WIDTH,cfg.DEPTH), dis_dim=np.repeat(cfg.WIDTH,cfg.DEPTH),
+                             l2scale=1e-6, batch_size=cfg.BATCH_SIZE, discriminator_steps=1, log_frequency=True):
         self.embedding_dim = embedding_dim
         self.gen_dim = gen_dim
         self.dis_dim = dis_dim
@@ -149,7 +150,7 @@ class CTGANSynthesizer(object):
         return (loss * m).sum() / data.size()[0]
 
     # def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
-    def fit(self, data, discrete_columns=tuple(), epochs=300,
+    def fit(self, data, discrete_columns=tuple(), epochs=cfg.EPOCHS,
             model_summary=False, trans="VGM", use_cond_gen=True):
         """Fit the CTGAN Synthesizer models to the training data.
 
@@ -165,6 +166,9 @@ class CTGANSynthesizer(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
+        print('Learning rate: ',cfg.LEARNING_RATE)
+        print('Batch size: ',cfg.BATCH_SIZE)
+        print('Number of Epochs: ', cfg.EPOCHS)
         ## split the data into train and validation (70/15 rule)
         train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
         print('training data shape: ', train_data0.shape)
@@ -351,7 +355,7 @@ class CTGANSynthesizer(object):
         Returns:
             numpy.ndarray or pandas.DataFrame
         """
-
+        #self.generator.eval() #needed?
         if condition_column is not None and condition_value is not None:
             condition_info = self.transformer.covert_column_name_value_to_id(
                 condition_column, condition_value)
