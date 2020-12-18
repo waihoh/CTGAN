@@ -13,6 +13,11 @@ from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 from ctgan.config import tablegan_setting as cfg
 # NOTE: Added conditional generator to the code.
 
+### added for validation
+from sklearn.model_selection import train_test_split
+import ctgan.metric as M
+
+
 class Discriminator(Module):
     def __init__(self, meta, side, layers):
         super(Discriminator, self).__init__()
@@ -265,8 +270,14 @@ class TableganSynthesizer(object):
             model_summary=False, trans="VGM", use_cond_gen=True):
         print('Learning rate: ', cfg.LEARNING_RATE)
         print('Batch size: ', self.batch_size)
-        print('Number of Epochs: ', cfg.EPOCHS)
+        print('Number of epochs: ', cfg.EPOCHS)
         print('Depth of layer: ',self.dlayer)
+
+        ## split the data into train and validation (70/15 rule)
+        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        print('training data shape: ', train_data0.shape)
+        print('validation data shape: ', val_data.shape)
+
         self.trans = trans
         # sides = [4, 8, 16, 24, 32]
         # for i in sides:
@@ -283,12 +294,12 @@ class TableganSynthesizer(object):
         # we'll reshape the data later.
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(data, discrete_columns, self.trans)
-        data = self.transformer.transform(data)
+            self.transformer.fit(train_data0, discrete_columns, self.trans)
+        train_data = self.transformer.transform(train_data0)
 
-        print('data shape', data.shape)
+        print('data shape', train_data.shape)
 
-        self.data_sampler = Sampler(data, self.transformer.output_info, trans=self.trans)
+        self.data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         # NOTE: changed data_dim to self.data_dim. It'll be used later in sample function.
         self.data_dim = self.transformer.output_dimensions
@@ -296,7 +307,7 @@ class TableganSynthesizer(object):
 
         if not hasattr(self, "cond_generator"):
             self.cond_generator = ConditionalGenerator(
-                data,
+                train_data,
                 self.transformer.output_info,
                 log_frequency,
                 trans=self.trans,
@@ -345,7 +356,11 @@ class TableganSynthesizer(object):
         self.discriminator.apply(weights_init)
         self.classifier.apply(weights_init)
 
-        steps_per_epoch = max(len(data) // self.batch_size, 1)
+        steps_per_epoch = max(len(train_data) // self.batch_size, 1)
+        self.train_KLD = []
+        self.train_JSD = []
+        self.validation_KLD = []
+        self.validation_JSD = []
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -417,12 +432,24 @@ class TableganSynthesizer(object):
                 else:
                     loss_c = None
 
+
                 # if (id_ + 1) % 50 == 0:
-                if (id_ + 1) % 1 == 0:
-                    print("epoch", i + 1, "step", id_ + 1, loss_d, loss_g, loss_c, flush=True)
+                # if (id_ + 1) % 1 == 0:
+                #      print("epoch", i + 1, "step", id_ + 1, loss_d, loss_g, loss_c, flush=True)
+                print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
+                      (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
+                      flush=True)
+                ## synthetic data by the generator for each epoch
+                sampled_train = self.sample(val_data.shape[0], condition_column=None,
+                                            condition_value=None)
+                KL_val_loss, JS_val_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
+                KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
+                self.train_KLD.append(KL_train_loss)
+                self.train_JSD.append(JS_train_loss)
+                self.validation_KLD.append(KL_val_loss)
+                self.validation_JSD.append(JS_val_loss)
 
-
-  ### following ctgan and tvae, added the parts updated by the authors.
+    ### following ctgan and tvae, added the parts updated by the authors.
     def sample(self, n, condition_column=None, condition_value=None):
     #def sample(self, n):
         self.generator.eval()
