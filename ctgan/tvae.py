@@ -14,6 +14,10 @@ from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
 from ctgan.config import tvae_setting as cfg
 
+### added for validation
+from sklearn.model_selection import train_test_split
+import ctgan.metric as M
+
 class Encoder(Module):
     def __init__(self, data_dim, compress_dims, embedding_dim):
         super(Encoder, self).__init__()
@@ -142,18 +146,23 @@ class TVAESynthesizer(object):
 
         return torch.cat(data_t, dim=1)
 
-    def fit(self, train_data, discrete_columns=tuple(), epochs=cfg.EPOCHS, log_frequency=True,
+    def fit(self, data, discrete_columns=tuple(), epochs=cfg.EPOCHS, log_frequency=True,
             model_summary=False, trans="VGM", use_cond_gen=True):
         print("Learning rate: ",cfg.LEARNING_RATE)
         print("Number of epochs ", cfg.EPOCHS)
         print("Batch Size: ", self.batch_size)
 
+        ## split the data into train and validation (70/15 rule)
+        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        print('training data shape: ', train_data0.shape)
+        print('validation data shape: ', val_data.shape)
+
         self.trans = trans
 
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
-            self.transformer.fit(train_data, discrete_columns, trans=self.trans)
-        train_data = self.transformer.transform(train_data)
+            self.transformer.fit(train_data0, discrete_columns, trans=self.trans)
+        train_data = self.transformer.transform(train_data0)
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -194,6 +203,10 @@ class TVAESynthesizer(object):
         assert self.batch_size % 2 == 0
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
+        self.train_KLD = []
+        self.train_JSD = []
+        self.validation_KLD = []
+        self.validation_JSD = []
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -235,6 +248,15 @@ class TVAESynthesizer(object):
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
 
             print("Epoch %d, Loss: %.4f" % (i, loss.detach().cpu()), flush=True)
+            ## synthetic data by the generator for each epoch
+            sampled_train = self.sample(val_data.shape[0], condition_column=None,
+                                        condition_value=None)
+            KL_val_loss, JS_val_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
+            KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
+            self.train_KLD.append(KL_train_loss)
+            self.train_JSD.append(JS_train_loss)
+            self.validation_KLD.append(KL_val_loss)
+            self.validation_JSD.append(JS_val_loss)
 
     def sample(self, samples, condition_column=None, condition_value=None):
         self.decoder.eval()
