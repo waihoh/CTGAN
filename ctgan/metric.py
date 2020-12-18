@@ -45,23 +45,6 @@ def discrete_probs(column, unique_list):
 
     return np.array(probs)
 
-
-def continuous_probs(column,bins):
-    column = pd.Series(np.digitize(column, bins))
-    counts = column.value_counts()
-    freqs = {counts.index[i]: counts.values[i] for i in range(len(counts.index))}
-    for i in range(1, len(bins)+1):
-        if i not in freqs.keys():
-            freqs[i] = 0
-    sorted_freqs = {}
-    for k in sorted(freqs.keys()):
-        sorted_freqs[k] = freqs[k]
-    probs = []
-    for k,v in sorted_freqs.items():
-        probs.append(v/len(column))
-    return np.array(probs)
-
-
 # KL-divergence formula
 def kl_divergence(p, q):
     # TODO: how to handle q == 0?
@@ -73,10 +56,57 @@ def kl_divergence(p, q):
     return np.sum(p * (a - b))
     # return np.sum(np.where(p != 0, p * np.log(p / q), 0))
 
+###For continuous variables:
+def ecdf(x):
+    x = np.sort(x)
+    u, c = np.unique(x, return_counts=True)
+    n = len(x)
+    y = (np.cumsum(c) - 0.5)/n
+    def interpolate_(x_):
+        yinterp = np.interp(x_, u, y, left=0.0, right=1.0)
+        return yinterp
+    return interpolate_
 
-def KLD_JSD(fake, real, discrete_columns):
+
+def cumulative_continuous_kl(x,y,fraction=0.5):
+    dx = np.diff(np.sort(np.unique(x)))
+    dy = np.diff(np.sort(np.unique(y)))
+    ex = np.min(dx)
+    ey = np.min(dy)
+    e = np.min([ex,ey])*fraction
+    n = len(x)
+    P = ecdf(x)
+    Q = ecdf(y)
+    p = P(x) - P(x-e)
+    q = Q(x) - Q(x-e)
+    p[p < 1e-8] = 1e-8
+    q[q < 1e-8] = 1e-8
+    KL = (1./n)*np.sum(np.log(p/q))
+    return KL
+
+
+# def continuous_probs(column,bins):
+#     column = pd.Series(np.digitize(column, bins))
+#     counts = column.value_counts()
+#     freqs = {counts.index[i]: counts.values[i] for i in range(len(counts.index))}
+#     for i in range(1, len(bins)+1):
+#         if i not in freqs.keys():
+#             freqs[i] = 0
+#     sorted_freqs = {}
+#     for k in sorted(freqs.keys()):
+#         sorted_freqs[k] = freqs[k]
+#     probs = []
+#     for k,v in sorted_freqs.items():
+#         probs.append(v/len(column))
+#     return np.array(probs)
+
+
+
+
+
+
+def KLD(fake, real, discrete_columns):
     KLD = []
-    JSD = []
     for column in fake.columns:
         column_fake = fake[column].values
         column_real = real[column].values
@@ -91,19 +121,18 @@ def KLD_JSD(fake, real, discrete_columns):
             # find probabilities of values according to order in unique_list
             fake_prob = discrete_probs(column_fake, unique_list)
             real_prob = discrete_probs(column_real, unique_list)
+            KLD.append(kl_divergence(fake_prob, real_prob))
         else:
-            maxval = max(max(column_real), max(column_fake))
-            minval = min(min(column_real), min(column_fake))
-            # bins = np.linspace(start=minval, stop=maxval, num=20) ##Is number of bins too small?
-            bins = np.histogram_bin_edges(np.arange(minval, maxval), bins='auto')
-            #print("number of bins:", len(bins))
-            fake_prob = continuous_probs(column_fake, bins)
-            real_prob = continuous_probs(column_real, bins)
-        mean_prob = (fake_prob+real_prob)/2
+            #maxval = max(max(column_real), max(column_fake))
+            #minval = min(min(column_real), min(column_fake))
+            #bins = np.linspace(start=minval, stop=maxval, num=20) ##Is number of bins too small?
+            #bins = np.histogram_bin_edges(np.arange(minval, maxval), bins='auto')
+            #fake_prob = continuous_probs(column_fake, bins)
+            #real_prob = continuous_probs(column_real, bins)
 
-        JSD.append((kl_divergence(fake_prob, mean_prob)+kl_divergence(real_prob, mean_prob))/2)
-        KLD.append(kl_divergence(fake_prob, real_prob))
+            #mean_prob = (fake_prob+real_prob)/2
+            KLD.append(cumulative_continuous_kl(column_fake, column_real))
 
     # return np.mean(KLD), np.mean(JSD)
-    return sum(KLD), sum(JSD)
+    return np.array(KLD)
 
