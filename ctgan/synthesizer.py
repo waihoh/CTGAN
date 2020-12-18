@@ -243,9 +243,11 @@ class CTGANSynthesizer(object):
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
         self.train_KLD = []
-        self.train_JSD = []
+        self.prop_dis_train = []
+        #self.train_JSD = []
         self.validation_KLD = []
-        self.validation_JSD = []
+        self.prop_dis_validation = []
+        #self.validation_JSD = []
         for i in range(epochs):
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -327,15 +329,14 @@ class CTGANSynthesizer(object):
                   flush=True)
             ## synthetic data by the generator for each epoch
             sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
-            KL_val_loss, JS_val_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
-            KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
+            KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
+            KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
             self.train_KLD.append(KL_train_loss)
-            self.train_JSD.append(JS_train_loss)
+            # self.train_JSD.append(JS_train_loss)
             self.validation_KLD.append(KL_val_loss)
-            self.validation_JSD.append(JS_val_loss)
-
-            #print("epoch", self.trained_epoches, "KL Divergence:", KL_loss)
-           # print("epoch", self.trained_epoches, "JS Divergence:", JS_loss)
+            # self.validation_JSD.append(JS_val_loss)
+            self.prop_dis_train.append(len(KL_train_loss[KL_train_loss>=0.001])/len(KL_train_loss)) ## not sure about 0.001; need more information
+            self.prop_dis_validation.append(len(KL_val_loss[KL_val_loss >=0.001])/len(KL_val_loss))
 
     def sample(self, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
