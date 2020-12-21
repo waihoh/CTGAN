@@ -49,8 +49,8 @@ def discrete_probs(column, unique_list):
 def kl_divergence(p, q):
     # TODO: how to handle q == 0?
     # set a small number for numerical stability.
-    p[p < 1e-8] = 1e-8
-    q[q < 1e-8] = 1e-8
+    p[p < 1e-12] = 1e-12
+    q[q < 1e-12] = 1e-12
     a = np.log(p)
     b = np.log(q)
     return np.sum(p * (a - b))
@@ -59,29 +59,29 @@ def kl_divergence(p, q):
 ###For continuous variables:
 def ecdf(x):
     x = np.sort(x)
-    u, c = np.unique(x, return_counts=True)
+    u, c = np.unique(x, return_counts=True) #u: sorted x; c: count
     n = len(x)
-    y = (np.cumsum(c) - 0.5)/n
-    def interpolate_(x_):
+    y = (np.cumsum(c) - 0.5)/n ## Pe(x) in paper; When x=xi, U(x-xi)=0.5
+    def interpolate_(x_): #Pc(x)
         yinterp = np.interp(x_, u, y, left=0.0, right=1.0)
         return yinterp
     return interpolate_
 
 
 def cumulative_continuous_kl(x,y,fraction=0.5):
-    dx = np.diff(np.sort(np.unique(x)))
+    dx = np.diff(np.sort(np.unique(x))) #Delta_x = xi-x_{i-1}
     dy = np.diff(np.sort(np.unique(y)))
-    ex = np.min(dx)
+    ex = np.min(dx) #min_i{xi-x_{i-1}}
     ey = np.min(dy)
-    e = np.min([ex,ey])*fraction
+    e = np.min([ex,ey])*fraction # e should be smaller than ex and ey; so here multiply 0.5
     n = len(x)
     P = ecdf(x)
     Q = ecdf(y)
     p = P(x) - P(x-e)
     q = Q(x) - Q(x-e)
-    p[p < 1e-8] = 1e-8
-    q[q < 1e-8] = 1e-8
-    KL = (1./n)*np.sum(np.log(p/q))
+    p[p < 1e-12] = 1e-12
+    q[q < 1e-12] = 1e-12
+    KL = abs((1./n)*np.sum(np.log(p/q))-1) #eq.5 in paper
     return KL
 
 
@@ -99,10 +99,6 @@ def cumulative_continuous_kl(x,y,fraction=0.5):
 #     for k,v in sorted_freqs.items():
 #         probs.append(v/len(column))
 #     return np.array(probs)
-
-
-
-
 
 
 def KLD(fake, real, discrete_columns):
@@ -123,15 +119,24 @@ def KLD(fake, real, discrete_columns):
             real_prob = discrete_probs(column_real, unique_list)
             KLD.append(kl_divergence(fake_prob, real_prob))
         else:
-            #maxval = max(max(column_real), max(column_fake))
-            #minval = min(min(column_real), min(column_fake))
-            #bins = np.linspace(start=minval, stop=maxval, num=20) ##Is number of bins too small?
-            #bins = np.histogram_bin_edges(np.arange(minval, maxval), bins='auto')
-            #fake_prob = continuous_probs(column_fake, bins)
-            #real_prob = continuous_probs(column_real, bins)
+            # check whether indicator columns exist
+            if column + '_cat' in fake.columns:
+                column_fake = column_fake[fake[column + '_cat'] == 0]
+                column_fake = column_fake[column_fake > 0]
+                column_real = column_real[real[column + '_cat'] == 0]
+                column_real = column_real[column_real > 0]
+                if len(column_fake) >= 1000 and len(column_real) >= 1000:
+                    KLD.append(cumulative_continuous_kl(column_fake, column_real))
+            else:
+                KLD.append(cumulative_continuous_kl(column_fake, column_real))
+            # maxval = max(max(column_real), max(column_fake))
+            # minval = min(min(column_real), min(column_fake))
+            # bins = np.linspace(start=minval, stop=maxval, num=20) ##Is number of bins too small?
+            # bins = np.histogram_bin_edges(np.arange(minval, maxval), bins='auto')
+            # fake_prob = continuous_probs(column_fake, bins)
+            # real_prob = continuous_probs(column_real, bins)
 
-            #mean_prob = (fake_prob+real_prob)/2
-            KLD.append(cumulative_continuous_kl(column_fake, column_real))
+            # mean_prob = (fake_prob+real_prob)/2
 
     # return np.mean(KLD), np.mean(JSD)
     return np.array(KLD)
