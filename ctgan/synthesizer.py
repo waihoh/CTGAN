@@ -244,11 +244,10 @@ class CTGANSynthesizer(object):
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
         self.train_KLD = []
         self.prop_dis_train = []
-        #self.train_JSD = []
         self.validation_KLD = []
         self.prop_dis_validation = []
-        #self.validation_JSD = []
         for i in range(epochs):
+            self.generator.train() ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
 
@@ -332,9 +331,7 @@ class CTGANSynthesizer(object):
             KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
             KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
             self.train_KLD.append(KL_train_loss)
-            # self.train_JSD.append(JS_train_loss)
             self.validation_KLD.append(KL_val_loss)
-            # self.validation_JSD.append(JS_val_loss)
             self.prop_dis_train.append(len(KL_train_loss[KL_train_loss>=0.001])/len(KL_train_loss)) ## not sure about 0.001; need more information
             self.prop_dis_validation.append(len(KL_val_loss[KL_val_loss >=0.001])/len(KL_val_loss))
 
@@ -356,7 +353,7 @@ class CTGANSynthesizer(object):
         Returns:
             numpy.ndarray or pandas.DataFrame
         """
-        #self.generator.eval() #needed?
+        self.generator.eval() ## switch to evaluate mode
         if condition_column is not None and condition_value is not None:
             condition_info = self.transformer.covert_column_name_value_to_id(
                 condition_column, condition_value)
