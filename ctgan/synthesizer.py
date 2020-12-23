@@ -176,8 +176,9 @@ class CTGANSynthesizer(object):
 
         self.trans = trans
         if not hasattr(self, "transformer"):
-            self.transformer = DataTransformer()
-            self.transformer.fit(train_data0, discrete_columns, self.trans)
+           self.transformer = DataTransformer()
+           self.transformer.fit(train_data0, discrete_columns, self.trans)
+           #self.transformer = DataTransformer.load('C:/Users/stazt/Documents/nBox/Project Ultron/Tianming/Dataset')
         train_data = self.transformer.transform(train_data0)
         print('transformed data shape: ',train_data.shape)
 
@@ -241,14 +242,16 @@ class CTGANSynthesizer(object):
             print("*" * 100)
 
 
+
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
-                                               n_rep=1000)
-        print(self.threshold)
-        self.train_KLD = []
-        self.prop_dis_train = []
-        self.validation_KLD = []
-        self.prop_dis_validation = []
+        ##23/12/2020: decide it later for save time
+        # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
+        #                                        n_rep=1000)
+        # print(self.threshold)
+        # self.train_KLD = []
+        # self.prop_dis_train = []
+        # self.validation_KLD = []
+        # self.prop_dis_validation = []
         for i in range(epochs):
             self.generator.train() ##switch to train mode
             self.trained_epoches += 1
@@ -330,15 +333,15 @@ class CTGANSynthesizer(object):
                   (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
                   flush=True)
             ## synthetic data by the generator for each epoch
-            sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
-            KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
-            KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
-            diff_train = KL_train_loss - self.threshold
-            diff_val = KL_val_loss - self.threshold
-            self.train_KLD.append(KL_train_loss)
-            self.validation_KLD.append(KL_val_loss)
-            self.prop_dis_train.append(np.count_nonzero(diff_train >= 0)/np.count_nonzero(~np.isnan(diff_train)))
-            self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val)))
+            # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
+            # KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
+            # KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
+            # diff_train = KL_train_loss - self.threshold
+            # diff_val = KL_val_loss - self.threshold
+            # self.train_KLD.append(KL_train_loss)
+            # self.validation_KLD.append(KL_val_loss)
+            # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0)/np.count_nonzero(~np.isnan(diff_train)))
+            # self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val)))
 
 
     def sample(self, n, condition_column=None, condition_value=None):
