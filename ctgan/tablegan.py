@@ -274,7 +274,7 @@ class TableganSynthesizer(object):
         print('Depth of layer: ',self.dlayer)
 
         ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
         print('training data shape: ', train_data0.shape)
         print('validation data shape: ', val_data.shape)
 
@@ -357,11 +357,15 @@ class TableganSynthesizer(object):
         self.classifier.apply(weights_init)
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
+        self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
+                                               n_rep=1000)
+        print(self.threshold)
         self.train_KLD = []
-        self.train_JSD = []
+        self.prop_dis_train = []
         self.validation_KLD = []
-        self.validation_JSD = []
+        self.prop_dis_validation = []
         for i in range(epochs):
+            self.generator.train()  ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
                 noise, real = self.get_noise_real(True) ## cond is added
@@ -436,18 +440,20 @@ class TableganSynthesizer(object):
                 # if (id_ + 1) % 50 == 0:
                 # if (id_ + 1) % 1 == 0:
                 #      print("epoch", i + 1, "step", id_ + 1, loss_d, loss_g, loss_c, flush=True)
-                print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
-                      (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
-                      flush=True)
-                ## synthetic data by the generator for each epoch
-                sampled_train = self.sample(val_data.shape[0], condition_column=None,
+            print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
+                  (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
+                   flush=True)
+            ## synthetic data by the generator for each epoch
+            sampled_train = self.sample(val_data.shape[0], condition_column=None,
                                             condition_value=None)
-                KL_val_loss, JS_val_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
-                KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
-                self.train_KLD.append(KL_train_loss)
-                self.train_JSD.append(JS_train_loss)
-                self.validation_KLD.append(KL_val_loss)
-                self.validation_JSD.append(JS_val_loss)
+            KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
+            KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
+            diff_train = KL_train_loss - self.threshold
+            diff_val = KL_val_loss - self.threshold
+            self.train_KLD.append(KL_train_loss)
+            self.validation_KLD.append(KL_val_loss)
+            self.prop_dis_train.append(np.count_nonzero(diff_train >= 0) / np.count_nonzero(~np.isnan(diff_train)))
+            self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val)))
 
     ### following ctgan and tvae, added the parts updated by the authors.
     def sample(self, n, condition_column=None, condition_value=None):
@@ -497,7 +503,7 @@ class TableganSynthesizer(object):
         # # 2020-11-12
         # # first, reshape the square matrices to 1D
         #data = data[:n].reshape(-1, self.side * self.side)
-        print('inverse_transform_tablegan, after reshaping to 1D:', data.shape)
+       # print('inverse_transform_tablegan, after reshaping to 1D:', data.shape)
         # # second, remove the padded values.
         # # however, this line does not seem to be required.
         # # it'll work just fine by calling inverse_transform directly.
