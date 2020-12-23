@@ -251,7 +251,7 @@ class TVAESynthesizer(object):
                 optimizerAE.step()
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
 
-            print("Epoch %d, Loss: %.4f" % (i, loss.detach().cpu()), flush=True)
+            print("Epoch %d, Loss: %.4f" % (self.trained_epoches, loss.detach().cpu()), flush=True)
             ## synthetic data by the generator for each epoch
             sampled_train = self.sample(val_data.shape[0], condition_column=None,
                                         condition_value=None)
