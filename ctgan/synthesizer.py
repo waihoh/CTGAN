@@ -170,7 +170,7 @@ class CTGANSynthesizer(object):
         print('Batch size: ',cfg.BATCH_SIZE)
         print('Number of Epochs: ', cfg.EPOCHS)
         ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
         print('training data shape: ', train_data0.shape)
         print('validation data shape: ', val_data.shape)
 
@@ -242,6 +242,9 @@ class CTGANSynthesizer(object):
 
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
+        self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
+                                               n_rep=1000)
+        print(self.threshold)
         self.train_KLD = []
         self.prop_dis_train = []
         self.validation_KLD = []
@@ -330,10 +333,13 @@ class CTGANSynthesizer(object):
             sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
             KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
             KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
+            diff_train = KL_train_loss - self.threshold
+            diff_val = KL_val_loss - self.threshold
             self.train_KLD.append(KL_train_loss)
             self.validation_KLD.append(KL_val_loss)
-            self.prop_dis_train.append(len(KL_train_loss[KL_train_loss>=0.001])/len(KL_train_loss)) ## not sure about 0.001; need more information
-            self.prop_dis_validation.append(len(KL_val_loss[KL_val_loss >=0.001])/len(KL_val_loss))
+            self.prop_dis_train.append(np.count_nonzero(diff_train >= 0)/np.count_nonzero(~np.isnan(diff_train)))
+            self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val)))
+
 
     def sample(self, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
