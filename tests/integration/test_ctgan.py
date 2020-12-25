@@ -12,7 +12,7 @@ model are not checked.
 import numpy as np
 import pandas as pd
 
-from ctgan.synthesizer import CTGANSynthesizer
+from ctgan import CTGANSynthesizer
 
 
 def test_ctgan_dataframe():
@@ -97,7 +97,7 @@ def test_categorical_nan():
     assert any(pd.isnull(x) for x in values)
     assert {"b", "c"}.issubset(values)
 
-    
+
 def test_synthesizer_sample():
     data = pd.DataFrame({
         'discrete': np.random.choice(['a', 'b', 'c'], 100)
@@ -109,3 +109,7 @@ def test_synthesizer_sample():
 
     samples = ctgan.sample(1000, 'discrete', 'a')
     assert isinstance(samples, pd.DataFrame)
+
+
+if __name__ == "__main__":
+    test_ctgan_dataframe()
