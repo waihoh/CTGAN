@@ -24,9 +24,9 @@ class tablegan_setting:
     EMBEDDING = 100
     NUM_CHANNELS = 64
     DLAYER = 0 # 0: no changes. -1: remove last item in layer_dims, 1: add a 1X1 Convolution layer.
-    STRIDE = 2
-    KERNEL_SIZE = 4
-    SCALE_FACTOR = 2
+    STRIDE = 2  # This is fixed
+    KERNEL_SIZE = 4  # This is fixed
+    SCALE_FACTOR = 2  # This is fixed
     LEARNING_RATE = 2e-4 ## 2e-3;2e-5
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
@@ -40,6 +40,7 @@ class tablegan_setting:
 # # Common parameters across all models.
 # #OPTIMIZER = "ADAM"
 # #ctgan_depth = 999
+
 
 
 
