@@ -32,14 +32,14 @@ class tablegan_setting:
     EPOCHS = 300  ## or 600
 
 
-# split to different objects. easier to manage and update different models separately.
-CTGAN = ctgan_setting()
-TVAE = tvae_setting()
-TABLEGAN = tablegan_setting()
-
-# Common parameters across all models.
-#OPTIMIZER = "ADAM"
-#ctgan_depth = 999
+# # split to different objects. easier to manage and update different models separately.
+# CTGAN = ctgan_setting()
+# TVAE = tvae_setting()
+# TABLEGAN = tablegan_setting()
+#
+# # Common parameters across all models.
+# #OPTIMIZER = "ADAM"
+# #ctgan_depth = 999
 
 
 
