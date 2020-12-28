@@ -29,10 +29,9 @@ class DataTransformer(object):
             Epsilon value.
     """
 
-    def __init__(self, n_clusters=10, epsilon=0.005):  ##change to 0.05
+    def __init__(self, n_clusters=15, epsilon=0.005):  ## n_clusters increased to 15
         self.n_clusters = n_clusters
         self.epsilon = epsilon
-        print(self.epsilon)
         self.side = 0  # for tablegan
         self.datalen = 0  # for tablegan
 
