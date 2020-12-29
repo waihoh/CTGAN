@@ -301,7 +301,7 @@ class CTGANSynthesizer(object):
                     pen.backward(retain_graph=True)
                     loss_d.backward()
                     self.optimizerD.step()
-                self.discriminator_loss_in.append(loss_d.detach().cpu().numpy())
+                self.discriminator_loss_in.append(loss_d.detach().cpu())
 
 
                 fakez = torch.normal(mean=mean, std=std)
@@ -333,10 +333,10 @@ class CTGANSynthesizer(object):
                 self.optimizerG.zero_grad()
                 loss_g.backward()
                 self.optimizerG.step()
-                self.generator_loss_in.append(loss_g.detach().cpu().numpy())
+                self.generator_loss_in.append(loss_g.detach().cpu())
 
-            self.generator_loss.append(loss_g.detach().cpu().numpy())
-            self.discriminator_loss.append(loss_d.detach().cpu().numpy())
+            self.generator_loss.append(loss_g.detach().cpu())
+            self.discriminator_loss.append(loss_d.detach().cpu())
             print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
                   (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
                   flush=True)
