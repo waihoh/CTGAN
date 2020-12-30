@@ -402,8 +402,6 @@ class TableganSynthesizer(object):
         # self.prop_dis_validation = []
         self.generator_loss = []
         self.discriminator_loss = []
-        self.generator_loss_in = []
-        self.discriminator_loss_in = []
         for i in range(epochs):
             self.generator.train()  ##switch to train mode
             self.trained_epoches += 1
@@ -427,7 +425,6 @@ class TableganSynthesizer(object):
                     loss_d = (-(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
                     loss_d.backward()
                     optimizerD.step()
-                self.discriminator_loss_in.append(loss_d.detach().cpu())
 
                 #  To train the generator with L_orig^G first
                 noise, _, condvec = self.get_noise_real(False)
@@ -485,7 +482,6 @@ class TableganSynthesizer(object):
                     loss_c = (loss_cc, loss_cg)
                 else:
                     loss_c = None
-                self.generator_loss_in.append(loss_g.detach().cpu())
 
 
                 # if (id_ + 1) % 50 == 0:
