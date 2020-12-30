@@ -9,6 +9,7 @@ class ctgan_setting:
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300 ## or 600
     DROPOUT = 0.5 ## or 0.25
+    DISCRIMINATOR_STEP = 1
 
 
 class tvae_setting:
@@ -30,16 +31,17 @@ class tablegan_setting:
     LEARNING_RATE = 2e-4 ## 2e-3;2e-5
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
+    DISCRIMINATOR_STEP = 1
 
 
-# split to different objects. easier to manage and update different models separately.
-CTGAN = ctgan_setting()
-TVAE = tvae_setting()
-TABLEGAN = tablegan_setting()
-
-# Common parameters across all models.
-#OPTIMIZER = "ADAM"
-#ctgan_depth = 999
+# # split to different objects. easier to manage and update different models separately.
+# CTGAN = ctgan_setting()
+# TVAE = tvae_setting()
+# TABLEGAN = tablegan_setting()
+#
+# # Common parameters across all models.
+# #OPTIMIZER = "ADAM"
+# #ctgan_depth = 999
 
 
 

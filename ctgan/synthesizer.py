@@ -51,7 +51,7 @@ class CTGANSynthesizer(object):
     # def __init__(self, embedding_dim=128, gen_dim=(256, 256), dis_dim=(256, 256),
     #              l2scale=1e-6, batch_size=500, discriminator_steps=1, log_frequency=True):
     def __init__(self, embedding_dim=cfg.EMBEDDING, gen_dim=np.repeat(cfg.WIDTH,cfg.DEPTH), dis_dim=np.repeat(cfg.WIDTH,cfg.DEPTH),
-                             l2scale=1e-6, batch_size=cfg.BATCH_SIZE, discriminator_steps=1, log_frequency=True):
+                             l2scale=1e-6, batch_size=cfg.BATCH_SIZE, discriminator_steps=cfg.DISCRIMINATOR_STEP, log_frequency=True):
         self.embedding_dim = embedding_dim
         self.gen_dim = gen_dim
         self.dis_dim = dis_dim
@@ -244,7 +244,6 @@ class CTGANSynthesizer(object):
 
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        ##23/12/2020: decide it later for save time
         # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
         #                                        n_rep=1000)
         # print(self.threshold)
@@ -252,6 +251,8 @@ class CTGANSynthesizer(object):
         # self.prop_dis_train = []
         # self.validation_KLD = []
         # self.prop_dis_validation = []
+        self.generator_loss = []
+        self.discriminator_loss = []
         for i in range(epochs):
             self.generator.train() ##switch to train mode
             self.trained_epoches += 1
@@ -329,13 +330,15 @@ class CTGANSynthesizer(object):
                 loss_g.backward()
                 self.optimizerG.step()
 
+            self.generator_loss.append(loss_g.detach().cpu())
+            self.discriminator_loss.append(loss_d.detach().cpu())
             print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
                   (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
                   flush=True)
-            ## synthetic data by the generator for each epoch
+            # synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
-            # KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
-            # KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
+            # KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
+            # KL_train_loss = M.KLD(train_data0,sampled_train, discrete_columns)
             # diff_train = KL_train_loss - self.threshold
             # diff_val = KL_val_loss - self.threshold
             # self.train_KLD.append(KL_train_loss)
