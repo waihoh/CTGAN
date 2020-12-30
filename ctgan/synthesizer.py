@@ -253,8 +253,6 @@ class CTGANSynthesizer(object):
         # self.prop_dis_validation = []
         self.generator_loss = []
         self.discriminator_loss = []
-        self.generator_loss_in = []
-        self.discriminator_loss_in = []
         for i in range(epochs):
             self.generator.train() ##switch to train mode
             self.trained_epoches += 1
@@ -301,8 +299,6 @@ class CTGANSynthesizer(object):
                     pen.backward(retain_graph=True)
                     loss_d.backward()
                     self.optimizerD.step()
-                self.discriminator_loss_in.append(loss_d.detach().cpu())
-
 
                 fakez = torch.normal(mean=mean, std=std)
                 condvec = self.cond_generator.sample(self.batch_size)
@@ -333,7 +329,6 @@ class CTGANSynthesizer(object):
                 self.optimizerG.zero_grad()
                 loss_g.backward()
                 self.optimizerG.step()
-                self.generator_loss_in.append(loss_g.detach().cpu())
 
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
