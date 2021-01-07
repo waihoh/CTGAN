@@ -38,7 +38,7 @@ discrete_columns = [
 # Step 2: Fit TVAE to your data
 tvae = TVAESynthesizer()
 print('Training tvae is starting')
-tvae.fit(data, discrete_columns, epochs=5, model_summary=True, trans="Min-Max")
+tvae.fit(data, discrete_columns, epochs=1, model_summary=True, trans="Min-Max")
 # tvae.fit(data, discrete_columns, epochs=5)
 print('Training tvae is completed')
 

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy import stats
 import torch
 import torch.nn.functional as F ## For JSD
 from sklearn.utils import resample
@@ -102,7 +103,7 @@ def cumulative_continuous_kl(x,y,fraction=0.5):
 #     return np.array(probs)
 
 
-def KLD(fake, real, discrete_columns):
+def KLD(real, fake, discrete_columns):
     KLD = []
     for column in fake.columns:
         column_fake = fake[column].values
@@ -118,7 +119,7 @@ def KLD(fake, real, discrete_columns):
             # find probabilities of values according to order in unique_list
             fake_prob = discrete_probs(column_fake, unique_list)
             real_prob = discrete_probs(column_real, unique_list)
-            KLD.append(kl_divergence(fake_prob, real_prob))
+            KLD.append(kl_divergence(real_prob, fake_prob))
         else:
             # check whether indicator columns exist
             if column + '_cat' in fake.columns:
@@ -127,11 +128,11 @@ def KLD(fake, real, discrete_columns):
                 column_real = column_real[real[column + '_cat'] == 0]
                 column_real = column_real[column_real > 0]
                 if len(column_fake) >= 1000 and len(column_real) >= 1000:
-                    KLD.append(cumulative_continuous_kl(column_fake, column_real))
+                    KLD.append(cumulative_continuous_kl(column_real, column_fake))
                 else:
                     KLD.append(np.nan)
             else:
-                KLD.append(cumulative_continuous_kl(column_fake, column_real))
+                KLD.append(cumulative_continuous_kl(column_real, column_fake))
             # maxval = max(max(column_real), max(column_fake))
             # minval = min(min(column_real), min(column_fake))
             # bins = np.linspace(start=minval, stop=maxval, num=20) ##Is number of bins too small?
@@ -144,11 +145,14 @@ def KLD(fake, real, discrete_columns):
     # return np.mean(KLD), np.mean(JSD)
     return np.array(KLD)
 
-def determine_threshold(data,n,discrete_columns,n_rep=1000):
+def determine_threshold(data,n,discrete_columns,n_rep=100):
     boot_KLD = np.zeros((n_rep,data.shape[1]))
     for i in np.arange(n_rep):
         boot1 = resample(data, replace=True, n_samples=n)
         boot2 = resample(data, replace=True, n_samples=n)
         boot_KLD[i]= KLD(boot1,boot2,discrete_columns)
+   # sorted_boot_KLD = np.sort(boot_KLD,axis=0)
    # return np.nanmean(boot_KLD,axis=0)
-    return np.nanmean(boot_KLD,axis=0)+2*np.nanstd(boot_KLD,axis=0)
+   # return sorted_boot_KLD[int(0.95*n_rep)]
+    return stats.norm.interval(0.95, loc=np.mean(boot_KLD, axis=0),
+                               scale=stats.sem(boot_KLD))[1]
