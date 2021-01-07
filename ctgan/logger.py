@@ -17,8 +17,10 @@ class Logger():
         self.filename = "summary_" + self.PID + "_" + self.now.strftime(self.datetimeformat) + ".txt"
         self.file_path = os.path.join(self.dirpath, self.filename)
 
-    def write_to_file(self, msg):
+    def write_to_file(self, msg, toprint=True):
         # append message in a new line
+        if toprint:
+            print(msg)
         outmsg = self.now.strftime(self.datetimeformat) + ": " + msg + "\n"
         with open(self.file_path, "a") as myfile:
             myfile.write(outmsg)
