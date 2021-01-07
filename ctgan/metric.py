@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F ## For JSD
+from sklearn.utils import resample
 
 ## calculate Jensen--Shannon Divergence
 # softmax is not valid
@@ -127,6 +128,8 @@ def KLD(fake, real, discrete_columns):
                 column_real = column_real[column_real > 0]
                 if len(column_fake) >= 1000 and len(column_real) >= 1000:
                     KLD.append(cumulative_continuous_kl(column_fake, column_real))
+                else:
+                    KLD.append(np.nan)
             else:
                 KLD.append(cumulative_continuous_kl(column_fake, column_real))
             # maxval = max(max(column_real), max(column_fake))
@@ -141,3 +144,11 @@ def KLD(fake, real, discrete_columns):
     # return np.mean(KLD), np.mean(JSD)
     return np.array(KLD)
 
+def determine_threshold(data,n,discrete_columns,n_rep=1000):
+    boot_KLD = np.zeros((n_rep,data.shape[1]))
+    for i in np.arange(n_rep):
+        boot1 = resample(data, replace=True, n_samples=n)
+        boot2 = resample(data, replace=True, n_samples=n)
+        boot_KLD[i]= KLD(boot1,boot2,discrete_columns)
+   # return np.nanmean(boot_KLD,axis=0)
+    return np.nanmean(boot_KLD,axis=0)+2*np.nanstd(boot_KLD,axis=0)

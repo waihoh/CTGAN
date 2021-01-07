@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from torch.nn import BatchNorm2d, Conv2d, ConvTranspose2d, LeakyReLU, Module, ReLU, Sequential, Sigmoid, init
+from torch.nn import BatchNorm2d, Conv2d, ConvTranspose2d, LeakyReLU, Module, ReLU, Sequential, Sigmoid, init, functional
 from torch.nn.functional import binary_cross_entropy_with_logits
 from torch.optim import Adam
 # from torch.utils.data import DataLoader, TensorDataset
@@ -202,8 +202,9 @@ class TableganSynthesizer(object):
                      num_channels=cfg.NUM_CHANNELS,
                      l2scale=1e-5,
                      batch_size=cfg.BATCH_SIZE,
-                     dlayer = cfg.DLAYER
-                ):
+                     dlayer = cfg.DLAYER,
+                     discriminator_steps=cfg.DISCRIMINATOR_STEP,
+                 ):
 
         self.random_dim = random_dim
         self.num_channels = num_channels
@@ -214,8 +215,9 @@ class TableganSynthesizer(object):
         self.trained_epoches = 0
         self.side = 0
         self.data_dim = 0
+        self.discriminator_steps = discriminator_steps
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
     def _apply_activate(self, data, padding = True):
         data_t = []
@@ -251,7 +253,6 @@ class TableganSynthesizer(object):
         else:
             c1, m1, col, opt = condvec
             c1 = torch.from_numpy(c1).to(self.device)
-
             perm = np.arange(self.batch_size)
             np.random.shuffle(perm)
             if get_actual_data:
@@ -263,7 +264,42 @@ class TableganSynthesizer(object):
         noise = noise.unsqueeze(-1)
         noise = noise.unsqueeze(-1)
 
-        return noise, real
+        return noise, real, condvec
+
+    def _cond_loss(self, data, c, m):
+        loss = []
+        st = 0
+        st_c = 0
+        skip = False
+        for item in self.transformer.output_info:
+            if item[1] == 'tanh':
+                st += item[0]
+                if self.trans == "VGM":
+                    skip = True
+
+            elif item[1] == 'softmax':
+                if skip:
+                    skip = False
+                    st += item[0]
+                    continue
+
+                ed = st + item[0]
+                ed_c = st_c + item[0]
+                tmp = functional.cross_entropy(
+                    data[:, st:ed],
+                    torch.argmax(c[:, st_c:ed_c], dim=1),
+                    reduction='none'
+                )
+                loss.append(tmp)
+                st = ed
+                st_c = ed_c
+
+            else:
+                assert 0
+
+        loss = torch.stack(loss, dim=1)
+
+        return (loss * m).sum() / data.size()[0]
 
     # def fit(self, data, categorical_columns=tuple(), ordinal_columns=tuple(), epochs=300):
     def fit(self, data, discrete_columns=tuple(), epochs=cfg.EPOCHS, log_frequency=True,
@@ -274,7 +310,7 @@ class TableganSynthesizer(object):
         print('Depth of layer: ',self.dlayer)
 
         ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
         print('training data shape: ', train_data0.shape)
         print('validation data shape: ', val_data.shape)
 
@@ -357,45 +393,60 @@ class TableganSynthesizer(object):
         self.classifier.apply(weights_init)
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        self.train_KLD = []
-        self.train_JSD = []
-        self.validation_KLD = []
-        self.validation_JSD = []
+        # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
+        #                                        n_rep=1000)
+        # print(self.threshold)
+        # self.train_KLD = []
+        # self.prop_dis_train = []
+        # self.validation_KLD = []
+        # self.prop_dis_validation = []
+        self.generator_loss = []
+        self.discriminator_loss = []
         for i in range(epochs):
+            self.generator.train()  ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
-                noise, real = self.get_noise_real(True) ## cond is added
-                fake = self.generator(noise)
-                ## reshape to vector then apply activate function
-                fake = torch.reshape(fake,(self.batch_size,self.side * self.side))
-                fake = self._apply_activate(fake,True)
-                ## reshape to 2D.
-                fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
-                # Use reshape function to add zero padding and reshape to 2D.
-                real = reshape_data(real, self.side)
-                real = torch.from_numpy(real.astype('float32')).to(self.device)
+                for n in range(self.discriminator_steps):
+                    noise, real, _ = self.get_noise_real(True) ## cond is added
+                    fake = self.generator(noise)
+                    ## reshape to vector then apply activate function
+                    fake = torch.reshape(fake,(self.batch_size,self.side * self.side))
+                    fake = self._apply_activate(fake,True)
+                    ## reshape to 2D.
+                    fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
+                     # Use reshape function to add zero padding and reshape to 2D.
+                    real = reshape_data(real, self.side)
+                    real = torch.from_numpy(real.astype('float32')).to(self.device)
 
-                optimizerD.zero_grad()
-                y_real = self.discriminator(real)
-                y_fake = self.discriminator(fake)
-                ## L_orig^D
-                loss_d = (
-                    -(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
-                loss_d.backward()
-                optimizerD.step()
+                    optimizerD.zero_grad()
+                    y_real = self.discriminator(real)
+                    y_fake = self.discriminator(fake)
+                    ## L_orig^D
+                    loss_d = (-(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
+                    loss_d.backward()
+                    optimizerD.step()
 
                 #  To train the generator with L_orig^G first
-                noise, _ = self.get_noise_real(False)
+                noise, _, condvec = self.get_noise_real(False)
                 # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
                 fake = self.generator(noise)
                 fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
+                if condvec is None:
+                    cross_entropy = 0
+                else:
+                    c1, m1, col, opt = condvec
+                    c1 = torch.from_numpy(c1).to(self.device)
+                    m1 = torch.from_numpy(m1).to(self.device)
+                    cross_entropy = self._cond_loss(fake, c1, m1)
+
                 fake = self._apply_activate(fake,True)
                 fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
 
                 optimizerG.zero_grad()
                 y_fake = self.discriminator(fake)
+
                 ## L_orig^G
-                loss_g = -(torch.log(y_fake + 1e-4).mean())
+                loss_g = -(torch.log(y_fake + 1e-4).mean()) + cross_entropy ##plus cross_entropy for conditional generator
                 loss_g.backward(retain_graph=True) ##by setting retain_graph = True, generator is trained by L_orig^G+L_info^G
                 ## L_mean in eq(2)
                 loss_mean = torch.norm(torch.mean(fake, dim=0) - torch.mean(real, dim=0), 1)
@@ -435,19 +486,23 @@ class TableganSynthesizer(object):
 
                 # if (id_ + 1) % 50 == 0:
                 # if (id_ + 1) % 1 == 0:
-                #      print("epoch", i + 1, "step", id_ + 1, loss_d, loss_g, loss_c, flush=True)
-                print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
-                      (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
-                      flush=True)
-                ## synthetic data by the generator for each epoch
-                sampled_train = self.sample(val_data.shape[0], condition_column=None,
-                                            condition_value=None)
-                KL_val_loss, JS_val_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
-                KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
-                self.train_KLD.append(KL_train_loss)
-                self.train_JSD.append(JS_train_loss)
-                self.validation_KLD.append(KL_val_loss)
-                self.validation_JSD.append(JS_val_loss)
+                #      print("epoch", i + 1, "step", id_ + 1, loss_d, loss_g, loss_c, flush=True)]
+            self.generator_loss.append(loss_g.detach().cpu())
+            self.discriminator_loss.append(loss_d.detach().cpu())
+            print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
+                  (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
+                   flush=True)
+            ## synthetic data by the generator for each epoch
+            # sampled_train = self.sample(val_data.shape[0], condition_column=None,
+            #                                 condition_value=None)
+            # KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
+            # KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
+            # diff_train = KL_train_loss - self.threshold
+            # diff_val = KL_val_loss - self.threshold
+            # self.train_KLD.append(KL_train_loss)
+            # self.validation_KLD.append(KL_val_loss)
+            # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0) / np.count_nonzero(~np.isnan(diff_train)))
+            # self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val)))
 
     ### following ctgan and tvae, added the parts updated by the authors.
     def sample(self, n, condition_column=None, condition_value=None):
@@ -497,7 +552,7 @@ class TableganSynthesizer(object):
         # # 2020-11-12
         # # first, reshape the square matrices to 1D
         #data = data[:n].reshape(-1, self.side * self.side)
-        print('inverse_transform_tablegan, after reshaping to 1D:', data.shape)
+       # print('inverse_transform_tablegan, after reshaping to 1D:', data.shape)
         # # second, remove the padded values.
         # # however, this line does not seem to be required.
         # # it'll work just fine by calling inverse_transform directly.
@@ -529,7 +584,7 @@ class TableganSynthesizer(object):
     @classmethod
     def load(cls, path):
         model = torch.load(path)
-        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.generator.to(model.device)
         model.discriminator.to(model.device)
         model.classifier.to(model.device)

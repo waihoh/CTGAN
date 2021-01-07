@@ -51,7 +51,7 @@ class CTGANSynthesizer(object):
     # def __init__(self, embedding_dim=128, gen_dim=(256, 256), dis_dim=(256, 256),
     #              l2scale=1e-6, batch_size=500, discriminator_steps=1, log_frequency=True):
     def __init__(self, embedding_dim=cfg.EMBEDDING, gen_dim=np.repeat(cfg.WIDTH,cfg.DEPTH), dis_dim=np.repeat(cfg.WIDTH,cfg.DEPTH),
-                             l2scale=1e-6, batch_size=cfg.BATCH_SIZE, discriminator_steps=1, log_frequency=True):
+                             l2scale=1e-6, batch_size=cfg.BATCH_SIZE, discriminator_steps=cfg.DISCRIMINATOR_STEP, log_frequency=True):
         self.embedding_dim = embedding_dim
         self.gen_dim = gen_dim
         self.dis_dim = dis_dim
@@ -59,7 +59,7 @@ class CTGANSynthesizer(object):
         self.l2scale = l2scale
         self.batch_size = batch_size
         self.log_frequency = log_frequency
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         self.trained_epoches = 0
         self.discriminator_steps = discriminator_steps
         self.pack = 10  # Default value of Discriminator pac. See models.py
@@ -170,14 +170,15 @@ class CTGANSynthesizer(object):
         print('Batch size: ',cfg.BATCH_SIZE)
         print('Number of Epochs: ', cfg.EPOCHS)
         ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
         print('training data shape: ', train_data0.shape)
         print('validation data shape: ', val_data.shape)
 
         self.trans = trans
         if not hasattr(self, "transformer"):
-            self.transformer = DataTransformer()
-            self.transformer.fit(train_data0, discrete_columns, self.trans)
+           self.transformer = DataTransformer()
+           self.transformer.fit(train_data0, discrete_columns, self.trans)
+           #self.transformer = DataTransformer.load('C:/Users/stazt/Documents/nBox/Project Ultron/Tianming/Dataset')
         train_data = self.transformer.transform(train_data0)
         print('transformed data shape: ',train_data.shape)
 
@@ -241,11 +242,17 @@ class CTGANSynthesizer(object):
             print("*" * 100)
 
 
+
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        self.train_KLD = []
-        self.prop_dis_train = []
-        self.validation_KLD = []
-        self.prop_dis_validation = []
+        # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
+        #                                        n_rep=1000)
+        # print(self.threshold)
+        # self.train_KLD = []
+        # self.prop_dis_train = []
+        # self.validation_KLD = []
+        # self.prop_dis_validation = []
+        self.generator_loss = []
+        self.discriminator_loss = []
         for i in range(epochs):
             self.generator.train() ##switch to train mode
             self.trained_epoches += 1
@@ -323,17 +330,22 @@ class CTGANSynthesizer(object):
                 loss_g.backward()
                 self.optimizerG.step()
 
+            self.generator_loss.append(loss_g.detach().cpu())
+            self.discriminator_loss.append(loss_d.detach().cpu())
             print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
                   (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
                   flush=True)
-            ## synthetic data by the generator for each epoch
-            sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
-            KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
-            KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
-            self.train_KLD.append(KL_train_loss)
-            self.validation_KLD.append(KL_val_loss)
-            self.prop_dis_train.append(len(KL_train_loss[KL_train_loss>=0.001])/len(KL_train_loss)) ## not sure about 0.001; need more information
-            self.prop_dis_validation.append(len(KL_val_loss[KL_val_loss >=0.001])/len(KL_val_loss))
+            # synthetic data by the generator for each epoch
+            # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
+            # KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
+            # KL_train_loss = M.KLD(train_data0,sampled_train, discrete_columns)
+            # diff_train = KL_train_loss - self.threshold
+            # diff_val = KL_val_loss - self.threshold
+            # self.train_KLD.append(KL_train_loss)
+            # self.validation_KLD.append(KL_val_loss)
+            # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0)/np.count_nonzero(~np.isnan(diff_train)))
+            # self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val)))
+
 
     def sample(self, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
@@ -409,7 +421,7 @@ class CTGANSynthesizer(object):
     @classmethod
     def load(cls, path):
         model = torch.load(path)
-        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.generator.to(model.device)
         model.discriminator.to(model.device)
         return model

@@ -126,7 +126,7 @@ class TVAESynthesizer(object):
         self.ema_mu = 0
         self.ema_std = 0
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
     def _apply_activate(self, data):
         data_t = []
@@ -153,7 +153,7 @@ class TVAESynthesizer(object):
         print("Batch Size: ", self.batch_size)
 
         ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.18, random_state=42)
+        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
         print('training data shape: ', train_data0.shape)
         print('validation data shape: ', val_data.shape)
 
@@ -203,11 +203,15 @@ class TVAESynthesizer(object):
         assert self.batch_size % 2 == 0
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        self.train_KLD = []
-        self.train_JSD = []
-        self.validation_KLD = []
-        self.validation_JSD = []
+        # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
+        #                                        n_rep=1000)
+        # print(self.threshold)
+        # self.train_KLD = []
+        # self.prop_dis_train = []
+        # self.validation_KLD = []
+        # self.prop_dis_validation = []
         for i in range(epochs):
+            self.decoder.train() ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
                 condvec = self.cond_generator.sample(self.batch_size)
@@ -247,16 +251,19 @@ class TVAESynthesizer(object):
                 optimizerAE.step()
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
 
-            print("Epoch %d, Loss: %.4f" % (i, loss.detach().cpu()), flush=True)
+            print("Epoch %d, Loss: %.4f" % (self.trained_epoches, loss.detach().cpu()), flush=True)
             ## synthetic data by the generator for each epoch
-            sampled_train = self.sample(val_data.shape[0], condition_column=None,
-                                        condition_value=None)
-            KL_val_loss, JS_val_loss = M.KLD_JSD(val_data, sampled_train, discrete_columns)
-            KL_train_loss, JS_train_loss = M.KLD_JSD(train_data0, sampled_train, discrete_columns)
-            self.train_KLD.append(KL_train_loss)
-            self.train_JSD.append(JS_train_loss)
-            self.validation_KLD.append(KL_val_loss)
-            self.validation_JSD.append(JS_val_loss)
+            # sampled_train = self.sample(val_data.shape[0], condition_column=None,
+            #                             condition_value=None)
+            # KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
+            # KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
+            # diff_train = KL_train_loss - self.threshold
+            # diff_val = KL_val_loss - self.threshold
+            # self.train_KLD.append(KL_train_loss)
+            # self.validation_KLD.append(KL_val_loss)
+            # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0) / np.count_nonzero(~np.isnan(diff_train)))
+            # self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val)))
+
 
     def sample(self, samples, condition_column=None, condition_value=None):
         self.decoder.eval()
@@ -272,7 +279,7 @@ class TVAESynthesizer(object):
         steps = samples // self.batch_size + 1
         data = []
         for _ in range(steps):
-            print("ema_mu, ema_std", self.ema_mu, self.ema_std)
+           # print("ema_mu, ema_std", self.ema_mu, self.ema_std)
             # NOTE: Instead of using N(0,1), we use the mean and std 'learnt' during encoding.
             # i.e. N(self.ema_mu, self.ema_std**2).
             # It is nonetheless observed from tests that ema_mu and ema_std are close to 0 and 1 respectively.
@@ -318,7 +325,7 @@ class TVAESynthesizer(object):
     @classmethod
     def load(cls, path):
         model = torch.load(path)
-        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.encoder.to(model.device)
         model.decoder.to(model.device)
 
