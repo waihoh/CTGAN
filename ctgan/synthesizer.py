@@ -15,6 +15,7 @@ from ctgan.config import ctgan_setting as cfg
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
+from sklearn.utils import resample
 
 
 class CTGANSynthesizer(object):
@@ -245,7 +246,7 @@ class CTGANSynthesizer(object):
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
         # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
-        #                                        n_rep=1000)
+        #                                        n_rep=100)
         # print(self.threshold)
         # self.train_KLD = []
         # self.prop_dis_train = []
@@ -338,7 +339,8 @@ class CTGANSynthesizer(object):
             # synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
             # KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
-            # KL_train_loss = M.KLD(train_data0,sampled_train, discrete_columns)
+            # sub_train_data = resample(train_data0, replace=False, n_samples=val_data.shape[0])
+            # KL_train_loss = M.KLD(sub_train_data,sampled_train, discrete_columns)
             # diff_train = KL_train_loss - self.threshold
             # diff_val = KL_val_loss - self.threshold
             # self.train_KLD.append(KL_train_loss)
