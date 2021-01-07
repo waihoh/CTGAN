@@ -11,6 +11,7 @@ from ctgan.transformer import DataTransformer
 from torchsummary import summary
 
 from ctgan.config import ctgan_setting as cfg
+from ctgan.logger import Logger
 
 ### added for validation
 from sklearn.model_selection import train_test_split
@@ -48,21 +49,21 @@ class CTGANSynthesizer(object):
             sampling. Defaults to ``True``.
     """
 
-    # def __init__(self, embedding_dim=128, gen_dim=(256, 256), dis_dim=(256, 256),
-    #              l2scale=1e-6, batch_size=500, discriminator_steps=1, log_frequency=True):
-    def __init__(self, embedding_dim=cfg.EMBEDDING, gen_dim=np.repeat(cfg.WIDTH,cfg.DEPTH), dis_dim=np.repeat(cfg.WIDTH,cfg.DEPTH),
-                             l2scale=1e-6, batch_size=cfg.BATCH_SIZE, discriminator_steps=cfg.DISCRIMINATOR_STEP, log_frequency=True):
-        self.embedding_dim = embedding_dim
-        self.gen_dim = gen_dim
-        self.dis_dim = dis_dim
+
+    def __init__(self, l2scale=1e-6, pack = 10, log_frequency=True):
+        self.embedding_dim = cfg.EMBEDDING
+        self.gen_dim = np.repeat(cfg.WIDTH,cfg.DEPTH)
+        self.dis_dim = np.repeat(cfg.WIDTH,cfg.DEPTH)
 
         self.l2scale = l2scale
-        self.batch_size = batch_size
+        self.batch_size = cfg.BATCH_SIZE
+        self.epochs = cfg.EPOCHS
+        self.lr = cfg.LEARNING_RATE
         self.log_frequency = log_frequency
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         self.trained_epoches = 0
-        self.discriminator_steps = discriminator_steps
-        self.pack = 10  # Default value of Discriminator pac. See models.py
+        self.discriminator_steps = cfg.DISCRIMINATOR_STEP
+        self.pack = pack  # Default value of Discriminator pac. See models.py
 
     @staticmethod
     def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
@@ -149,9 +150,7 @@ class CTGANSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    # def fit(self, train_data, discrete_columns=tuple(), epochs=300, log_frequency=True, model_summary=False):
-    def fit(self, data, discrete_columns=tuple(), epochs=cfg.EPOCHS,
-            model_summary=False, trans="VGM", use_cond_gen=True):
+    def fit(self, data, discrete_columns=tuple(), model_summary=False, trans="VGM", use_cond_gen=True):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -166,13 +165,16 @@ class CTGANSynthesizer(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
-        print('Learning rate: ',cfg.LEARNING_RATE)
-        print('Batch size: ',cfg.BATCH_SIZE)
-        print('Number of Epochs: ', cfg.EPOCHS)
+        self.logger = Logger()
+        self.logger.change_dirpath(self.logger.dirpath + "/CTGAN_" + self.logger.PID) ## create a folder with PID
+
+        self.logger.write_to_file('Learning rate: ' + str(self.lr))
+        self.logger.write_to_file('Batch size: ' + str(self.batch_size))
+        self.logger.write_to_file('Number of Epochs: '+ str(self.epochs))
         ## split the data into train and validation (70/15 rule)
         train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
-        print('training data shape: ', train_data0.shape)
-        print('validation data shape: ', val_data.shape)
+        self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
+        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         self.trans = trans
         if not hasattr(self, "transformer"):
@@ -180,13 +182,13 @@ class CTGANSynthesizer(object):
            self.transformer.fit(train_data0, discrete_columns, self.trans)
            #self.transformer = DataTransformer.load('C:/Users/stazt/Documents/nBox/Project Ultron/Tianming/Dataset')
         train_data = self.transformer.transform(train_data0)
-        print('transformed data shape: ',train_data.shape)
+        self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
 
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
-        print('data dimension:', data_dim)
+        self.logger.write_to_file('data dimension: ' + str(data_dim))
 
         if not hasattr(self, "cond_generator"):
             self.cond_generator = ConditionalGenerator(
@@ -253,7 +255,7 @@ class CTGANSynthesizer(object):
         # self.prop_dis_validation = []
         self.generator_loss = []
         self.discriminator_loss = []
-        for i in range(epochs):
+        for i in range(self.epochs):
             self.generator.train() ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -332,9 +334,8 @@ class CTGANSynthesizer(object):
 
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
-            print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
-                  (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
-                  flush=True)
+            self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss G: "
+                                      + str(loss_g.detach().cpu().numpy())+ ", Loss D: " +str(loss_d.detach().cpu().numpy()))
             # synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
             # KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
