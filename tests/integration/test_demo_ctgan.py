@@ -12,7 +12,7 @@ print("Current working directory is:", cwd)
 data = pd.DataFrame({
     'continuous1': np.random.random(1000),
     'discrete1': np.repeat([1, 2, 3], [950, 25, 25]),
-    'discrete2': np.repeat(["a", "b"], [580, 420]),
+    'discrete2': np.repeat([1, 2], [580, 420]),
     'discrete3': np.repeat([6, 7], [100, 900])
 })
 
@@ -37,7 +37,8 @@ discrete_columns = ['discrete1', 'discrete2', 'discrete3']
 
 # Step 2: Fit CTGAN to your data
 ctgan = CTGANSynthesizer()
-ctgan.fit(data, discrete_columns, epochs=1, model_summary=False, trans="Min-Max")
+ctgan.fit(data, discrete_columns, epochs=2, model_summary=True, trans="VGM")
+
 
 # 2. Generate synthetic data
 samples_1 = ctgan.sample(10, condition_column='discrete1', condition_value=1)
