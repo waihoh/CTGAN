@@ -1,6 +1,8 @@
 # centralized configuration file.
 # It can be updated using argparse as well.
 
+
+
 class ctgan_setting:
     EMBEDDING = 128
     DEPTH = 2 ## or 3 hidden layers
@@ -10,6 +12,7 @@ class ctgan_setting:
     EPOCHS = 300 ## or 600
     DROPOUT = 0.5 ## or 0.25
     DISCRIMINATOR_STEP = 1
+    DEVICE = "cpu"  # "cuda:0"
 
 
 class tvae_setting:
@@ -19,6 +22,7 @@ class tvae_setting:
     LEARNING_RATE = 1e-3 ## 1e-2; 1e-4
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
+    DEVICE = "cpu"  # "cuda:0"
 
 
 class tablegan_setting:
@@ -32,6 +36,7 @@ class tablegan_setting:
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
     DISCRIMINATOR_STEP = 1
+    DEVICE = "cpu"  # "cuda:0"
 
 
 # # split to different objects. easier to manage and update different models separately.

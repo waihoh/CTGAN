@@ -59,7 +59,7 @@ class CTGANSynthesizer(object):
         self.l2scale = l2scale
         self.batch_size = batch_size
         self.log_frequency = log_frequency
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         self.trained_epoches = 0
         self.discriminator_steps = discriminator_steps
         self.pack = 10  # Default value of Discriminator pac. See models.py
@@ -421,7 +421,7 @@ class CTGANSynthesizer(object):
     @classmethod
     def load(cls, path):
         model = torch.load(path)
-        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.generator.to(model.device)
         model.discriminator.to(model.device)
         return model
