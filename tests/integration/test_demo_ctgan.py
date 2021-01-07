@@ -12,7 +12,7 @@ print("Current working directory is:", cwd)
 data = pd.DataFrame({
     'continuous1': np.random.random(1000),
     'discrete1': np.repeat([1, 2, 3], [950, 25, 25]),
-    'discrete2': np.repeat([1, 2], [580, 420]),
+    'discrete2': np.repeat(["a", "b"], [580, 420]),
     'discrete3': np.repeat([6, 7], [100, 900])
 })
 
@@ -37,24 +37,25 @@ discrete_columns = ['discrete1', 'discrete2', 'discrete3']
 
 # Step 2: Fit CTGAN to your data
 ctgan = CTGANSynthesizer()
-ctgan.fit(data, discrete_columns, epochs=2, model_summary=True, trans="VGM")
+ctgan.fit(data, discrete_columns, model_summary=False, trans="VGM")
 
+# print("before saving, does file exist?", os.path.exists(path_to_a_folder))
 
 # 2. Generate synthetic data
 samples_1 = ctgan.sample(10, condition_column='discrete1', condition_value=1)
-print('size of sample_1', samples_1.shape)
+
 
 # NOTE: the next test runs into an error currently.
 # # 3. Generate synthetic data conditioning on one column
 # samples_2 = ctgan.sample(10, 'workclass', ' Private')
 # print('size of sample_2', samples_2.shape)
 
-# #4. Save and load the synthesizer
-# path_to_a_folder = cwd + "/test_model.pth"
+#4. Save and load the synthesizer
+samples_1.to_csv(ctgan.logger.dirpath + "/" + "ctgan_samples_" + ctgan.logger.PID + "_" + ctgan.logger.now.strftime(ctgan.logger.datetimeformat) + ".csv", index=False, header=True)
 # print("before saving, does file exist?", os.path.exists(path_to_a_folder))
 #
 # # To save a trained ctgan synthesizer
-# ctgan.save(path_to_a_folder)
+ctgan.save(ctgan.logger.dirpath + "/" + "ctgan_model_" + ctgan.logger.PID + "_" + ctgan.logger.now.strftime(ctgan.logger.datetimeformat)+ ".pkl")
 # # NOTE: We'll see warnings:
 # # UserWarning: Couldn't retrieve source code for container of type ... . It won't be checked for correctness upon loading.
 # #   "type " + obj.__name__ + ". It won't be checked "

@@ -126,7 +126,7 @@ class TVAESynthesizer(object):
         self.ema_mu = 0
         self.ema_std = 0
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
     def _apply_activate(self, data):
         data_t = []
@@ -325,7 +325,7 @@ class TVAESynthesizer(object):
     @classmethod
     def load(cls, path):
         model = torch.load(path)
-        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.encoder.to(model.device)
         model.decoder.to(model.device)
 

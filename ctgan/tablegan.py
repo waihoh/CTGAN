@@ -217,7 +217,7 @@ class TableganSynthesizer(object):
         self.data_dim = 0
         self.discriminator_steps = discriminator_steps
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
     def _apply_activate(self, data, padding = True):
         data_t = []
@@ -584,7 +584,7 @@ class TableganSynthesizer(object):
     @classmethod
     def load(cls, path):
         model = torch.load(path)
-        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.generator.to(model.device)
         model.discriminator.to(model.device)
         model.classifier.to(model.device)
