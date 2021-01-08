@@ -203,6 +203,7 @@ class TVAESynthesizer(object):
         # self.prop_dis_train = []
         # self.validation_KLD = []
         # self.prop_dis_validation = []
+        self.total_loss = []
         for i in range(self.epochs):
             self.decoder.train() ##switch to train mode
             self.trained_epoches += 1
@@ -243,7 +244,7 @@ class TVAESynthesizer(object):
                 loss.backward()
                 optimizerAE.step()
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
-
+            self.total_loss.append(loss.detach().cpu())
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss: "
                                       + str(loss.detach().cpu().numpy()))
             ## synthetic data by the generator for each epoch
