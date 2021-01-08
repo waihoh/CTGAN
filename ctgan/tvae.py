@@ -13,6 +13,7 @@ from ctgan.sampler import Sampler
 from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
 from ctgan.config import tvae_setting as cfg
+from ctgan.logger import Logger
 
 ### added for validation
 from sklearn.model_selection import train_test_split
@@ -94,31 +95,18 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor):
 class TVAESynthesizer(object):
     """TVAESynthesizer."""
 
-    # def __init__(
-    #     self,
-    #     embedding_dim=128,
-    #     compress_dims=(128, 128),
-    #     decompress_dims=(128, 128),
-    #     l2scale=1e-5,
-    #     batch_size=500
-    # ):
-    def __init__(
-            self,
-            embedding_dim=cfg.EMBEDDING,
-            compress_dims=np.repeat(cfg.WIDTH, cfg.DEPTH),
-            decompress_dims=np.repeat(cfg.WIDTH, cfg.DEPTH),
-            l2scale=1e-5,
-            batch_size=cfg.BATCH_SIZE
-    ):
+    def __init__(self, l2scale=1e-5, trained_epoches = 0):
 
-        self.embedding_dim = embedding_dim
-        self.compress_dims = compress_dims
-        self.decompress_dims = decompress_dims
+        self.embedding_dim = cfg.EMBEDDING
+        self.compress_dims = np.repeat(cfg.WIDTH, cfg.DEPTH)
+        self.decompress_dims = np.repeat(cfg.WIDTH, cfg.DEPTH)
 
         self.l2scale = l2scale
-        self.batch_size = batch_size
+        self.batch_size = cfg.BATCH_SIZE
+        self.epochs = cfg.EPOCHS
+        self.lr = cfg.LEARNING_RATE
         self.loss_factor = 1  # 2 TODO: why 2 in original code? Should be 1 based on loss function.
-        self.trained_epoches = 0
+        self.trained_epoches = trained_epoches
 
         # exponential moving average of latent space, mu and sigma
         # use these values to sample from N(ema_mu, ema_sig**2) iso N(0,1)
@@ -146,16 +134,20 @@ class TVAESynthesizer(object):
 
         return torch.cat(data_t, dim=1)
 
-    def fit(self, data, discrete_columns=tuple(), epochs=cfg.EPOCHS, log_frequency=True,
+    def fit(self, data, discrete_columns=tuple(), log_frequency=True,
             model_summary=False, trans="VGM", use_cond_gen=True):
-        print("Learning rate: ",cfg.LEARNING_RATE)
-        print("Number of epochs ", cfg.EPOCHS)
-        print("Batch Size: ", self.batch_size)
+        self.logger = Logger()
+        self.logger.change_dirpath(
+            self.logger.dirpath + "/TVAE_" + self.logger.PID)  ## create a folder with PID
+
+        self.logger.write_to_file('Learning rate: ' + str(self.lr))
+        self.logger.write_to_file('Batch size: ' + str(self.batch_size))
+        self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
 
         ## split the data into train and validation (70/15 rule)
         train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
-        print('training data shape: ', train_data0.shape)
-        print('validation data shape: ', val_data.shape)
+        self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
+        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         self.trans = trans
 
@@ -163,11 +155,12 @@ class TVAESynthesizer(object):
             self.transformer = DataTransformer()
             self.transformer.fit(train_data0, discrete_columns, trans=self.trans)
         train_data = self.transformer.transform(train_data0)
+        self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
-        print("data_dim", data_dim)
+        self.logger.write_to_file('data dimension: ' + str(data_dim))
 
         if not hasattr(self, "cond_generator"):
             self.cond_generator = ConditionalGenerator(
@@ -197,7 +190,7 @@ class TVAESynthesizer(object):
             print("*" * 100)
 
         optimizerAE = Adam(
-            list(self.encoder.parameters()) + list(self.decoder.parameters()), lr=cfg.LEARNING_RATE,
+            list(self.encoder.parameters()) + list(self.decoder.parameters()), lr=self.lr,
             weight_decay=self.l2scale)
         print(optimizerAE)
         assert self.batch_size % 2 == 0
@@ -210,7 +203,7 @@ class TVAESynthesizer(object):
         # self.prop_dis_train = []
         # self.validation_KLD = []
         # self.prop_dis_validation = []
-        for i in range(epochs):
+        for i in range(self.epochs):
             self.decoder.train() ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -251,7 +244,8 @@ class TVAESynthesizer(object):
                 optimizerAE.step()
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
 
-            print("Epoch %d, Loss: %.4f" % (self.trained_epoches, loss.detach().cpu()), flush=True)
+            self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss: "
+                                      + str(loss.detach().cpu().numpy()))
             ## synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,
             #                             condition_value=None)
