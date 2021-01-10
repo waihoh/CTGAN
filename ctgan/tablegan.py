@@ -11,6 +11,7 @@ from ctgan.sampler import Sampler
 from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
 
 from ctgan.config import tablegan_setting as cfg
+from ctgan.logger import Logger
 # NOTE: Added conditional generator to the code.
 
 ### added for validation
@@ -192,32 +193,22 @@ def reshape_data(data, side):
 class TableganSynthesizer(object):
     """docstring for TableganSynthesizer??"""
 
-    # def __init__(self,
-    #              random_dim=100,
-    #              num_channels=64,
-    #              l2scale=1e-5,
-    #              batch_size=500):
-    def __init__(self,
-                     random_dim=cfg.EMBEDDING,
-                     num_channels=cfg.NUM_CHANNELS,
-                     l2scale=1e-5,
-                     batch_size=cfg.BATCH_SIZE,
-                     dlayer = cfg.DLAYER,
-                     discriminator_steps=cfg.DISCRIMINATOR_STEP,
-                 ):
+    def __init__(self, l2scale=1e-5, trained_epoches = 0):
 
-        self.random_dim = random_dim
-        self.num_channels = num_channels
+        self.random_dim = cfg.EMBEDDING
+        self.num_channels = cfg.NUM_CHANNELS
         self.l2scale = l2scale
-        self.dlayer = dlayer
+        self.dlayer = cfg.DLAYER
+        self.epochs = cfg.EPOCHS
+        self.lr = cfg.LEARNING_RATE
 
-        self.batch_size = batch_size
-        self.trained_epoches = 0
+        self.batch_size = cfg.BATCH_SIZE
+        self.trained_epoches = trained_epoches
         self.side = 0
         self.data_dim = 0
-        self.discriminator_steps = discriminator_steps
+        self.discriminator_steps = cfg.DISCRIMINATOR_STEP
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
     def _apply_activate(self, data, padding = True):
         data_t = []
@@ -301,29 +292,21 @@ class TableganSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    # def fit(self, data, categorical_columns=tuple(), ordinal_columns=tuple(), epochs=300):
-    def fit(self, data, discrete_columns=tuple(), epochs=cfg.EPOCHS, log_frequency=True,
-            model_summary=False, trans="VGM", use_cond_gen=True):
-        print('Learning rate: ', cfg.LEARNING_RATE)
-        print('Batch size: ', self.batch_size)
-        print('Number of epochs: ', cfg.EPOCHS)
-        print('Depth of layer: ',self.dlayer)
+    def fit(self, data, discrete_columns=tuple(), log_frequency=True, model_summary=False, trans="VGM", use_cond_gen=True):
+
+        self.logger = Logger()
+        self.logger.change_dirpath(
+            self.logger.dirpath + "/TableGAN_" + self.logger.PID)  ## create a folder with PID
+        self.logger.write_to_file('Learning rate: ' + str(self.lr))
+        self.logger.write_to_file('Batch size: ' + str(self.batch_size))
+        self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
 
         ## split the data into train and validation (70/15 rule)
         train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
-        print('training data shape: ', train_data0.shape)
-        print('validation data shape: ', val_data.shape)
+        self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
+        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         self.trans = trans
-        # sides = [4, 8, 16, 24, 32]
-        # for i in sides:
-        #     if i * i >= data.shape[1]:
-        #         self.side = i
-        #         break
-
-        # self.transformer = TableganTransformer(self.side)
-        # self.transformer.fit(data, categorical_columns, ordinal_columns)
-        # data = self.transformer.transform(data)
 
         # NOTE:
         # we'll use transformer.transform function. The output data is 1D instead of 2D.
@@ -333,13 +316,13 @@ class TableganSynthesizer(object):
             self.transformer.fit(train_data0, discrete_columns, self.trans)
         train_data = self.transformer.transform(train_data0)
 
-        print('data shape', train_data.shape)
+        self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
 
         self.data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         # NOTE: changed data_dim to self.data_dim. It'll be used later in sample function.
         self.data_dim = self.transformer.output_dimensions
-        print('data dim', self.data_dim)
+        self.logger.write_to_file('data dimension: ' + str(self.data_dim))
 
         if not hasattr(self, "cond_generator"):
             self.cond_generator = ConditionalGenerator(
@@ -352,7 +335,7 @@ class TableganSynthesizer(object):
 
         # compute side after transformation
         self.side = get_side(self.data_dim)
-        print('side', self.side)
+        self.logger.write_to_file('side is: ' + str(self.side))
 
         # data = torch.from_numpy(data.astype('float32')).to(self.device)
         # dataset = TensorDataset(data)
@@ -383,7 +366,7 @@ class TableganSynthesizer(object):
             # print("*" * 100)
 
         ##learning rate is 0.0002
-        optimizer_params = dict(lr=cfg.LEARNING_RATE, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
+        optimizer_params = dict(lr=self.lr, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
         optimizerG = Adam(self.generator.parameters(), **optimizer_params) ##nn.parameters() returns the trainable parameters
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
         optimizerC = Adam(self.classifier.parameters(), **optimizer_params)
@@ -402,7 +385,7 @@ class TableganSynthesizer(object):
         # self.prop_dis_validation = []
         self.generator_loss = []
         self.discriminator_loss = []
-        for i in range(epochs):
+        for i in range(self.epochs):
             self.generator.train()  ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
@@ -483,15 +466,11 @@ class TableganSynthesizer(object):
                 else:
                     loss_c = None
 
-
-                # if (id_ + 1) % 50 == 0:
-                # if (id_ + 1) % 1 == 0:
-                #      print("epoch", i + 1, "step", id_ + 1, loss_d, loss_g, loss_c, flush=True)]
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
-            print("Epoch %d, Loss G: %.4f, Loss D: %.4f" %
-                  (self.trained_epoches, loss_g.detach().cpu(), loss_d.detach().cpu()),
-                   flush=True)
+            self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss G: "
+                                      + str(loss_g.detach().cpu().numpy()) + ", Loss D: " + str(
+                loss_d.detach().cpu().numpy()))
             ## synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,
             #                                 condition_value=None)
@@ -506,7 +485,6 @@ class TableganSynthesizer(object):
 
     ### following ctgan and tvae, added the parts updated by the authors.
     def sample(self, n, condition_column=None, condition_value=None):
-    #def sample(self, n):
         self.generator.eval()
 
         if condition_column is not None and condition_value is not None:
@@ -518,8 +496,6 @@ class TableganSynthesizer(object):
         steps = n // self.batch_size + 1
         data = []
         for i in range(steps):
-            # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
-            #noise, _ = self.get_noise_real(False)
             noise = torch.randn(self.batch_size, self.random_dim, device=self.device)
 
             if global_condition_vec is not None:
@@ -547,19 +523,6 @@ class TableganSynthesizer(object):
 
         data = np.concatenate(data, axis=0)
         data = data[:n]
-        # return self.transformer.inverse_transform(data[:n])
-
-        # # 2020-11-12
-        # # first, reshape the square matrices to 1D
-        #data = data[:n].reshape(-1, self.side * self.side)
-       # print('inverse_transform_tablegan, after reshaping to 1D:', data.shape)
-        # # second, remove the padded values.
-        # # however, this line does not seem to be required.
-        # # it'll work just fine by calling inverse_transform directly.
-        # data = data[:, :self.data_dim]
-        # print('inverse_transform_tablegan, after slicing:', data.shape)
-
-       # return self.transformer.inverse_transform(data[:n], None)
         return self.transformer.inverse_transform(data, None)
 
     def save(self, path):
@@ -584,7 +547,7 @@ class TableganSynthesizer(object):
     @classmethod
     def load(cls, path):
         model = torch.load(path)
-        model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.generator.to(model.device)
         model.discriminator.to(model.device)
         model.classifier.to(model.device)

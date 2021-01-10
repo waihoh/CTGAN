@@ -42,14 +42,16 @@ discrete_columns = ['discrete1', 'discrete2', 'discrete3']
 tablegan = TableganSynthesizer()
 print('Training tablegan is starting')
 # # NOTE: This runs much slower than ctgan and tvae
-tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True, trans="Min-Max",use_cond_gen=True)
 ## use VGM transformation
-##tablegan.fit(data, discrete_columns=discrete_columns, epochs=1, model_summary=True,trans="VGM")
+tablegan.fit(data, discrete_columns=discrete_columns, model_summary=True,trans="VGM")
 print('Training tablegan is completed')
 #
 # # 2. Generate synthetic data
 #samples_1 = tablegan.sample(10, condition_column='discrete1', condition_value=1)
 samples_1 = tablegan.sample(10, condition_column=None, condition_value=None)
-print('size of sample_1', samples_1.shape)
+#Save and load the synthesizer
+samples_1.to_csv(tablegan.logger.dirpath + "/" + "tablegan_samples_" + tablegan.logger.PID + "_" + tablegan.logger.now.strftime(tablegan.logger.datetimeformat) + ".csv", index=False, header=True)
 
+# # To save a trained ctgan synthesizer
+tablegan.save(tablegan.logger.dirpath + "/" + "tablegan_model_" + tablegan.logger.PID + "_" + tablegan.logger.now.strftime(tablegan.logger.datetimeformat)+ ".pkl")
 
