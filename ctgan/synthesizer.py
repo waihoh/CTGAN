@@ -51,7 +51,7 @@ class CTGANSynthesizer(object):
     """
 
 
-    def __init__(self, l2scale=1e-6, pack = 10, log_frequency=True):
+    def __init__(self, l2scale=1e-6, pack = 4, log_frequency=True):
         self.embedding_dim = cfg.EMBEDDING
         self.gen_dim = np.repeat(cfg.WIDTH,cfg.DEPTH)
         self.dis_dim = np.repeat(cfg.WIDTH,cfg.DEPTH)
@@ -65,6 +65,7 @@ class CTGANSynthesizer(object):
         self.trained_epoches = 0
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.pack = pack  # Default value of Discriminator pac. See models.py
+        print("Pac is: ", self.pack)
 
     @staticmethod
     def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
