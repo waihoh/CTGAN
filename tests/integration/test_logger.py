@@ -12,7 +12,7 @@ print("Initial directory path:", logger.dirpath)
 print(os.path.exists(logger.dirpath))
 
 print("CHANGE DIR PATH")
-logger.change_dirpath("/Users/twh/Desktop/test_folder")
+logger.change_dirpath("/Users/stazt/Desktop/test_folder")
 print("Current directory path:", logger.dirpath)
 
 print(logger.datetimeformat)
