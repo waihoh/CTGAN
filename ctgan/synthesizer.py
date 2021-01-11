@@ -108,7 +108,7 @@ class CTGANSynthesizer(object):
                 st = ed
             elif item[1] == 'softmax':
                 ed = st + item[0]
-                transformed = self._gumbel_softmax(data[:, st:ed], tau=0.5)
+                transformed = self._gumbel_softmax(data[:, st:ed], tau=0.2)
                 data_t.append(transformed)
                 st = ed
             else:
