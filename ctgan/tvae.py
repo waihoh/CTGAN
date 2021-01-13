@@ -114,6 +114,7 @@ class TVAESynthesizer(object):
         self.ema_mu = 0
         self.ema_std = 0
 
+        self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
     def _apply_activate(self, data):
@@ -136,7 +137,6 @@ class TVAESynthesizer(object):
 
     def fit(self, data, discrete_columns=tuple(), log_frequency=True,
             model_summary=False, trans="VGM", use_cond_gen=True):
-        self.logger = Logger()
         self.logger.change_dirpath(
             self.logger.dirpath + "/TVAE_" + self.logger.PID)  ## create a folder with PID
 

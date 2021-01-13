@@ -65,6 +65,7 @@ class CTGANSynthesizer(object):
         self.trained_epoches = 0
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.pack = pack  # Default value of Discriminator pac. See models.py
+        self.logger = Logger()
 
     @staticmethod
     def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
@@ -166,7 +167,6 @@ class CTGANSynthesizer(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
-        self.logger = Logger()
         self.logger.change_dirpath(self.logger.dirpath + "/CTGAN_" + self.logger.PID) ## create a folder with PID
 
         self.logger.write_to_file('Generator learning rate: ' + str(self.glr))
