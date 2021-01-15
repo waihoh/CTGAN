@@ -58,12 +58,14 @@ class CTGANSynthesizer(object):
         self.l2scale = l2scale
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
-        self.lr = cfg.LEARNING_RATE
+        self.glr = cfg.GERENATOR_LEARNING_RATE
+        self.dlr = cfg.DISCRIMINATOR_LEARNING_RATE
         self.log_frequency = log_frequency
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         self.trained_epoches = 0
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.pack = pack  # Default value of Discriminator pac. See models.py
+        self.logger = Logger()
 
     @staticmethod
     def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
@@ -165,10 +167,10 @@ class CTGANSynthesizer(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
-        self.logger = Logger()
         self.logger.change_dirpath(self.logger.dirpath + "/CTGAN_" + self.logger.PID) ## create a folder with PID
 
-        self.logger.write_to_file('Learning rate: ' + str(self.lr))
+        self.logger.write_to_file('Generator learning rate: ' + str(self.glr))
+        self.logger.write_to_file('Discriminator learning rate: ' + str(self.dlr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: '+ str(self.epochs))
         ## split the data into train and validation (70/15 rule)
@@ -216,14 +218,14 @@ class CTGANSynthesizer(object):
         if not hasattr(self, "optimizerG"):
             self.optimizerG = optim.Adam(
                 # self.generator.parameters(), lr=2e-4, betas=(0.5, 0.9),
-                self.generator.parameters(), lr=self.lr, betas=(0.5, 0.9),
+                self.generator.parameters(), lr=self.glr, betas=(0.5, 0.9),
                 weight_decay=self.l2scale
             )
 
         if not hasattr(self, "optimizerD"):
             self.optimizerD = optim.Adam(
                 # self.discriminator.parameters(), lr=2e-4, betas=(0.5, 0.9))
-                self.discriminator.parameters(), lr=self.lr, betas=(0.5, 0.9))
+                self.discriminator.parameters(), lr=self.dlr, betas=(0.5, 0.9))
 
         # assert self.batch_size % 2 == 0
         # NOTE: in models.py, Discriminator forward function,

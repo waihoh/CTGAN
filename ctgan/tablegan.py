@@ -207,7 +207,7 @@ class TableganSynthesizer(object):
         self.side = 0
         self.data_dim = 0
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
-
+        self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
     def _apply_activate(self, data, padding = True):
@@ -293,8 +293,6 @@ class TableganSynthesizer(object):
         return (loss * m).sum() / data.size()[0]
 
     def fit(self, data, discrete_columns=tuple(), log_frequency=True, model_summary=False, trans="VGM", use_cond_gen=True):
-
-        self.logger = Logger()
         self.logger.change_dirpath(
             self.logger.dirpath + "/TableGAN_" + self.logger.PID)  ## create a folder with PID
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
