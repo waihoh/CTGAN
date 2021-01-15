@@ -1,6 +1,7 @@
 # See https://github.com/pytorch/pytorch/blob/master/docker/pytorch/Dockerfile
 FROM nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
 ARG PYTHON_VERSION=3.7.9
+ENV inputs=""
 
 # to prevent potential prompt when running apt get and install during rebuilding.
 ARG DEBIAN_FRONTEND=noninteractive
@@ -44,7 +45,7 @@ WORKDIR /CTGAN
 COPY . .
 
 ENV PYTHONPATH="/CTGAN"
-CMD ["python", "main.py"]
+CMD ["python", "main.py", "$(inputs)"]
 
 # To save docker image locally and transfer via scp, see reply by JSON C11 in https://stackoverflow.com/questions/24482822/how-to-share-my-docker-image-without-using-the-docker-hub
 # docker save -o <path for created tar file> <image name>
