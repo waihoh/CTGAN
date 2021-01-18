@@ -16,7 +16,11 @@ print(os.path.exists(logger.dirpath))
 # print("Current directory path:", logger.dirpath)
 
 print(logger.datetimeformat)
-print(logger.now.strftime(logger.datetimeformat))
+print(logger.dt.now().strftime(logger.datetimeformat))
+logger.write_to_file("Initialize")
+import time
+time.sleep(5)
+print(logger.dt.now().strftime(logger.datetimeformat))
 
 print(logger.filename)
 
