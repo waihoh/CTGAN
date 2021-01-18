@@ -49,7 +49,3 @@ class tablegan_setting:
 # # Common parameters across all models.
 # #OPTIMIZER = "ADAM"
 # #ctgan_depth = 999
-
-
-
-
