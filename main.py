@@ -1,6 +1,12 @@
 import pandas as pd
 import os
 import time
+import torch
+import numpy as np
+
+# Initialize seed
+torch.manual_seed(0)
+np.random.seed(0)
 
 from ctgan.argparser import parser_func
 from ctgan import CTGANSynthesizer
