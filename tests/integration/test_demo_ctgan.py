@@ -51,11 +51,11 @@ samples_1 = ctgan.sample(10, condition_column='discrete1', condition_value=1)
 # print('size of sample_2', samples_2.shape)
 
 #4. Save and load the synthesizer
-samples_1.to_csv(ctgan.logger.dirpath + "/" + "ctgan_samples_" + ctgan.logger.PID + "_" + ctgan.logger.now.strftime(ctgan.logger.datetimeformat) + ".csv", index=False, header=True)
+samples_1.to_csv(ctgan.logger.dirpath + "/" + "ctgan_samples_" + ctgan.logger.PID + "_" + ctgan.logger.dt.now().strftime(ctgan.logger.datetimeformat) + ".csv", index=False, header=True)
 # print("before saving, does file exist?", os.path.exists(path_to_a_folder))
 #
 # # To save a trained ctgan synthesizer
-ctgan.save(ctgan.logger.dirpath + "/" + "ctgan_model_" + ctgan.logger.PID + "_" + ctgan.logger.now.strftime(ctgan.logger.datetimeformat)+ ".pkl")
+ctgan.save(ctgan.logger.dirpath + "/" + "ctgan_model_" + ctgan.logger.PID + "_" + ctgan.logger.dt.now().strftime(ctgan.logger.datetimeformat)+ ".pkl")
 # # NOTE: We'll see warnings:
 # # UserWarning: Couldn't retrieve source code for container of type ... . It won't be checked for correctness upon loading.
 # #   "type " + obj.__name__ + ". It won't be checked "
