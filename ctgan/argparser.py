@@ -8,7 +8,7 @@ def _parse_args():
     parser.add_argument('--datadir', default=os.getcwd(), type=str, metavar='', help='path of training data directory')
     parser.add_argument('--outputdir', default=None, type=str, metavar='', help='path of output directory')
     parser.add_argument('--data_fn', default=os.getcwd(), type=str, metavar='', help='filename of training data (with .csv)')
-    parser.add_argument('--discreet_fn', default=None, type=str, metavar='', help='filename of discreet cols, (with .txt)')
+    parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')
@@ -52,7 +52,7 @@ def parser_func():
         datadir: where the training data is located.
         outputdir: where the trained model should be stored.
         data_fn: file name of training data.
-        discreet_fn: file that contains the names of discreet variables.
+        discrete_fn: file that contains the names of discrete variables.
     '''
 
     args = _parse_args()
@@ -60,7 +60,7 @@ def parser_func():
     datadir = args.datadir
     outputdir = args.outputdir
     data_fn = args.data_fn
-    discreet_fn = args.discreet_fn
+    discrete_fn = args.discrete_fn
 
 
     if model_type == 'ctgan':
@@ -142,5 +142,5 @@ def parser_func():
         if args.tv_device is not None:
             cfg.tvae_setting.DEVICE = args.tv_device
 
-    return model_type, datadir, outputdir, data_fn, discreet_fn
+    return model_type, datadir, outputdir, data_fn, discrete_fn
 

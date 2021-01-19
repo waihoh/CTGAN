@@ -18,11 +18,11 @@ Run parser function to update inputs by the user.
 '''
 
 # update inputs
-model_type, datadir, outputdir, data_fn, discreet_fn = parser_func()
+model_type, datadir, outputdir, data_fn, discrete_fn = parser_func()
 
 # get paths
 data_path = os.path.join(datadir, data_fn)
-discreet_cols_path = os.path.join(datadir, discreet_fn)
+discrete_cols_path = os.path.join(datadir, discrete_fn)
 
 # select model
 if model_type == 'ctgan':
@@ -37,8 +37,8 @@ else:
 # read the training data
 data = pd.read_csv(data_path)
 
-# read list of discreet variables
-with open(discreet_cols_path, "r+") as f:
+# read list of discrete variables
+with open(discrete_cols_path, "r+") as f:
     discrete_columns = f.read().splitlines()
 
 # update logger output path
