@@ -45,7 +45,10 @@ WORKDIR /CTGAN
 COPY . .
 
 ENV PYTHONPATH="/CTGAN"
-CMD ["python", "main.py", "$(inputs)"]
+
+# Use the following command instead of CMD["python", "main.py", "$inputs"].
+# See response by larsks in https://stackoverflow.com/questions/40454470/how-can-i-use-a-variable-inside-a-dockerfile-cmd
+CMD ["sh", "-c", "python main.py $inputs"]
 
 # To save docker image locally and transfer via scp, see reply by JSON C11 in https://stackoverflow.com/questions/24482822/how-to-share-my-docker-image-without-using-the-docker-hub
 # docker save -o <path for created tar file> <image name>

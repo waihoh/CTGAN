@@ -2,12 +2,16 @@ import argparse
 import os
 from ctgan import config as cfg
 
+
 def _parse_args():
     parser = argparse.ArgumentParser(description='Command Line Interface')
+    parser.add_argument("-nv", "--nv", help="run nvidia-smi command", action="store_true")
+    parser.add_argument("--torch_seed", default=0, type=int, metavar='', help="PyTorch random seed")
+    parser.add_argument("--numpy_seed", default=0, type=int, metavar='', help="PyTorch random seed")
     parser.add_argument('--model', default=None, type=str, metavar='', help='ctgan, tablegan or tvae')
-    parser.add_argument('--datadir', default=os.getcwd(), type=str, metavar='', help='path of training data directory')
-    parser.add_argument('--outputdir', default=None, type=str, metavar='', help='path of output directory')
-    parser.add_argument('--data_fn', default=os.getcwd(), type=str, metavar='', help='filename of training data (with .csv)')
+    parser.add_argument('--datadir', default="/workspace", type=str, metavar='', help='path of training data directory')
+    parser.add_argument('--outputdir', default="/workspace", type=str, metavar='', help='path of output directory')
+    parser.add_argument('--data_fn', default=None, type=str, metavar='', help='filename of training data (with .csv)')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
 
     # CTGAN parameters
@@ -43,104 +47,147 @@ def _parse_args():
 
     return parser.parse_args()
 
-def parser_func():
-    '''
-    The function acts as a placeholder to update cfg with valeus from argparse.
 
-    Returns:
-        model: the selected model is either ctgan, tablegan or tvae.
-        datadir: where the training data is located.
-        outputdir: where the trained model should be stored.
-        data_fn: file name of training data.
-        discrete_fn: file that contains the names of discrete variables.
-    '''
+class ParserOutput:
+    """
+        To store output values in an object instead of returning individual values
+        The default datadir and outputdir are set to /workspace for ease of using Docker container.
+    """
+    def __init__(self):
+        self.proceed = False
+        self.torch_seed = 0
+        self.numpy_seed = 0
+        self.model_type = None
+        self.datadir = None
+        self.outputdir = None
+        self.data_fn = None
+        self.discrete_fn = None
 
-    args = _parse_args()
-    model_type = args.model.lower()
-    datadir = args.datadir
-    outputdir = args.outputdir
-    data_fn = args.data_fn
-    discrete_fn = args.discrete_fn
+        self.parser_func()
 
+    def parser_func(self):
+        """
+        The function acts as a placeholder to update cfg with valeus from argparse.
 
-    if model_type == 'ctgan':
-        if args.ct_embedding is not None:
-            cfg.ctgan_setting.EMBEDDING = args.ct_embedding
+        Returns:
+            proceed: continue with subsequent code in main.oy
+            model: the selected model is either ctgan, tablegan or tvae.
+            datadir: where the training data is located.
+            outputdir: where the trained model should be stored.
+            data_fn: file name of training data.
+            discrete_fn: file that contains the names of discrete variables.
+        """
 
-        if args.ct_depth is not None:
-            cfg.ctgan_setting.DEPTH = args.ct_depth
+        args = _parse_args()
 
-        if args.ct_width is not None:
-            cfg.ctgan_setting.WIDTH = args.ct_width
+        # enable user to run the nvidia-smi command
+        # without having to run Docker container in interactive mode.
+        if args.nv:
+            os.system("nvidia-smi")
+            return
 
-        if args.ct_gen_lr is not None:
-            cfg.ctgan_setting.GERENATOR_LEARNING_RATE = args.ct_gen_lr
+        # sanity check
+        if args.model is None:
+            print('Please specify --model.')
+            return
 
-        if args.ct_dis_lr is not None:
-            cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = args.ct_dis_lr
+        if args.data_fn is None:
+            print('Please specify --data_fn.')
+            return
 
-        if args.ct_batchsize is not None:
-            cfg.ctgan_setting.BATCH_SIZE = args.ct_batchsize
+        if args.discrete_fn is None:
+            print('Please specify --discrete_fn')
+            return
 
-        if args.ct_epochs is not None:
-            cfg.ctgan_setting.EPOCHS = args.ct_epochs
+        # Store values
+        self.torch_seed = args.torch_seed
+        self.numpy_seed = args.numpy_seed
+        self.model_type = args.model.lower()
+        self.datadir = args.datadir
+        self.outputdir = args.outputdir
+        self.data_fn = args.data_fn
+        self.discrete_fn = args.discrete_fn
 
-        if args.ct_dropout is not None:
-            cfg.ctgan_setting.DROPOUT = args.ct_dropout
+        if self.model_type == 'ctgan':
+            if args.ct_embedding is not None:
+                cfg.ctgan_setting.EMBEDDING = args.ct_embedding
 
-        if args.ct_dis_step is not None:
-            cfg.ctgan_setting.DISCRIMINATOR_STEP = args.ct_dis_step
+            if args.ct_depth is not None:
+                cfg.ctgan_setting.DEPTH = args.ct_depth
 
-        if args.ct_device is not None:
-            cfg.ctgan_setting.DEVICE = args.ct_device
+            if args.ct_width is not None:
+                cfg.ctgan_setting.WIDTH = args.ct_width
 
-    elif model_type == 'tablegan':
+            if args.ct_gen_lr is not None:
+                cfg.ctgan_setting.GERENATOR_LEARNING_RATE = args.ct_gen_lr
 
-        if args.tbl_embedding is not None:
-            cfg.tablegan_setting.EMBEDDING = args.tbl_embedding
+            if args.ct_dis_lr is not None:
+                cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = args.ct_dis_lr
 
-        if args.tbl_num_channels is not None:
-            cfg.tablegan_setting.NUM_CHANNELS = args.tbl_num_channels
+            if args.ct_batchsize is not None:
+                cfg.ctgan_setting.BATCH_SIZE = args.ct_batchsize
 
-        if args.tbl_dlayer is not None:
-            cfg.tablegan_setting.DLAYER = args.tbl_dlayer
+            if args.ct_epochs is not None:
+                cfg.ctgan_setting.EPOCHS = args.ct_epochs
 
-        if args.tbl_lr is not None:
-            cfg.tablegan_setting.LEARNING_RATE = args.tbl_lr
+            if args.ct_dropout is not None:
+                cfg.ctgan_setting.DROPOUT = args.ct_dropout
 
-        if args.tbl_batchsize is not None:
-            cfg.tablegan_setting.BATCH_SIZE = args.tbl_batchsize
+            if args.ct_dis_step is not None:
+                cfg.ctgan_setting.DISCRIMINATOR_STEP = args.ct_dis_step
 
-        if args.tbl_epochs is not None:
-            cfg.tablegan_setting.EPOCHS = args.tbl_epochs
+            if args.ct_device is not None:
+                cfg.ctgan_setting.DEVICE = args.ct_device
 
-        if args.tbl_dis_step is not None:
-            cfg.tablegan_setting.DISCRIMINATOR_STEP = args.tbl_dis_step
+        elif self.model_type == 'tablegan':
 
-        if args.tbl_device is not None:
-            cfg.tablegan_setting.DEVICE = args.tbl_device
+            if args.tbl_embedding is not None:
+                cfg.tablegan_setting.EMBEDDING = args.tbl_embedding
 
-    elif model_type == 'tvae':
-        if args.tv_embedding is not None:
-            cfg.tvae_setting.EMBEDDING = args.tv_embedding
+            if args.tbl_num_channels is not None:
+                cfg.tablegan_setting.NUM_CHANNELS = args.tbl_num_channels
 
-        if args.tv_depth is not None:
-            cfg.tvae_setting.DEPTH = args.tv_depth
+            if args.tbl_dlayer is not None:
+                cfg.tablegan_setting.DLAYER = args.tbl_dlayer
 
-        if args.tv_width is not None:
-            cfg.tvae_setting.WIDTH = args.tv_width
+            if args.tbl_lr is not None:
+                cfg.tablegan_setting.LEARNING_RATE = args.tbl_lr
 
-        if args.tv_lr is not None:
-            cfg.tvae_setting.LEARNING_RATE = args.tv_lr
+            if args.tbl_batchsize is not None:
+                cfg.tablegan_setting.BATCH_SIZE = args.tbl_batchsize
 
-        if args.tv_batchsize is not None:
-            cfg.tvae_setting.BATCH_SIZE = args.tv_batchsize
+            if args.tbl_epochs is not None:
+                cfg.tablegan_setting.EPOCHS = args.tbl_epochs
 
-        if args.tv_epochs is not None:
-            cfg.tvae_setting.EPOCHS = args.tv_epochs
+            if args.tbl_dis_step is not None:
+                cfg.tablegan_setting.DISCRIMINATOR_STEP = args.tbl_dis_step
 
-        if args.tv_device is not None:
-            cfg.tvae_setting.DEVICE = args.tv_device
+            if args.tbl_device is not None:
+                cfg.tablegan_setting.DEVICE = args.tbl_device
 
-    return model_type, datadir, outputdir, data_fn, discrete_fn
+        elif self.model_type == 'tvae':
+            if args.tv_embedding is not None:
+                cfg.tvae_setting.EMBEDDING = args.tv_embedding
 
+            if args.tv_depth is not None:
+                cfg.tvae_setting.DEPTH = args.tv_depth
+
+            if args.tv_width is not None:
+                cfg.tvae_setting.WIDTH = args.tv_width
+
+            if args.tv_lr is not None:
+                cfg.tvae_setting.LEARNING_RATE = args.tv_lr
+
+            if args.tv_batchsize is not None:
+                cfg.tvae_setting.BATCH_SIZE = args.tv_batchsize
+
+            if args.tv_epochs is not None:
+                cfg.tvae_setting.EPOCHS = args.tv_epochs
+
+            if args.tv_device is not None:
+                cfg.tvae_setting.DEVICE = args.tv_device
+        else:
+            print('Please specify the correct model type.')
+            return
+
+        self.proceed = True
