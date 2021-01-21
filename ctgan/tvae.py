@@ -84,6 +84,8 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor):
         else:
             assert 0
 
+
+
     assert st == recon_x.size()[1]
 
     # loss of encoder.
@@ -117,6 +119,8 @@ class TVAESynthesizer(object):
         self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
+        self.use_cond_gen = cfg.CONDGEN
+
     def _apply_activate(self, data):
         data_t = []
         st = 0
@@ -136,7 +140,7 @@ class TVAESynthesizer(object):
         return torch.cat(data_t, dim=1)
 
     def fit(self, data, discrete_columns=tuple(), log_frequency=True,
-            model_summary=False, trans="VGM", use_cond_gen=True):
+            model_summary=False, trans="VGM"):
         self.logger.change_dirpath(
             self.logger.dirpath + "/TVAE_" + self.logger.PID)  ## create a folder with PID
 
@@ -168,7 +172,7 @@ class TVAESynthesizer(object):
                 self.transformer.output_info,
                 log_frequency,
                 trans=self.trans,
-                use_cond_gen=use_cond_gen
+                use_cond_gen=self.use_cond_gen
             )
 
         # NOTE: these steps are different from ctgan

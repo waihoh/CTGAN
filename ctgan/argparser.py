@@ -38,6 +38,7 @@ def _parse_args():
 
     # TVAE parameters
     parser.add_argument('--tv_embedding', default=None, type=int, metavar='', help='tvae embedding')
+    parser.add_argument('--tv_condgen', default=None, type=bool, metavar='', help='tvae cond. gen.')
     parser.add_argument('--tv_depth', default=None, type=int, metavar='', help='tvae num hidden layers')
     parser.add_argument('--tv_width', default=None, type=int, metavar='', help='tvae width of mlp')
     parser.add_argument('--tv_lr', default=None, type=float, metavar='', help='tvae learning rate')
@@ -168,6 +169,9 @@ class ParserOutput:
         elif self.model_type == 'tvae':
             if args.tv_embedding is not None:
                 cfg.tvae_setting.EMBEDDING = args.tv_embedding
+
+            if args.tv_condgen is not None:
+                cfg.tvae_setting.CONDGEN = args.tv_condgen
 
             if args.tv_depth is not None:
                 cfg.tvae_setting.DEPTH = args.tv_depth
