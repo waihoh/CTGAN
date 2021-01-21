@@ -19,6 +19,7 @@ class ctgan_setting:
 
 class tvae_setting:
     EMBEDDING = 128
+    CONDGEN = True
     DEPTH = 2 ## or 3 hidden layers
     WIDTH = 128
     LEARNING_RATE = 1e-3 ## 1e-2; 1e-4
@@ -49,7 +50,3 @@ class tablegan_setting:
 # # Common parameters across all models.
 # #OPTIMIZER = "ADAM"
 # #ctgan_depth = 999
-
-
-
-

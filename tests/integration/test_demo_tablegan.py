@@ -50,8 +50,8 @@ print('Training tablegan is completed')
 #samples_1 = tablegan.sample(10, condition_column='discrete1', condition_value=1)
 samples_1 = tablegan.sample(10, condition_column=None, condition_value=None)
 #Save and load the synthesizer
-samples_1.to_csv(tablegan.logger.dirpath + "/" + "tablegan_samples_" + tablegan.logger.PID + "_" + tablegan.logger.now.strftime(tablegan.logger.datetimeformat) + ".csv", index=False, header=True)
+samples_1.to_csv(tablegan.logger.dirpath + "/" + "tablegan_samples_" + tablegan.logger.PID + "_" + tablegan.logger.dt.now().strftime(tablegan.logger.datetimeformat) + ".csv", index=False, header=True)
 
 # # To save a trained ctgan synthesizer
-tablegan.save(tablegan.logger.dirpath + "/" + "tablegan_model_" + tablegan.logger.PID + "_" + tablegan.logger.now.strftime(tablegan.logger.datetimeformat)+ ".pkl")
+tablegan.save(tablegan.logger.dirpath + "/" + "tablegan_model_" + tablegan.logger.PID + "_" + tablegan.logger.dt.now().strftime(tablegan.logger.datetimeformat)+ ".pkl")
 

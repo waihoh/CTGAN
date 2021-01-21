@@ -45,7 +45,7 @@ print('Training tvae is completed')
 # 2. Generate synthetic data
 samples_1 = tvae.sample(10)
 #4. Save and load the synthesizer
-samples_1.to_csv(tvae.logger.dirpath + "/" + "tvae_samples_" + tvae.logger.PID + "_" + tvae.logger.now.strftime(tvae.logger.datetimeformat) + ".csv", index=False, header=True)
+samples_1.to_csv(tvae.logger.dirpath + "/" + "tvae_samples_" + tvae.logger.PID + "_" + tvae.logger.dt.now().strftime(tvae.logger.datetimeformat) + ".csv", index=False, header=True)
 
 # # To save a trained tvae synthesizer
-tvae.save(tvae.logger.dirpath + "/" + "tvae_model_" + tvae.logger.PID + "_" + tvae.logger.now.strftime(tvae.logger.datetimeformat)+ ".pkl")
+tvae.save(tvae.logger.dirpath + "/" + "tvae_model_" + tvae.logger.PID + "_" + tvae.logger.dt.now().strftime(tvae.logger.datetimeformat)+ ".pkl")
