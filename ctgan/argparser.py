@@ -13,6 +13,7 @@ def _parse_args():
     parser.add_argument('--outputdir', default="/workspace", type=str, metavar='', help='path of output directory')
     parser.add_argument('--data_fn', default=None, type=str, metavar='', help='filename of training data (with .csv)')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
+    parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')
@@ -63,6 +64,7 @@ class ParserOutput:
         self.outputdir = None
         self.data_fn = None
         self.discrete_fn = None
+        self.samplesize = 9905  # current size of test data.
 
         self.parser_func()
 
@@ -108,6 +110,9 @@ class ParserOutput:
         self.outputdir = args.outputdir
         self.data_fn = args.data_fn
         self.discrete_fn = args.discrete_fn
+
+        if args.samplesize is not None:
+            self.samplesize = args.samplesize
 
         if self.model_type == 'ctgan':
             if args.ct_embedding is not None:
