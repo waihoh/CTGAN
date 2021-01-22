@@ -147,6 +147,7 @@ class TVAESynthesizer(object):
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
+        self.logger.write_to_file('using conditional vector', str(self.use_cond_gen))
 
         ## split the data into train and validation (70/15 rule)
         train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
@@ -278,14 +279,17 @@ class TVAESynthesizer(object):
         steps = samples // self.batch_size + 1
         data = []
         for _ in range(steps):
-           # print("ema_mu, ema_std", self.ema_mu, self.ema_std)
+            # print("ema_mu, ema_std", self.ema_mu, self.ema_std)
             # NOTE: Instead of using N(0,1), we use the mean and std 'learnt' during encoding.
             # i.e. N(self.ema_mu, self.ema_std**2).
             # It is nonetheless observed from tests that ema_mu and ema_std are close to 0 and 1 respectively.
             # mean = torch.zeros(self.batch_size, self.embedding_dim)
             # std = mean + 1
-            mean = torch.zeros(self.batch_size, self.embedding_dim) + self.ema_mu
-            std = torch.zeros(self.batch_size, self.embedding_dim) + self.ema_std
+
+            # Added to(self.device) to mean and std
+            # so that they can be added with self.ema_mu and self.ema_std respectively
+            mean = torch.zeros(self.batch_size, self.embedding_dim).to(self.device) + self.ema_mu
+            std = torch.zeros(self.batch_size, self.embedding_dim).to(self.device) + self.ema_std
             fakez = torch.normal(mean=mean, std=std).to(self.device)
 
             if global_condition_vec is not None:
