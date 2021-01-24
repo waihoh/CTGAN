@@ -147,7 +147,7 @@ class TVAESynthesizer(object):
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
-        self.logger.write_to_file('using conditional vector', str(self.use_cond_gen))
+        self.logger.write_to_file('Use conditional vector: ' + str(self.use_cond_gen))
 
         ## split the data into train and validation (70/15 rule)
         train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
