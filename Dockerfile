@@ -35,7 +35,7 @@ RUN curl -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest
 ENV PATH /opt/conda/bin:$PATH
 
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir torchsummary rdt
+    pip install --no-cache-dir torchsummary rdt optuna
 
 WORKDIR /workspace
 RUN chmod -R a+w .

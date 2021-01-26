@@ -350,27 +350,33 @@ class CTGANSynthesizer2(object):
                 self.optimizerG.step()
 
             # Validation loss
-            fakez_val = torch.normal(mean=mean_val, std=std_val)
+            with torch.no_grad():
+                self.discriminator.eval()
+                fakez_val = torch.normal(mean=mean_val, std=std_val)
 
-            if self.cond_generator.n_opt > 0:
-                c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt))
-                fakez_val = torch.cat([fakez_val, c1_val], dim=1)
+                if self.cond_generator.n_opt > 0:
+                    c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt))
+                    fakez_val = torch.cat([fakez_val, c1_val], dim=1)
 
-            fake_val = self.generator(fakez_val).detach()
-            fakeact_val = self._apply_activate(fake_val)
+                fake_val = self.generator(fakez_val)
+                fakeact_val = self._apply_activate(fake_val)
 
-            if self.cond_generator.n_opt > 0:
-                fake_cat_val = torch.cat([fakeact_val, c1_val], dim=1)
-                real_cat_val = torch.cat([val_data, c1_val], dim=1)
-            else:
-                real_cat_val = val_data
-                fake_cat_val = fake_val
+                if self.cond_generator.n_opt > 0:
+                    fake_cat_val = torch.cat([fakeact_val, c1_val], dim=1)
+                    real_cat_val = torch.cat([val_data, c1_val], dim=1)
+                else:
+                    real_cat_val = val_data
+                    fake_cat_val = fake_val
 
-            y_fake_val = self.discriminator(fake_cat_val)
-            y_real_val = self.discriminator(real_cat_val)
+                fake_cat_val.to(self.device)
+                real_cat_val.to(self.device)
 
-            loss_d_val_sq = ((torch.mean(y_real_val) - torch.mean(y_fake_val)).detach())**2
-            self.val_metric = loss_d_val_sq
+                y_fake_val = self.discriminator(fake_cat_val)
+                y_real_val = self.discriminator(real_cat_val)
+
+                loss_d_val_sq = ((torch.mean(y_real_val) - torch.mean(y_fake_val)))**2
+                self.val_metric = loss_d_val_sq
+                self.discriminator.train()
 
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
