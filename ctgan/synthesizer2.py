@@ -17,6 +17,8 @@ from ctgan.logger import Logger
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
 
+import optuna
+
 
 class CTGANSynthesizer2(object):
     """Conditional Table GAN Synthesizer.
@@ -58,7 +60,7 @@ class CTGANSynthesizer2(object):
         self.l2scale = l2scale
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
-        self.glr = cfg.GERENATOR_LEARNING_RATE
+        self.glr = cfg.GENERATOR_LEARNING_RATE
         self.dlr = cfg.DISCRIMINATOR_LEARNING_RATE
         self.log_frequency = log_frequency
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -66,6 +68,8 @@ class CTGANSynthesizer2(object):
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.pack = pack  # Default value of Discriminator pac. See models.py
         self.logger = Logger()
+        self.val_metric = None
+        self.save_model = True
 
     @staticmethod
     def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
@@ -152,7 +156,8 @@ class CTGANSynthesizer2(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    def fit(self, data, discrete_columns=tuple(), model_summary=False, trans="VGM", use_cond_gen=True):
+    def fit(self, data, discrete_columns=tuple(), model_summary=False,
+            trans="VGM", use_cond_gen=True, trial=None):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -365,6 +370,7 @@ class CTGANSynthesizer2(object):
             y_real_val = self.discriminator(real_cat_val)
 
             loss_d_val_sq = ((torch.mean(y_real_val) - torch.mean(y_fake_val)).detach())**2
+            self.val_metric = loss_d_val_sq
 
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
@@ -372,6 +378,13 @@ class CTGANSynthesizer2(object):
                                       + ", Loss G: " + str(loss_g.detach().cpu().numpy())
                                       + ", Loss D: " + str(loss_d.detach().cpu().numpy())
                                       + ", Loss Val sq: " + str(loss_d_val_sq.detach().cpu().numpy()))
+
+            if trial is not None:
+                trial.report(loss_d_val_sq, i)
+                # Handle pruning based on the intermediate value.
+                if trial.should_prune():
+                    self.save_model = False
+                    raise optuna.exceptions.TrialPruned()
 
             # synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)

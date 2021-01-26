@@ -58,7 +58,7 @@ class CTGANSynthesizer(object):
         self.l2scale = l2scale
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
-        self.glr = cfg.GERENATOR_LEARNING_RATE
+        self.glr = cfg.GENERATOR_LEARNING_RATE
         self.dlr = cfg.DISCRIMINATOR_LEARNING_RATE
         self.log_frequency = log_frequency
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"

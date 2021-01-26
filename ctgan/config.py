@@ -7,7 +7,7 @@ class ctgan_setting:
     EMBEDDING = 128
     DEPTH = 2 ## or 3 hidden layers
     WIDTH = 256
-    GERENATOR_LEARNING_RATE = 2e-4 ## or 2e-3;2e-5
+    GENERATOR_LEARNING_RATE = 2e-4 ## or 2e-3;2e-5
     DISCRIMINATOR_LEARNING_RATE = 2e-4 ## or 2e-3;2e-5
 
     BATCH_SIZE = 500 ## or 1000

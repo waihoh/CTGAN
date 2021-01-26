@@ -138,7 +138,7 @@ class ParserOutput:
                 cfg.ctgan_setting.WIDTH = args.ct_width
 
             if args.ct_gen_lr is not None:
-                cfg.ctgan_setting.GERENATOR_LEARNING_RATE = args.ct_gen_lr
+                cfg.ctgan_setting.GENERATOR_LEARNING_RATE = args.ct_gen_lr
 
             if args.ct_dis_lr is not None:
                 cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = args.ct_dis_lr
