@@ -22,8 +22,10 @@ data = pd.DataFrame({
 # index of columns
 discrete_columns = ['discrete1', 'discrete2', 'discrete3']
 
+# for saving the best model
 best_mdl = None
 ctgan_mdl = None
+
 
 def objective(trial):
     cfg.GENERATOR_LEARNING_RATE = trial.suggest_float("gen_lr", 1e-6, 1e-3, log=True)
@@ -38,6 +40,7 @@ def objective(trial):
 
     return ctgan_mdl.val_metric
 
+
 # saving the best model
 # see reply by Toshihiko Yanase in https://stackoverflow.com/questions/62144904/python-how-to-retrive-the-best-model-from-optuna-lightgbm-study
 def callback(study, trial):
@@ -45,32 +48,33 @@ def callback(study, trial):
     if study.best_trial == trial:
         best_mdl = ctgan_mdl
 
+
 if __name__ == "__main__":
     cfg.EPOCHS = 20  # just to speed up the test
 
     study = optuna.create_study(direction="minimize")
-    # TODO: timeout?
-    study.optimize(objective, n_trials=50, timeout=600, callbacks=[callback])
+    study.optimize(objective, n_trials=10, callbacks=[callback])
 
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
     complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
 
-    print("Study statistics: ")
-    print("  Number of finished trials: ", len(study.trials))
-    print("  Number of pruned trials: ", len(pruned_trials))
-    print("  Number of complete trials: ", len(complete_trials))
+    # save best mdl. Use the same timestamp as its logger
+    mdl_fn = "ctgan_model_" + best_mdl.logger.PID + "_" + best_mdl.logger.datetimeval + ".pkl"
+    best_mdl.save(best_mdl.logger.dirpath + "/" + mdl_fn)
 
-    print("Best trial:")
+    best_mdl.logger.write_to_file("Saved best model: " + mdl_fn)
+
+    best_mdl.logger.write_to_file("Study statistics: ")
+    best_mdl.logger.write_to_file("  Number of finished trials: " + str(len(study.trials)))
+    best_mdl.logger.write_to_file("  Number of pruned trials: " + str(len(pruned_trials)))
+    best_mdl.logger.write_to_file("  Number of complete trials: " + str(len(complete_trials)))
+
+    best_mdl.logger.write_to_file("Best trial:")
     trial = study.best_trial
 
-    print("  Value: ", trial.value)
+    best_mdl.logger.write_to_file("  Value: " + str(trial.value))
 
-    print("  Params: ")
+    best_mdl.logger.write_to_file("  Params: ")
     for key, value in trial.params.items():
-        print("    {}: {}".format(key, value))
-
-    # save best mdl
-    best_mdl.save(
-        best_mdl.logger.dirpath + "/" + "ctgan_model_" + best_mdl.logger.PID + "_" + best_mdl.logger.dt.now().strftime(
-            best_mdl.logger.datetimeformat) + ".pkl")
+        best_mdl.logger.write_to_file("    {}: {}".format(key, value))
 

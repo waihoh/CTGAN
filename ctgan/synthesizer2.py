@@ -355,7 +355,7 @@ class CTGANSynthesizer2(object):
                 fakez_val = torch.normal(mean=mean_val, std=std_val)
 
                 if self.cond_generator.n_opt > 0:
-                    c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt))
+                    c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt)).to(self.device)
                     fakez_val = torch.cat([fakez_val, c1_val], dim=1)
 
                 fake_val = self.generator(fakez_val)
