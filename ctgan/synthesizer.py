@@ -16,6 +16,7 @@ from ctgan.logger import Logger
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
+import optuna
 
 
 class CTGANSynthesizer(object):
