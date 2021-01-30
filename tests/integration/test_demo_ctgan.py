@@ -35,6 +35,9 @@ discrete_columns = ['discrete1', 'discrete2', 'discrete3']
 #     'income'
 # ]
 
+print('IN DEMO')
+print(discrete_columns)
+
 # Step 2: Fit CTGAN to your data
 ctgan = CTGANSynthesizer()
 ctgan.fit(data, discrete_columns, model_summary=False, trans="VGM")

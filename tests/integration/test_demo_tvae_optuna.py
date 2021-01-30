@@ -1,6 +1,6 @@
 # test the GitHub demo
 import os
-from ctgan.tvae2 import TVAESynthesizer2
+from ctgan import TVAESynthesizer
 import pandas as pd
 import numpy as np
 import optuna
@@ -32,12 +32,12 @@ def objective(trial):
 
     # initialize a new tvae model
     global tvae_mdl
-    tvae_mdl = TVAESynthesizer2()
+    tvae_mdl = TVAESynthesizer()
 
     # NOTE: to use Optuna, pass trial to fit function
     tvae_mdl.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial)
 
-    return tvae_mdl.val_metric
+    return tvae_mdl.prop_dis_validation
 
 
 # saving the best model

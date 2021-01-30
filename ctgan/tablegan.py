@@ -195,7 +195,7 @@ def reshape_data(data, side):
 class TableganSynthesizer(object):
     """docstring for TableganSynthesizer??"""
 
-    def __init__(self, l2scale=1e-5, trained_epoches = 0):
+    def __init__(self, l2scale=1e-5, trained_epoches = 0, log_frequency=True):
 
         self.random_dim = cfg.EMBEDDING
         self.num_channels = cfg.NUM_CHANNELS
@@ -203,7 +203,7 @@ class TableganSynthesizer(object):
         self.dlayer = cfg.DLAYER
         self.epochs = cfg.EPOCHS
         self.lr = cfg.LEARNING_RATE
-
+        self.log_frequency = log_frequency
         self.batch_size = cfg.BATCH_SIZE
         self.trained_epoches = trained_epoches
         self.side = 0
@@ -211,6 +211,11 @@ class TableganSynthesizer(object):
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.validation_KLD = []
+        self.generator_loss = []
+        self.discriminator_loss = []
+        self.threshold = None
+        self.prop_dis_validation = None
 
     def _apply_activate(self, data, padding = True):
         data_t = []
@@ -294,32 +299,40 @@ class TableganSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    #def fit(self, data, discrete_columns=tuple(), log_frequency=True, model_summary=False, trans="VGM", use_cond_gen=True):
-    def fit(self, threshold, train_data, val_data, transformer, discrete_columns=tuple(), log_frequency=True, model_summary=False,
-                trans="VGM", use_cond_gen=True,trial=None):
-        self.logger.change_dirpath(
-            self.logger.dirpath + "/TableGAN_" + self.logger.PID)  ## create a folder with PID
+    def fit(self, data, discrete_columns=tuple(),
+            model_summary=False, trans="VGM",
+            use_cond_gen=True, trial=None, transformer=None, in_val_data=None, threshold=None):
+
+        self.logger.change_dirpath(self.logger.dirpath + "/TableGAN_" + self.logger.PID)  ## create a folder with PID
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
 
-        ## split the data into train and validation (70/15 rule)
-        #train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
-        #self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
-        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
-
         self.trans = trans
-        self.transformer = transformer
 
         # NOTE:
         # we'll use transformer.transform function. The output data is 1D instead of 2D.
         # we'll reshape the data later.
-        # if not hasattr(self, "transformer"):
-        #     self.transformer = DataTransformer()
-        #     self.transformer.fit(train_data0, discrete_columns, self.trans)
-        # train_data = self.transformer.transform(train_data0)
+        if transformer is None:
+            # data is split to train:validation:test with 70:15:15 rule
+            # test data has been partitioned outside of this code.
+            # thus, we split data to train:validation. Validation data is approximately 17.6%.
+            temp_test_size = 15 / (70 + 15)  # 0.176
+            exact_val_size = int(temp_test_size * data.shape[0])
 
-        self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
+            train_data, val_data = train_test_split(data, test_size=exact_val_size, random_state=42)
+
+            if not hasattr(self, "transformer"):
+               self.transformer = DataTransformer()
+               self.transformer.fit(data, discrete_columns, self.trans)
+               train_data = self.transformer.transform(train_data)
+        else:
+            # transformer has been saved separately.
+            # input data should have been transformed as well.
+            self.transformer = transformer
+            train_data = data
+            val_data = in_val_data
+
 
         self.data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -331,7 +344,7 @@ class TableganSynthesizer(object):
             self.cond_generator = ConditionalGenerator(
                 train_data,
                 self.transformer.output_info,
-                log_frequency,
+                self.log_frequency,
                 trans=self.trans,
                 use_cond_gen=use_cond_gen
             )
@@ -379,15 +392,7 @@ class TableganSynthesizer(object):
         self.classifier.apply(weights_init)
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
-        #                                        n_rep=1000)
-        self.threshold = threshold
-        # self.train_KLD = []
-        # self.prop_dis_train = []
-        self.validation_KLD = []
-        # self.prop_dis_validation = []
-        self.generator_loss = []
-        self.discriminator_loss = []
+
         for i in range(self.epochs):
             self.generator.train()  ##switch to train mode
             self.trained_epoches += 1
@@ -471,25 +476,29 @@ class TableganSynthesizer(object):
 
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
-            self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss G: "
-                                      + str(loss_g.detach().cpu().numpy()) + ", Loss D: " + str(
-                loss_d.detach().cpu().numpy()))
-            ## synthetic data by the generator for each epoch
-            sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
-            KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
-            # KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
-            # diff_train = KL_train_loss - self.threshold
-            diff_val = KL_val_loss - self.threshold
-            # self.train_KLD.append(KL_train_loss)
-            self.validation_KLD.append(KL_val_loss)
-            # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0) / np.count_nonzero(~np.isnan(diff_train)))
-            self.prop_dis_validation = np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val))
-            # if trial is not None:
-            #     trial.report(loss_d_val_sq, i)
-            #     # Handle pruning based on the intermediate value.
-            #     if trial.should_prune():
-            #         self.save_model = False
-            #         raise optuna.exceptions.TrialPruned()
+            self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
+                                      ", Loss G: " + str(loss_g.detach().cpu().numpy()) +
+                                      ", Loss D: " + str(loss_d.detach().cpu().numpy()))
+
+            # Use Optuna for hyper-parameter tuning
+            # Use KL divergence proportion of dissimilarity as metric (to minimize).
+            if trial is not None:
+                if self.threshold is None:
+                    if threshold is None:
+                        self.threshold = M.determine_threshold(data, val_data.shape[0], discrete_columns, n_rep=10)
+                    else:
+                        self.threshold = threshold
+
+                # synthetic data by the generator for each epoch
+                sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
+                KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
+                diff_val = KL_val_loss - self.threshold
+                self.validation_KLD.append(KL_val_loss)
+                self.prop_dis_validation = np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val))
+                trial.report(self.prop_dis_validation, i)
+                # Handle pruning based on the intermediate value.
+                if trial.should_prune():
+                    raise optuna.exceptions.TrialPruned()
 
     ### following ctgan and tvae, added the parts updated by the authors.
     def sample(self, n, condition_column=None, condition_value=None):

@@ -52,7 +52,9 @@ def callback(study, trial):
 if __name__ == "__main__":
     cfg.EPOCHS = 20  # just to speed up the test
 
-    study = optuna.create_study(direction="minimize")
+    # Remove/replace NopPruner if we want to use a pruner.
+    # See https://optuna.readthedocs.io/en/v1.4.0/reference/pruners.html
+    study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
     study.optimize(objective, n_trials=10, callbacks=[callback])
 
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
