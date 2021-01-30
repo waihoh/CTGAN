@@ -16,6 +16,7 @@ from ctgan.logger import Logger
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
+import optuna
 
 
 class CTGANSynthesizer(object):
@@ -152,7 +153,8 @@ class CTGANSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    def fit(self, data, discrete_columns=tuple(), model_summary=False, trans="VGM", use_cond_gen=True):
+    #def fit(self, threshold, data,  discrete_columns=tuple(), model_summary=False, trans="VGM", use_cond_gen=True,trial=None):
+    def fit(self, threshold, train_data, val_data, transformer, discrete_columns=tuple(), model_summary=False,trans="VGM", use_cond_gen=True, trial=None):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -174,16 +176,16 @@ class CTGANSynthesizer(object):
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: '+ str(self.epochs))
         ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
-        self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
+       # train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
+       # self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
         self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         self.trans = trans
-        if not hasattr(self, "transformer"):
-           self.transformer = DataTransformer()
-           self.transformer.fit(train_data0, discrete_columns, self.trans)
-           #self.transformer = DataTransformer.load('C:/Users/stazt/Documents/nBox/Project Ultron/Tianming/Dataset')
-        train_data = self.transformer.transform(train_data0)
+        # if not hasattr(self, "transformer"):
+        #    self.transformer = DataTransformer()
+        #    self.transformer.fit(train_data0, discrete_columns, self.trans)
+        self.transformer = transformer
+        #train_data = self.transformer.transform(train_data0)
         self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
 
 
@@ -251,10 +253,11 @@ class CTGANSynthesizer(object):
         # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
         #                                        n_rep=1000)
         # print(self.threshold)
+        self.threshold = threshold
         # self.train_KLD = []
         # self.prop_dis_train = []
-        # self.validation_KLD = []
-        # self.prop_dis_validation = []
+        self.validation_KLD = []
+        #self.prop_dis_validation = []
         self.generator_loss = []
         self.discriminator_loss = []
         for i in range(self.epochs):
@@ -339,15 +342,21 @@ class CTGANSynthesizer(object):
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss G: "
                                       + str(loss_g.detach().cpu().numpy())+ ", Loss D: " +str(loss_d.detach().cpu().numpy()))
             # synthetic data by the generator for each epoch
-            # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
-            # KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
+            sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
+            KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
             # KL_train_loss = M.KLD(train_data0,sampled_train, discrete_columns)
             # diff_train = KL_train_loss - self.threshold
-            # diff_val = KL_val_loss - self.threshold
+            diff_val = KL_val_loss - self.threshold
             # self.train_KLD.append(KL_train_loss)
-            # self.validation_KLD.append(KL_val_loss)
-            # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0)/np.count_nonzero(~np.isnan(diff_train)))
-            # self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val)))
+            self.validation_KLD.append(KL_val_loss)
+            #self.prop_dis_train.append(np.count_nonzero(diff_train >= 0)/np.count_nonzero(~np.isnan(diff_train)))
+            self.prop_dis_validation = np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val))
+            # if trial is not None:
+            #     trial.report(loss_d_val_sq, i)
+            #     # Handle pruning based on the intermediate value.
+            #     if trial.should_prune():
+            #         self.save_model = False
+            #         raise optuna.exceptions.TrialPruned()
 
 
     def sample(self, n, condition_column=None, condition_value=None):

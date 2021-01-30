@@ -18,6 +18,7 @@ from ctgan.logger import Logger
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
+import optuna
 
 class Encoder(Module):
     def __init__(self, data_dim, compress_dims, embedding_dim):
@@ -139,8 +140,9 @@ class TVAESynthesizer(object):
 
         return torch.cat(data_t, dim=1)
 
-    def fit(self, data, discrete_columns=tuple(), log_frequency=True,
-            model_summary=False, trans="VGM"):
+    #def fit(self, data, discrete_columns=tuple(), log_frequency=True,  model_summary=False, trans="VGM"):
+    def fit(self, threshold, train_data, val_data,transformer, discrete_columns=tuple(), log_frequency=True,
+                model_summary=False, trans="VGM",trial=None):
         self.logger.change_dirpath(
             self.logger.dirpath + "/TVAE_" + self.logger.PID)  ## create a folder with PID
 
@@ -150,16 +152,17 @@ class TVAESynthesizer(object):
         self.logger.write_to_file('Use conditional vector: ' + str(self.use_cond_gen))
 
         ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
-        self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
+        #train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
+        #self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
         self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         self.trans = trans
+        self.transformer = transformer
 
-        if not hasattr(self, "transformer"):
-            self.transformer = DataTransformer()
-            self.transformer.fit(train_data0, discrete_columns, trans=self.trans)
-        train_data = self.transformer.transform(train_data0)
+        # if not hasattr(self, "transformer"):
+        #     self.transformer = DataTransformer()
+        #     self.transformer.fit(train_data0, discrete_columns, trans=self.trans)
+        # train_data = self.transformer.transform(train_data0)
         self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
@@ -203,10 +206,10 @@ class TVAESynthesizer(object):
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
         # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
         #                                        n_rep=1000)
-        # print(self.threshold)
+        self.threshold = threshold
         # self.train_KLD = []
         # self.prop_dis_train = []
-        # self.validation_KLD = []
+        self.validation_KLD = []
         # self.prop_dis_validation = []
         self.total_loss = []
         for i in range(self.epochs):
@@ -253,16 +256,21 @@ class TVAESynthesizer(object):
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss: "
                                       + str(loss.detach().cpu().numpy()))
             ## synthetic data by the generator for each epoch
-            # sampled_train = self.sample(val_data.shape[0], condition_column=None,
-            #                             condition_value=None)
-            # KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
+            sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
+            KL_val_loss = M.KLD(val_data, sampled_train, discrete_columns)
             # KL_train_loss = M.KLD(train_data0, sampled_train, discrete_columns)
             # diff_train = KL_train_loss - self.threshold
-            # diff_val = KL_val_loss - self.threshold
+            diff_val = KL_val_loss - self.threshold
             # self.train_KLD.append(KL_train_loss)
-            # self.validation_KLD.append(KL_val_loss)
+            self.validation_KLD.append(KL_val_loss)
             # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0) / np.count_nonzero(~np.isnan(diff_train)))
-            # self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val)))
+            self.prop_dis_validation = np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val))
+            # if trial is not None:
+            #     trial.report(loss_d_val_sq, i)
+            #     # Handle pruning based on the intermediate value.
+            #     if trial.should_prune():
+            #         self.save_model = False
+            #         raise optuna.exceptions.TrialPruned()
 
 
     def sample(self, samples, condition_column=None, condition_value=None):
