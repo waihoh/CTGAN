@@ -19,6 +19,8 @@ from ctgan.logger import Logger
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
 
+import optuna
+
 class Encoder(Module):
     def __init__(self, data_dim, compress_dims, embedding_dim):
         super(Encoder, self).__init__()
@@ -94,7 +96,7 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor):
     return sum(loss) * factor / x.size()[0], KLD / x.size()[0]
 
 
-class TVAESynthesizer(object):
+class TVAESynthesizer2(object):
     """TVAESynthesizer."""
 
     def __init__(self, l2scale=1e-5, trained_epoches = 0):
@@ -120,6 +122,7 @@ class TVAESynthesizer(object):
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
         self.use_cond_gen = cfg.CONDGEN
+        self.val_metric = None
 
     def _apply_activate(self, data):
         data_t = []
@@ -140,7 +143,7 @@ class TVAESynthesizer(object):
         return torch.cat(data_t, dim=1)
 
     def fit(self, data, discrete_columns=tuple(), log_frequency=True,
-            model_summary=False, trans="VGM"):
+            model_summary=False, trans="VGM", trial=None):
         self.logger.change_dirpath(
             self.logger.dirpath + "/TVAE_" + self.logger.PID)  ## create a folder with PID
 
@@ -159,8 +162,20 @@ class TVAESynthesizer(object):
         if not hasattr(self, "transformer"):
             self.transformer = DataTransformer()
             self.transformer.fit(train_data0, discrete_columns, trans=self.trans)
-        train_data = self.transformer.transform(train_data0)
-        self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
+        # train_data = self.transformer.transform(train_data0)
+        # self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
+        transformed_data = self.transformer.transform(data)
+        self.logger.write_to_file('transformed data shape: ' + str(transformed_data.shape))
+
+        temp_test_size = 0.176
+        exact_val_size = int(temp_test_size * data.shape[0])
+
+        train_data, val_data = train_test_split(transformed_data, test_size=exact_val_size, random_state=42)
+        val_data = torch.from_numpy(val_data.astype('float32')).to(self.device)
+
+        ## split the data into train and validation (70/15 rule)
+        self.logger.write_to_file('training data shape: ' + str(train_data.shape))
+        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -249,9 +264,41 @@ class TVAESynthesizer(object):
                 loss.backward()
                 optimizerAE.step()
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
+
+            # validation loss
+            with torch.no_grad():
+                self.encoder.eval()
+                self.decoder.eval()
+
+                mu_val, std_val, logvar_val = self.encoder(val_data)
+                eps_val = torch.randn_like(std_val)
+                emb_val = eps_val * std_val + mu_val
+
+                # NEW
+                # Conditional vector is added to latent space.
+                if self.cond_generator.n_opt > 0:
+                    c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt)).to(self.device)
+                    emb_val = torch.cat([emb_val, c1_val], dim=1)
+                rec_val, sigmas_val = self.decoder(emb_val)
+                loss_1_val, loss_2_val = loss_function(
+                    rec_val, val_data, sigmas_val, mu_val, logvar_val, self.transformer.output_info, self.loss_factor)
+                loss_val = loss_1_val + loss_2_val
+
+                self.val_metric = loss_val
+                self.encoder.train()
+                self.decoder.train()
+
             self.total_loss.append(loss.detach().cpu())
-            self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss: "
-                                      + str(loss.detach().cpu().numpy()))
+            self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
+                                      ", Loss: " + str(loss.detach().cpu().numpy()) +
+                                      ", Val loss: " + str(loss_val.detach().cpu().numpy()))
+
+            if trial is not None:
+                trial.report(loss_val, i)
+                # Handle pruning based on the intermediate value.
+                if trial.should_prune():
+                    raise optuna.exceptions.TrialPruned()
+
             ## synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,
             #                             condition_value=None)

@@ -17,8 +17,10 @@ from ctgan.logger import Logger
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
 
+import optuna
 
-class CTGANSynthesizer(object):
+
+class CTGANSynthesizer2(object):
     """Conditional Table GAN Synthesizer.
 
     This is the core class of the CTGAN project, where the different components
@@ -66,6 +68,7 @@ class CTGANSynthesizer(object):
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.pack = pack  # Default value of Discriminator pac. See models.py
         self.logger = Logger()
+        self.val_metric = None
 
     @staticmethod
     def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
@@ -152,7 +155,8 @@ class CTGANSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    def fit(self, data, discrete_columns=tuple(), model_summary=False, trans="VGM", use_cond_gen=True):
+    def fit(self, data, discrete_columns=tuple(), model_summary=False,
+            trans="VGM", use_cond_gen=True, trial=None):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -173,19 +177,26 @@ class CTGANSynthesizer(object):
         self.logger.write_to_file('Discriminator learning rate: ' + str(self.dlr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: '+ str(self.epochs))
-        ## split the data into train and validation (70/15 rule)
-        train_data0, val_data = train_test_split(data, test_size=0.176, random_state=42)
-        self.logger.write_to_file('training data shape: ' + str(train_data0.shape))
-        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         self.trans = trans
         if not hasattr(self, "transformer"):
            self.transformer = DataTransformer()
-           self.transformer.fit(train_data0, discrete_columns, self.trans)
+           self.transformer.fit(data, discrete_columns, self.trans)
            #self.transformer = DataTransformer.load('C:/Users/stazt/Documents/nBox/Project Ultron/Tianming/Dataset')
-        train_data = self.transformer.transform(train_data0)
-        self.logger.write_to_file('transformed data shape: ' + str(train_data.shape))
+        transformed_data = self.transformer.transform(data)
+        self.logger.write_to_file('transformed data shape: ' + str(transformed_data.shape))
 
+        temp_test_size = 0.176
+        exact_val_size = int(temp_test_size * data.shape[0])
+        exact_val_size -= exact_val_size % self.pack
+        assert exact_val_size % self.pack == 0
+
+        train_data, val_data = train_test_split(transformed_data, test_size=exact_val_size, random_state=42)
+        val_data = torch.from_numpy(val_data.astype('float32')).to(self.device)
+
+        ## split the data into train and validation (70/15 rule)
+        self.logger.write_to_file('training data shape: ' + str(train_data.shape))
+        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -234,6 +245,10 @@ class CTGANSynthesizer(object):
         mean = torch.zeros(self.batch_size, self.embedding_dim, device=self.device)
         std = mean + 1
 
+        # Validation
+        mean_val = torch.zeros(val_data.shape[0], self.embedding_dim, device=self.device)
+        std_val = mean_val + 1
+
         if model_summary:
             print("*" * 100)
             print("GENERATOR")
@@ -244,7 +259,6 @@ class CTGANSynthesizer(object):
             this_size = (data_dim + self.cond_generator.n_opt)*self.pack
             summary(self.discriminator, (this_size,))
             print("*" * 100)
-
 
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
@@ -334,10 +348,48 @@ class CTGANSynthesizer(object):
                 loss_g.backward()
                 self.optimizerG.step()
 
+            # Validation loss
+            with torch.no_grad():
+                self.discriminator.eval()
+                fakez_val = torch.normal(mean=mean_val, std=std_val)
+
+                if self.cond_generator.n_opt > 0:
+                    c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt)).to(self.device)
+                    fakez_val = torch.cat([fakez_val, c1_val], dim=1)
+
+                fake_val = self.generator(fakez_val)
+                fakeact_val = self._apply_activate(fake_val)
+
+                if self.cond_generator.n_opt > 0:
+                    fake_cat_val = torch.cat([fakeact_val, c1_val], dim=1)
+                    real_cat_val = torch.cat([val_data, c1_val], dim=1)
+                else:
+                    real_cat_val = val_data
+                    fake_cat_val = fake_val
+
+                fake_cat_val.to(self.device)
+                real_cat_val.to(self.device)
+
+                y_fake_val = self.discriminator(fake_cat_val)
+                y_real_val = self.discriminator(real_cat_val)
+
+                loss_d_val_sq = ((torch.mean(y_real_val) - torch.mean(y_fake_val)))**2
+                self.val_metric = loss_d_val_sq
+                self.discriminator.train()
+
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
-            self.logger.write_to_file("Epoch " + str(self.trained_epoches) + ", Loss G: "
-                                      + str(loss_g.detach().cpu().numpy())+ ", Loss D: " +str(loss_d.detach().cpu().numpy()))
+            self.logger.write_to_file("Epoch " + str(self.trained_epoches)
+                                      + ", Loss G: " + str(loss_g.detach().cpu().numpy())
+                                      + ", Loss D: " + str(loss_d.detach().cpu().numpy())
+                                      + ", Loss Val sq: " + str(loss_d_val_sq.detach().cpu().numpy()))
+
+            if trial is not None:
+                trial.report(loss_d_val_sq, i)
+                # Handle pruning based on the intermediate value.
+                if trial.should_prune():
+                    raise optuna.exceptions.TrialPruned()
+
             # synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
             # KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)

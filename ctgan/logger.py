@@ -14,7 +14,8 @@ class Logger():
             self.dirpath = dirpath
         self.PID = "PID" + str(os.getpid())
 
-        self.filename = "summary_" + self.PID + "_" + self.dt.now().strftime(self.datetimeformat) + ".txt"
+        self.datetimeval = self.dt.now().strftime(self.datetimeformat)  # timestamp this logger.
+        self.filename = "summary_" + self.PID + "_" + self.datetimeval + ".txt"
         self.file_path = os.path.join(self.dirpath, self.filename)
 
     def write_to_file(self, msg, toprint=True):

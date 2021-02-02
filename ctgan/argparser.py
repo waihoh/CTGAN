@@ -3,6 +3,19 @@ import os
 from ctgan import config as cfg
 
 
+# To allow True/False argparse input.
+# See answer by Maxim in https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 def _parse_args():
     parser = argparse.ArgumentParser(description='Command Line Interface')
     parser.add_argument("-nv", "--nv", help="run nvidia-smi command", action="store_true")
@@ -39,7 +52,7 @@ def _parse_args():
 
     # TVAE parameters
     parser.add_argument('--tv_embedding', default=None, type=int, metavar='', help='tvae embedding')
-    parser.add_argument('--tv_condgen', default=None, type=bool, metavar='', help='tvae cond. gen.')
+    parser.add_argument('--tv_condgen', default=None, type=str2bool, metavar='', help='tvae cond. gen.')
     parser.add_argument('--tv_depth', default=None, type=int, metavar='', help='tvae num hidden layers')
     parser.add_argument('--tv_width', default=None, type=int, metavar='', help='tvae width of mlp')
     parser.add_argument('--tv_lr', default=None, type=float, metavar='', help='tvae learning rate')
@@ -125,7 +138,7 @@ class ParserOutput:
                 cfg.ctgan_setting.WIDTH = args.ct_width
 
             if args.ct_gen_lr is not None:
-                cfg.ctgan_setting.GERENATOR_LEARNING_RATE = args.ct_gen_lr
+                cfg.ctgan_setting.GENERATOR_LEARNING_RATE = args.ct_gen_lr
 
             if args.ct_dis_lr is not None:
                 cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = args.ct_dis_lr
