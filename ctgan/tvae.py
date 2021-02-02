@@ -212,7 +212,7 @@ class TVAESynthesizer(object):
         optimizerAE = Adam(
             list(self.encoder.parameters()) + list(self.decoder.parameters()), lr=self.lr,
             weight_decay=self.l2scale)
-        print(optimizerAE)
+        #print(optimizerAE)
         assert self.batch_size % 2 == 0
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
