@@ -128,7 +128,7 @@ def KLD(real, fake, discrete_columns):
                 column_real = column_real[real[column + '_cat'] == 0]
                 column_real = column_real[column_real > 0]
                 if len(column_fake) >= 1000 and len(column_real) >= 1000:
-                    KLD.append(cumulative_continuous_kl(column_fake, column_real))
+                    KLD.append((cumulative_continuous_kl(column_fake, column_real)+cumulative_continuous_kl(column_real, column_fake))/2)
                 else:
                     KLD.append(np.nan)
             else:
