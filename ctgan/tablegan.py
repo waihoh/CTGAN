@@ -317,15 +317,16 @@ class TableganSynthesizer(object):
             # data is split to train:validation:test with 70:15:15 rule
             # test data has been partitioned outside of this code.
             # thus, we split data to train:validation. Validation data is approximately 17.6%.
+            # TODO
             temp_test_size = 15 / (70 + 15)  # 0.176
             exact_val_size = int(temp_test_size * data.shape[0])
 
             train_data, val_data = train_test_split(data, test_size=exact_val_size, random_state=42)
 
             if not hasattr(self, "transformer"):
-               self.transformer = DataTransformer()
-               self.transformer.fit(data, discrete_columns, self.trans)
-               train_data = self.transformer.transform(train_data)
+                self.transformer = DataTransformer()
+                self.transformer.fit(data, discrete_columns, self.trans)
+                train_data = self.transformer.transform(train_data)
         else:
             # transformer has been saved separately.
             # input data should have been transformed as well.

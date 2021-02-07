@@ -80,11 +80,13 @@ if parser.proceed:
 
         elif parser.model_type == 'tvae':
             if trial is not None:
-                cfg.tvae_setting.LEARNING_RATE = trial.suggest_float('tv_lr', 1e-4, 1e-2, log=True)
-                cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs',300,900,step=100)
-                cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 500, 1000, step=100)
-                cfg.tvae_setting.DEPTH = trial.suggest_categorical('tv_depth',[2,3])
-                cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen',[True,False])
+                cfg.tvae_setting.LEARNING_RATE = trial.suggest_categorical('tv_lr', [1e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2])
+                cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', 100, 900, step=100)
+                cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 100, 1000, step=100)
+                cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 2, 5)
+                cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512)
+                cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512)
+                cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
                 # initialize a new model
                 model = TVAESynthesizer()
 
