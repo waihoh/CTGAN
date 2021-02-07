@@ -172,7 +172,6 @@ class CTGANSynthesizer2(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
-        self.logger.change_dirpath(self.logger.dirpath + "/CTGAN_" + self.logger.PID) ## create a folder with PID
 
         self.logger.write_to_file('Generator learning rate: ' + str(self.glr))
         self.logger.write_to_file('Discriminator learning rate: ' + str(self.dlr))
@@ -383,7 +382,8 @@ class CTGANSynthesizer2(object):
             self.logger.write_to_file("Epoch " + str(self.trained_epoches)
                                       + ", Loss G: " + str(loss_g.detach().cpu().numpy())
                                       + ", Loss D: " + str(loss_d.detach().cpu().numpy())
-                                      + ", Loss Val sq: " + str(loss_d_val_sq.detach().cpu().numpy()))
+                                      + ", Loss Val sq: " + str(loss_d_val_sq.detach().cpu().numpy()),
+                                      toprint=False)
 
             # if trial is not None:
             #     trial.report(loss_d_val_sq, i)

@@ -34,12 +34,22 @@ if parser.proceed:
     # select model
     if parser.model_type == 'ctgan':
         model = CTGANSynthesizer()
+        mdl_tag = "CTGAN"
     elif parser.model_type == 'tablegan':
         model = TableganSynthesizer()
+        mdl_tag = "TableGAN"
     elif parser.model_type == 'tvae':
         model = TVAESynthesizer()
+        mdl_tag = "TVAE"
     else:
         ValueError('The selected model, ' + parser.model_type + ', is invalid.')
+
+    # Create a new folder to save the training results
+    model.logger.change_dirpath(model.logger.dirpath + "/" + mdl_tag + "_" + model.logger.PID)  ## create a folder with PID
+
+    # Record the seed numbers
+    model.logger.write_to_file('PyTorch seed number ' + str(parser.torch_seed))
+    model.logger.write_to_file('Numpy seed number ' + str(parser.numpy_seed))
 
     # read the training data
     data = pd.read_csv(data_path)

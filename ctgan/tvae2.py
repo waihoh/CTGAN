@@ -144,8 +144,6 @@ class TVAESynthesizer2(object):
 
     def fit(self, data, discrete_columns=tuple(), log_frequency=True,
             model_summary=False, trans="VGM", trial=None):
-        self.logger.change_dirpath(
-            self.logger.dirpath + "/TVAE_" + self.logger.PID)  ## create a folder with PID
 
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
@@ -291,7 +289,8 @@ class TVAESynthesizer2(object):
             self.total_loss.append(loss.detach().cpu())
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
                                       ", Loss: " + str(loss.detach().cpu().numpy()) +
-                                      ", Val loss: " + str(loss_val.detach().cpu().numpy()))
+                                      ", Val loss: " + str(loss_val.detach().cpu().numpy()),
+                                      toprint=False)
 
             if trial is not None:
                 trial.report(loss_val, i)

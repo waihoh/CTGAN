@@ -24,19 +24,15 @@ def _parse_args():
     parser.add_argument("--torch_seed", default=0, type=int, metavar='', help="PyTorch random seed")
     parser.add_argument("--numpy_seed", default=0, type=int, metavar='', help="PyTorch random seed")
     parser.add_argument('--model', default=None, type=str, metavar='', help='ctgan, tablegan or tvae')
-    #parser.add_argument('--datadir', default="/workspace", type=str, metavar='', help='path of training data directory')
-    parser.add_argument('--datadir', default="C:/Users/stazt/Documents/nBox/Project Ultron/Milestone 4/Code for Optuna", type=str, metavar='',
-                        help='path of training data directory')
-    #parser.add_argument('--outputdir', default="/workspace", type=str, metavar='', help='path of output directory')
-    parser.add_argument('--outputdir', default="C:/Users/stazt/Documents/nBox/Project Ultron/Milestone 4/Code for Optuna", type=str, metavar='',
-                        help='path of output directory')
+    parser.add_argument('--datadir', default="/workspace", type=str, metavar='', help='path of training data directory')
+    parser.add_argument('--outputdir', default="/workspace", type=str, metavar='', help='path of output directory')
     parser.add_argument('--data_fn', default=None, type=str, metavar='', help='filename of transformed training data (with .csv)')
     parser.add_argument('--val_data_fn', default=None, type=str, metavar='',help='filename of validation data (with .csv)')
     parser.add_argument('--threshold', default=None, type=str, metavar='',help='threshold of KLD (with .csv)')
     parser.add_argument('--transformer', default=None, type=str, metavar='',help='VGM Transformer')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
-    parser.add_argument('--trials', default=None,type=int, metavar='', help='Number of trials')
+    parser.add_argument('--trials', default=5, type=int, metavar='', help='Number of Optuna trials')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')

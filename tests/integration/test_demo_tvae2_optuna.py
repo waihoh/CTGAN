@@ -27,12 +27,15 @@ tvae_mdl = None
 
 def objective(trial):
     cfg.LEARNING_RATE = trial.suggest_float("lr", 1e-6, 1e-3, log=True)
-    cfg.DEPTH = trial.suggest_int('depth', 2, 4)
-    cfg.WIDTH = trial.suggest_int('width', 128, 512, log=True)
+    # cfg.DEPTH = trial.suggest_int('depth', 2, 4)
+    # cfg.WIDTH = trial.suggest_int('width', 128, 512, log=True)
 
     # initialize a new tvae model
     global tvae_mdl
     tvae_mdl = TVAESynthesizer2()
+
+    # Create a new folder to save the training results
+    tvae_mdl.logger.change_dirpath(tvae_mdl.logger.dirpath + "/TVAE_" + tvae_mdl.logger.PID)  ## create a folder with PID
 
     # NOTE: to use Optuna, pass trial to fit function
     tvae_mdl.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial)
@@ -53,7 +56,8 @@ if __name__ == "__main__":
 
     # Remove/replace NopPruner if we want to use a pruner.
     # See https://optuna.readthedocs.io/en/v1.4.0/reference/pruners.html
-    study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
+    # study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
+    study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=10, callbacks=[callback])
 
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]

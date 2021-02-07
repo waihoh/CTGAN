@@ -135,6 +135,4 @@ ax[2].plot(n,KLhat9)
 ax[2].axhline(y=KL_int,color="r")
 ax[2].set_title('fraction=0.9')
 
-plt.show();
-#
-#
+plt.show()

@@ -176,7 +176,6 @@ class CTGANSynthesizer(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
-        self.logger.change_dirpath(self.logger.dirpath + "/CTGAN_" + self.logger.PID) ## create a folder with PID
 
         self.logger.write_to_file('Generator learning rate: ' + str(self.glr))
         self.logger.write_to_file('Discriminator learning rate: ' + str(self.dlr))
@@ -348,7 +347,8 @@ class CTGANSynthesizer(object):
             self.discriminator_loss.append(loss_d.detach().cpu())
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
                                       ", Loss G: " + str(loss_g.detach().cpu().numpy()) +
-                                      ", Loss D: " +str(loss_d.detach().cpu().numpy()))
+                                      ", Loss D: " +str(loss_d.detach().cpu().numpy()),
+                                      toprint=False)
 
             # Use Optuna for hyper-parameter tuning
             # Use KL divergence proportion of dissimilarity as metric (to minimize).

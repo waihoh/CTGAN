@@ -125,6 +125,7 @@ class TVAESynthesizer(object):
         self.total_loss = []
         self.threshold = None
         self.prop_dis_validation = None
+        self.trial_completed = True
 
     def _apply_activate(self, data):
         data_t = []
@@ -147,8 +148,6 @@ class TVAESynthesizer(object):
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
             trial=None, transformer=None, in_val_data=None, threshold=None):
-
-        self.logger.change_dirpath(self.logger.dirpath + "/TVAE_" + self.logger.PID)  ## create a folder with PID
 
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
@@ -259,7 +258,8 @@ class TVAESynthesizer(object):
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
             self.total_loss.append(loss.detach().cpu())
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
-                                      ", Loss: " + str(loss.detach().cpu().numpy()))
+                                      ", Loss: " + str(loss.detach().cpu().numpy()),
+                                      toprint=False)
 
             # Use Optuna for hyper-parameter tuning
             # Use KL divergence proportion of dissimilarity as metric (to minimize).
@@ -278,6 +278,7 @@ class TVAESynthesizer(object):
                 trial.report(self.prop_dis_validation, i)
                 # Handle pruning based on the intermediate value.
                 if trial.should_prune():
+                    self.trial_completed = False
                     raise optuna.exceptions.TrialPruned()
 
     def sample(self, samples, condition_column=None, condition_value=None):

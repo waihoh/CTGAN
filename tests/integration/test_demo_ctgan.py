@@ -40,6 +40,10 @@ print(discrete_columns)
 
 # Step 2: Fit CTGAN to your data
 ctgan = CTGANSynthesizer()
+
+# Create a new folder to save the training results
+ctgan.logger.change_dirpath(ctgan.logger.dirpath + "/CTGAN_" + ctgan.logger.PID) ## create a folder with PID
+
 ctgan.fit(data, discrete_columns, model_summary=False, trans="VGM")
 
 # print("before saving, does file exist?", os.path.exists(path_to_a_folder))
@@ -47,31 +51,13 @@ ctgan.fit(data, discrete_columns, model_summary=False, trans="VGM")
 # 2. Generate synthetic data
 samples_1 = ctgan.sample(10, condition_column='discrete1', condition_value=1)
 
-
-# NOTE: the next test runs into an error currently.
-# # 3. Generate synthetic data conditioning on one column
-# samples_2 = ctgan.sample(10, 'workclass', ' Private')
-# print('size of sample_2', samples_2.shape)
-
-#4. Save and load the synthesizer
+# Saving
 samples_1.to_csv(ctgan.logger.dirpath + "/" + "ctgan_samples_" + ctgan.logger.PID + "_" + ctgan.logger.dt.now().strftime(ctgan.logger.datetimeformat) + ".csv", index=False, header=True)
-# print("before saving, does file exist?", os.path.exists(path_to_a_folder))
-#
-# # To save a trained ctgan synthesizer
+
+# To save a trained ctgan synthesizer
 ctgan.save(ctgan.logger.dirpath + "/" + "ctgan_model_" + ctgan.logger.PID + "_" + ctgan.logger.dt.now().strftime(ctgan.logger.datetimeformat)+ ".pkl")
+
 # # NOTE: We'll see warnings:
 # # UserWarning: Couldn't retrieve source code for container of type ... . It won't be checked for correctness upon loading.
 # #   "type " + obj.__name__ + ". It won't be checked "
 #
-# print("after saving, does file exist?", os.path.exists(path_to_a_folder))
-#
-# # NOTE: the next test runs into an error currently.
-# # # To restore a saved synthesizer
-# # ctgan_2 = CTGANSynthesizer()
-# # ctgan_2.fit(data, discrete_columns, epochs=0, load_path=path_to_a_folder)
-# # ctgan_2_sample = ctgan_2.sample(5)
-# # print('ctgan_2_sample', ctgan_2_sample.shape)
-#
-# # cleaning up
-# if os.path.exists(path_to_a_folder):
-#     os.remove(path_to_a_folder)

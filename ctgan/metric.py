@@ -124,9 +124,13 @@ def KLD(real, fake, discrete_columns):
             # check whether indicator columns exist
             if column + '_cat' in fake.columns:
                 column_fake = column_fake[fake[column + '_cat'] == 0]
-                column_fake = column_fake[column_fake > 0]
                 column_real = column_real[real[column + '_cat'] == 0]
-                column_real = column_real[column_real > 0]
+                if column == 'b12b_1' or column == 'b12b_2':
+                    column_fake = column_fake[column_fake >= 0]
+                    column_real = column_real[column_real >= 0]
+                else:
+                    column_fake = column_fake[column_fake > 0]
+                    column_real = column_real[column_real > 0]
                 if len(column_fake) >= 1000 and len(column_real) >= 1000:
                     KLD.append((cumulative_continuous_kl(column_fake, column_real)+cumulative_continuous_kl(column_real, column_fake))/2)
                 else:

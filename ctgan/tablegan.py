@@ -216,6 +216,7 @@ class TableganSynthesizer(object):
         self.discriminator_loss = []
         self.threshold = None
         self.prop_dis_validation = None
+        self.trial_completed = True
 
     def _apply_activate(self, data, padding = True):
         data_t = []
@@ -303,7 +304,6 @@ class TableganSynthesizer(object):
             model_summary=False, trans="VGM",
             use_cond_gen=True, trial=None, transformer=None, in_val_data=None, threshold=None):
 
-        self.logger.change_dirpath(self.logger.dirpath + "/TableGAN_" + self.logger.PID)  ## create a folder with PID
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
@@ -478,7 +478,8 @@ class TableganSynthesizer(object):
             self.discriminator_loss.append(loss_d.detach().cpu())
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
                                       ", Loss G: " + str(loss_g.detach().cpu().numpy()) +
-                                      ", Loss D: " + str(loss_d.detach().cpu().numpy()))
+                                      ", Loss D: " + str(loss_d.detach().cpu().numpy()),
+                                      toprint=False)
 
             # Use Optuna for hyper-parameter tuning
             # Use KL divergence proportion of dissimilarity as metric (to minimize).
@@ -498,6 +499,7 @@ class TableganSynthesizer(object):
                 trial.report(self.prop_dis_validation, i)
                 # Handle pruning based on the intermediate value.
                 if trial.should_prune():
+                    self.trial_completed = False
                     raise optuna.exceptions.TrialPruned()
 
     ### following ctgan and tvae, added the parts updated by the authors.

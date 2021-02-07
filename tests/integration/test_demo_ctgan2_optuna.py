@@ -35,6 +35,9 @@ def objective(trial):
     global ctgan_mdl
     ctgan_mdl = CTGANSynthesizer2()
 
+    # Create a new folder to save the training results
+    ctgan_mdl.logger.change_dirpath(ctgan_mdl.logger.dirpath + "/CTGAN_" + ctgan_mdl.logger.PID)  ## create a folder with PID
+
     # NOTE: to use Optuna, pass trial to fit function
     ctgan_mdl.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial)
 
