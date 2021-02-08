@@ -33,6 +33,7 @@ def _parse_args():
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
     parser.add_argument('--trials', default=10, type=int, metavar='', help='Number of Optuna trials')
+    parser.add_argument('--max_num_mdls', default=5, type=int, metavar='',  help='Number of Optuna trials')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')
@@ -87,7 +88,8 @@ class ParserOutput:
         self.threshold = None
         self.transformer = None
         self.samplesize = 9905  # current size of test data.
-        self.trials = None
+        self.trials = 10
+        self.max_num_mdls = 5
 
         self.parser_func()
 
@@ -134,7 +136,9 @@ class ParserOutput:
         self.data_fn = args.data_fn
         self.val_data_fn = args.val_data_fn
         self.discrete_fn = args.discrete_fn
+        # for Optuna
         self.trials = args.trials
+        self.max_num_mdls = args.max_num_mdls
 
         if args.val_data_fn is not None:
             self.val_data_fn = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))

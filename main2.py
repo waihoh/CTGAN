@@ -49,7 +49,7 @@ if parser.proceed:
     # to record the top num_max_mdls models
     metric_vals = []
     mdl_fns = []
-    num_max_mdls = parser.trials
+    num_max_mdls = parser.max_num_mdls
 
     def objective(trial):
         global model
