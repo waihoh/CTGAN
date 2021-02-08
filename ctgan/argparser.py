@@ -137,13 +137,13 @@ class ParserOutput:
         self.trials = args.trials
 
         if args.val_data_fn is not None:
-            self.val_data_fn = pd.read_csv(os.path.join(self.datadir, self.val_data_fn))
+            self.val_data_fn = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))
 
         if args.threshold is not None:
-            self.threshold = np.transpose(pd.read_csv(os.path.join(self.datadir, self.threshold)))
+            self.threshold = np.transpose(pd.read_csv(os.path.join(self.datadir, args.threshold)))
 
         if args.transformer is not None:
-            transformer_path = os.path.join(self.dirpath, args.transformer)
+            transformer_path = os.path.join(self.datadir, args.transformer)
             self.transformer = DataTransformer.load(transformer_path)
 
         if args.samplesize is not None:
