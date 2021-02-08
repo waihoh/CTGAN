@@ -1,7 +1,9 @@
 import argparse
 import os
 from ctgan import config as cfg
-
+import pandas as pd
+import numpy as np
+from ctgan.transformer import DataTransformer
 
 # To allow True/False argparse input.
 # See answer by Maxim in https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
@@ -24,9 +26,13 @@ def _parse_args():
     parser.add_argument('--model', default=None, type=str, metavar='', help='ctgan, tablegan or tvae')
     parser.add_argument('--datadir', default="/workspace", type=str, metavar='', help='path of training data directory')
     parser.add_argument('--outputdir', default="/workspace", type=str, metavar='', help='path of output directory')
-    parser.add_argument('--data_fn', default=None, type=str, metavar='', help='filename of training data (with .csv)')
+    parser.add_argument('--data_fn', default=None, type=str, metavar='', help='filename of transformed training data (with .csv)')
+    parser.add_argument('--val_data_fn', default=None, type=str, metavar='',help='filename of validation data (with .csv)')
+    parser.add_argument('--threshold', default=None, type=str, metavar='',help='threshold of KLD (with .csv)')
+    parser.add_argument('--transformer', default=None, type=str, metavar='',help='VGM Transformer')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
+    parser.add_argument('--trials', default=5, type=int, metavar='', help='Number of Optuna trials')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')
@@ -77,7 +83,11 @@ class ParserOutput:
         self.outputdir = None
         self.data_fn = None
         self.discrete_fn = None
+        self.val_data_fn = None
+        self.threshold = None
+        self.transformer = None
         self.samplesize = 9905  # current size of test data.
+        self.trials = None
 
         self.parser_func()
 
@@ -122,7 +132,20 @@ class ParserOutput:
         self.datadir = args.datadir
         self.outputdir = args.outputdir
         self.data_fn = args.data_fn
+        self.val_data_fn = args.val_data_fn
+        self.threshold = args.threshold
+        self.transformer = args.transformer
         self.discrete_fn = args.discrete_fn
+        self.trials = args.trials
+
+        if args.val_data_fn is not None:
+            self.val_data_fn = pd.read_csv(os.path.join(self.datadir, self.val_data_fn))
+
+        if args.threshold is not None:
+            self.threshold = np.transpose(pd.read_csv(os.path.join(self.datadir, self.threshold)))
+
+        if args.transformer is not None:
+            self.transformer = DataTransformer.load(self.datadir)
 
         if args.samplesize is not None:
             self.samplesize = args.samplesize

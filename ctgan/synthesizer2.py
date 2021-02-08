@@ -69,6 +69,7 @@ class CTGANSynthesizer2(object):
         self.pack = pack  # Default value of Discriminator pac. See models.py
         self.logger = Logger()
         self.val_metric = None
+        self.save_model = True
 
     @staticmethod
     def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
@@ -171,7 +172,6 @@ class CTGANSynthesizer2(object):
             epochs (int):
                 Number of training epochs. Defaults to 300.
         """
-        self.logger.change_dirpath(self.logger.dirpath + "/CTGAN_" + self.logger.PID) ## create a folder with PID
 
         self.logger.write_to_file('Generator learning rate: ' + str(self.glr))
         self.logger.write_to_file('Discriminator learning rate: ' + str(self.dlr))
@@ -382,13 +382,15 @@ class CTGANSynthesizer2(object):
             self.logger.write_to_file("Epoch " + str(self.trained_epoches)
                                       + ", Loss G: " + str(loss_g.detach().cpu().numpy())
                                       + ", Loss D: " + str(loss_d.detach().cpu().numpy())
-                                      + ", Loss Val sq: " + str(loss_d_val_sq.detach().cpu().numpy()))
+                                      + ", Loss Val sq: " + str(loss_d_val_sq.detach().cpu().numpy()),
+                                      toprint=False)
 
-            if trial is not None:
-                trial.report(loss_d_val_sq, i)
-                # Handle pruning based on the intermediate value.
-                if trial.should_prune():
-                    raise optuna.exceptions.TrialPruned()
+            # if trial is not None:
+            #     trial.report(loss_d_val_sq, i)
+            #     # Handle pruning based on the intermediate value.
+            #     if trial.should_prune():
+            #         self.save_model = False
+            #         raise optuna.exceptions.TrialPruned()
 
             # synthetic data by the generator for each epoch
             # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)

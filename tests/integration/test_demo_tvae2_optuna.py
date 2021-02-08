@@ -27,17 +27,21 @@ tvae_mdl = None
 
 def objective(trial):
     cfg.LEARNING_RATE = trial.suggest_float("lr", 1e-6, 1e-3, log=True)
-    cfg.DEPTH = trial.suggest_int('depth', 2, 4)
-    cfg.WIDTH = trial.suggest_int('width', 128, 512, log=True)
+    # cfg.DEPTH = trial.suggest_int('depth', 2, 4)
+    # cfg.WIDTH = trial.suggest_int('width', 128, 512, log=True)
 
     # initialize a new tvae model
     global tvae_mdl
     tvae_mdl = TVAESynthesizer2()
 
+    # Create a new folder to save the training results
+    tvae_mdl.logger.change_dirpath(tvae_mdl.logger.dirpath + "/TVAE_" + tvae_mdl.logger.PID)  ## create a folder with PID
+
     # NOTE: to use Optuna, pass trial to fit function
     tvae_mdl.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial)
 
     return tvae_mdl.val_metric
+
 
 # saving the best model
 # see reply by Toshihiko Yanase in https://stackoverflow.com/questions/62144904/python-how-to-retrive-the-best-model-from-optuna-lightgbm-study
@@ -46,9 +50,13 @@ def callback(study, trial):
     if study.best_trial == trial:
         best_mdl = tvae_mdl
 
+
 if __name__ == "__main__":
     cfg.EPOCHS = 20  # just to speed up the test
 
+    # Remove/replace NopPruner if we want to use a pruner.
+    # See https://optuna.readthedocs.io/en/v1.4.0/reference/pruners.html
+    # study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
     study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=10, callbacks=[callback])
 

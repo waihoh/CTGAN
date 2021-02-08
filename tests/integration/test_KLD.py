@@ -57,7 +57,7 @@ def testecdf(x,fraction=0.5):
     p1 = P1(x) - P1(x-e)
     return [p,p1]
 
-#print(testecdf(np.random.normal(size=10)))
+testecdf(np.random.normal(size=10))
 # KL-divergence formula
 def kl_divergence(p, q):
     # TODO: how to handle q == 0?
@@ -98,44 +98,41 @@ qx = q/sum(q)
 
 print("KL is: ", kl_divergence(px,qx))
 
-n = np.arange(10, 10000, 10)
-KLhat = []
-for i in np.arange(len(n)):
-    a = np.random.normal(0,2,n[i])
-    b = np.random.normal(2,2,n[i])
-    KLhat.append(cumulative_continuous_kl(a,b,fraction=0.5))
-plt.plot(n,KLhat)
-plt.axhline(y=KL_int,color="r")
-plt.show();
-
-# n = np.arange(10, 1000, 10)
-# KLhat1 = []
-# KLhat5 = []
-# KLhat9 = []
+# n = np.arange(10, 10000, 10)
+# KLhat = []
 # for i in np.arange(len(n)):
 #     a = np.random.normal(0,2,n[i])
 #     b = np.random.normal(2,2,n[i])
-#     KLhat1.append(cumulative_continuous_kl(a,b,fraction=0.1))
-#     KLhat5.append(cumulative_continuous_kl(a, b, fraction=0.5))
-#     KLhat9.append(cumulative_continuous_kl(a, b, fraction=0.9))
-#
-#
-# # kl = KneeLocator(n, KLhat, curve="convex", direction="decreasing")
-# # kl.elbow
-# # print(kl.elbow)
-#
-# fig, ax = plt.subplots(1,3,figsize=(10,3))
-# ax[0].plot(n,KLhat1)
-# ax[0].axhline(y=KL_int,color="r")
-# ax[0].set_title('fraction=0.1')
-# ax[1].plot(n,KLhat5)
-# ax[1].axhline(y=KL_int,color="r")
-# ax[1].set_title('fraction=0.5')
-# ax[2].plot(n,KLhat9)
-# ax[2].axhline(y=KL_int,color="r")
-# ax[2].set_title('fraction=0.9')
-#
+#     KLhat.append(cumulative_continuous_kl(a,b,fraction=0.5))
+# plt.plot(n,KLhat)
+# plt.axhline(y=KL_int,color="r")
 # plt.show();
-# #
-# #
 
+n = np.arange(10, 1000, 10)
+KLhat1 = []
+KLhat5 = []
+KLhat9 = []
+for i in np.arange(len(n)):
+    a = np.random.normal(0,2,n[i])
+    b = np.random.normal(2,2,n[i])
+    KLhat1.append(cumulative_continuous_kl(a,b,fraction=0.1))
+    KLhat5.append(cumulative_continuous_kl(a, b, fraction=0.5))
+    KLhat9.append(cumulative_continuous_kl(a, b, fraction=0.9))
+
+
+# kl = KneeLocator(n, KLhat, curve="convex", direction="decreasing")
+# kl.elbow
+# print(kl.elbow)
+
+fig, ax = plt.subplots(1,3,figsize=(10,3))
+ax[0].plot(n,KLhat1)
+ax[0].axhline(y=KL_int,color="r")
+ax[0].set_title('fraction=0.1')
+ax[1].plot(n,KLhat5)
+ax[1].axhline(y=KL_int,color="r")
+ax[1].set_title('fraction=0.5')
+ax[2].plot(n,KLhat9)
+ax[2].axhline(y=KL_int,color="r")
+ax[2].set_title('fraction=0.9')
+
+plt.show()

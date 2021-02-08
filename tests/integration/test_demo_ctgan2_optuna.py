@@ -35,6 +35,9 @@ def objective(trial):
     global ctgan_mdl
     ctgan_mdl = CTGANSynthesizer2()
 
+    # Create a new folder to save the training results
+    ctgan_mdl.logger.change_dirpath(ctgan_mdl.logger.dirpath + "/CTGAN_" + ctgan_mdl.logger.PID)  ## create a folder with PID
+
     # NOTE: to use Optuna, pass trial to fit function
     ctgan_mdl.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial)
 
@@ -52,7 +55,9 @@ def callback(study, trial):
 if __name__ == "__main__":
     cfg.EPOCHS = 20  # just to speed up the test
 
-    study = optuna.create_study(direction="minimize")
+    # Remove/replace NopPruner if we want to use a pruner.
+    # See https://optuna.readthedocs.io/en/v1.4.0/reference/pruners.html
+    study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
     study.optimize(objective, n_trials=10, callbacks=[callback])
 
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
