@@ -32,7 +32,7 @@ def _parse_args():
     parser.add_argument('--transformer', default=None, type=str, metavar='',help='VGM Transformer')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
-    parser.add_argument('--trials', default=5, type=int, metavar='', help='Number of Optuna trials')
+    parser.add_argument('--trials', default=10, type=int, metavar='', help='Number of Optuna trials')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')
@@ -133,8 +133,6 @@ class ParserOutput:
         self.outputdir = args.outputdir
         self.data_fn = args.data_fn
         self.val_data_fn = args.val_data_fn
-        self.threshold = args.threshold
-        self.transformer = args.transformer
         self.discrete_fn = args.discrete_fn
         self.trials = args.trials
 
@@ -145,7 +143,8 @@ class ParserOutput:
             self.threshold = np.transpose(pd.read_csv(os.path.join(self.datadir, self.threshold)))
 
         if args.transformer is not None:
-            self.transformer = DataTransformer.load(self.datadir)
+            transformer_path = os.path.join(self.dirpath, args.transformer)
+            self.transformer = DataTransformer.load(transformer_path)
 
         if args.samplesize is not None:
             self.samplesize = args.samplesize

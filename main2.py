@@ -65,19 +65,22 @@ if parser.proceed:
             if trial is not None:
                 cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6,2e-6,1e-5,2e-5,1e-4])
                 cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_float('ct_dis_lr', cfg.ctgan_setting.GENERATOR_LEARNING_RATE, 1e-4, log=True)
-                cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs',300,900,step=100)
-                cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize',500,1000,step=100)
-                cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 2, 3)
-                cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_width', 256, 512)
-                cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25,0.5])
+                cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs',100,900,step=100)
+                cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize',100,1000,step=100)
+                cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 4)
+                cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
+                cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_embedding', 128, 512, step=64)
+                cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25, 0.5, 0.6])
                 # initialize a new model
                 model = CTGANSynthesizer()
 
         elif parser.model_type == 'tablegan':
             if trial is not None:
-                cfg.tablegan_setting.LEARNING_RATE = trial.suggest_float('tbl_lr', 2e-6, 2e-4, log=True)
-                cfg.tablegan_setting.EPOCHS = trial.suggest_int('tbl_epochs',30,120,step=30)
-                cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 500, 1000, step=100)
+                cfg.tablegan_setting.LEARNING_RATE = trial.suggest_categorical('tbl_lr', [2e-6, 1e-5, 2e-5, 5e-5, 1e-4])
+                cfg.tablegan_setting.EPOCHS = trial.suggest_int('tbl_epochs', 90, 480, step=30)
+                cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 100, 1000, step=100)
+                cfg.tablegan_setting.EMBEDDING = trial.suggest_int('tbl_embedding', 64, 512, step=64)
+                cfg.tablegan_setting.DLAYER = trial.suggest_categorical('tbl_dlayer', [-1, 0, 1])
                 # initialize a new model
                 model = TableganSynthesizer()
 
@@ -86,9 +89,9 @@ if parser.proceed:
                 cfg.tvae_setting.LEARNING_RATE = trial.suggest_categorical('tv_lr', [1e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2])
                 cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', 100, 900, step=100)
                 cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 100, 1000, step=100)
-                cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 2, 5)
-                cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512)
-                cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512)
+                cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 1, 4)
+                cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512, step=64)
+                cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512, step=64)
                 cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
                 # initialize a new model
                 model = TVAESynthesizer()
@@ -102,7 +105,12 @@ if parser.proceed:
         # Record the seed number
         model.logger.write_to_file('Both seed number ' + str(this_seed))
 
-        data = pd.read_csv(data_path).values
+        if parser.transformer is None:
+            data = pd.read_csv(data_path)
+        else:
+            # if transformer is provided, then the data should have been transformed
+            # moreover, the saved data is in a numpy array.
+            data = pd.read_csv(data_path).values
 
         # read list of discrete variables
         with open(discrete_cols_path, "r+") as f:
@@ -160,9 +168,13 @@ if parser.proceed:
         #     best_mdl = tvae_mdl
 
 if __name__ == "__main__":
+    # Training with TPE multivariate=True is reported to give better results than default TPE
+    # See https://tech.preferred.jp/en/blog/multivariate-tpe-makes-optuna-even-more-powerful/
+    sampler = optuna.samplers.TPESampler(multivariate=True)
+    study = optuna.create_study(direction="minimize", sampler=sampler)
     # Remove/replace NopPruner if we want to use a pruner.
     # See https://optuna.readthedocs.io/en/v1.4.0/reference/pruners.html
-    study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
+    # study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
     study.optimize(objective, n_trials=parser.trials, callbacks=[callback])
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
     complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]

@@ -279,8 +279,8 @@ class DataTransformer(object):
 
         return output
 
-    def save(self, path):
-        with open(path + "/data_transform.pl", "wb") as f:
+    def save(self, filepath):
+        with open(filepath, "wb") as f:
             pickle.dump(self, f)
 
     def covert_column_name_value_to_id(self, column_name, value):
@@ -300,6 +300,6 @@ class DataTransformer(object):
         }
 
     @classmethod
-    def load(cls, path):
-        with open(path + "/data_transform.pl", "rb") as f:
+    def load(cls, filepath):
+        with open(filepath, "rb") as f:
             return pickle.load(f)
