@@ -125,8 +125,10 @@ def KLD(real, fake, discrete_columns):
             if column + '_cat' in fake.columns:
                 column_fake = column_fake[fake[column + '_cat'] == 0]
                 column_real = column_real[real[column + '_cat'] == 0]
-                # TODO
-                if column == 'b12b_1' or column == 'b12b_2':
+                ## list all continuous variables for which 0 is meaningful
+                column_list = ['b10','b11','b12number_1','b12number_2','b12number_3_5',
+                               'b12number_4','b12number_6','b12number_7_8','c1c','c4c_1','b12b_1','b12b_2']
+                if column in column_list:
                     column_fake = column_fake[column_fake >= 0]
                     column_real = column_real[column_real >= 0]
                 else:
