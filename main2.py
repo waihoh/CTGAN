@@ -65,7 +65,7 @@ if parser.proceed:
             if trial is not None:
                 cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6,2e-6,1e-5,2e-5,1e-4])
                 cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_float('ct_dis_lr', cfg.ctgan_setting.GENERATOR_LEARNING_RATE, 1e-4, log=True)
-                cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs',100,900,step=100)
+                cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs',300,900,step=100)
                 cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize',100,1000,step=100)
                 cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 4)
                 cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
@@ -80,7 +80,7 @@ if parser.proceed:
                 cfg.tablegan_setting.EPOCHS = trial.suggest_int('tbl_epochs', 90, 480, step=30)
                 cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 100, 1000, step=100)
                 cfg.tablegan_setting.EMBEDDING = trial.suggest_int('tbl_embedding', 64, 512, step=64)
-                cfg.tablegan_setting.DLAYER = trial.suggest_categorical('tbl_dlayer', [-1, 0, 1])
+                cfg.tablegan_setting.DLAYER = trial.suggest_categorical('tbl_dlayer', [-1, 0])
                 # initialize a new model
                 model = TableganSynthesizer()
 
