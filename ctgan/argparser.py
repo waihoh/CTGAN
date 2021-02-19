@@ -34,6 +34,9 @@ def _parse_args():
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
     parser.add_argument('--trials', default=10, type=int, metavar='', help='Number of Optuna trials')
     parser.add_argument('--max_num_mdls', default=5, type=int, metavar='',  help='Number of Optuna trials')
+    parser.add_argument('--pruner',default=None, type=str2bool, metavar='', help='pruner used or not')
+    parser.add_argument('--warmup_steps', default=None, type=int, metavar='',
+                        help='pruning is disabled until these trials')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')
@@ -46,6 +49,7 @@ def _parse_args():
     parser.add_argument('--ct_dropout', default=None, type=float, metavar='', help='ctgan dropout rate')
     parser.add_argument('--ct_dis_step', default=None, type=int, metavar='', help='ctgan discriminator step')
     parser.add_argument('--ct_device', default=None, type=str, metavar='', help='ctgan cpu or cuda')
+   
 
     # TableGAN parameters
     parser.add_argument('--tbl_embedding', default=None, type=int, metavar='', help='tablegan embedding')
@@ -56,6 +60,7 @@ def _parse_args():
     parser.add_argument('--tbl_epochs', default=None, type=int, metavar='', help='tablegan num epochs')
     parser.add_argument('--tbl_dis_step', default=None, type=int, metavar='', help='tablegan discriminator step')
     parser.add_argument('--tbl_device', default=None, type=str, metavar='', help='tablegan cpu or cuda')
+
 
     # TVAE parameters
     parser.add_argument('--tv_embedding', default=None, type=int, metavar='', help='tvae embedding')
