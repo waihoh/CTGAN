@@ -32,11 +32,11 @@ def _parse_args():
     parser.add_argument('--transformer', default=None, type=str, metavar='',help='VGM Transformer')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
+    # Optuna
     parser.add_argument('--trials', default=10, type=int, metavar='', help='Number of Optuna trials')
     parser.add_argument('--max_num_mdls', default=5, type=int, metavar='',  help='Number of Optuna trials')
-    parser.add_argument('--pruner',default=None, type=str2bool, metavar='', help='pruner used or not')
-    parser.add_argument('--warmup_steps', default=None, type=int, metavar='',
-                        help='pruning is disabled until these trials')
+    parser.add_argument('--pruner', default=True, type=str2bool, metavar='', help='use Optuna pruner')
+    parser.add_argument('--warmup_steps', default=0, type=int, metavar='', help='Optuna median pruner warm-up')
 
     # CTGAN parameters
     parser.add_argument('--ct_embedding', default=None, type=int, metavar='', help='ctgan embedding')
@@ -49,7 +49,7 @@ def _parse_args():
     parser.add_argument('--ct_dropout', default=None, type=float, metavar='', help='ctgan dropout rate')
     parser.add_argument('--ct_dis_step', default=None, type=int, metavar='', help='ctgan discriminator step')
     parser.add_argument('--ct_device', default=None, type=str, metavar='', help='ctgan cpu or cuda')
-   
+
 
     # TableGAN parameters
     parser.add_argument('--tbl_embedding', default=None, type=int, metavar='', help='tablegan embedding')
@@ -93,8 +93,6 @@ class ParserOutput:
         self.threshold = None
         self.transformer = None
         self.samplesize = 9905  # current size of test data.
-        self.trials = 10
-        self.max_num_mdls = 5
 
         self.parser_func()
 
@@ -141,9 +139,12 @@ class ParserOutput:
         self.data_fn = args.data_fn
         self.val_data_fn = args.val_data_fn
         self.discrete_fn = args.discrete_fn
-        # for Optuna
+
+        # Optuna
         self.trials = args.trials
         self.max_num_mdls = args.max_num_mdls
+        self.pruner = args.pruner
+        self.warmup_steps = args.warmup_steps
 
         if args.val_data_fn is not None:
             self.val_data_fn = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))

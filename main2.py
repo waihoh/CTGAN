@@ -63,10 +63,10 @@ if parser.proceed:
 
         if parser.model_type == 'ctgan':
             if trial is not None:
-                cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6,2e-6,1e-5,2e-5,1e-4])
+                cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6, 2e-6, 1e-5, 2e-5, 1e-4])
                 cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_float('ct_dis_lr', cfg.ctgan_setting.GENERATOR_LEARNING_RATE, 1e-4, log=True)
-                cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs',300,900,step=100)
-                cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize',100,1000,step=100)
+                cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs', 300, 900,step=100)
+                cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 100, 1000,step=100)
                 cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 3)
                 cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
                 cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_embedding', 128, 512, step=64)
@@ -76,11 +76,9 @@ if parser.proceed:
 
         elif parser.model_type == 'tablegan':
             if trial is not None:
-                cfg.tablegan_setting.LEARNING_RATE = trial.suggest_categorical('tbl_lr', [2e-6, 1e-5, 2e-5, 5e-5, 1e-4])
-                cfg.tablegan_setting.EPOCHS = trial.suggest_int('tbl_epochs', 90, 480, step=30)
-                cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 100, 1000, step=100)
-                cfg.tablegan_setting.EMBEDDING = trial.suggest_int('tbl_embedding', 64, 512, step=64)
-                cfg.tablegan_setting.DLAYER = trial.suggest_categorical('tbl_dlayer', [-1, 0])
+                cfg.tablegan_setting.LEARNING_RATE = trial.suggest_categorical('tbl_lr', [5e-6, 1e-5, 2e-5, 5e-5])
+                cfg.tablegan_setting.EPOCHS = trial.suggest_int('tbl_epochs', 120, 300, step=30)
+                cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize',  300, 800, step=100)
                 # initialize a new model
                 model = TableganSynthesizer()
 
@@ -172,13 +170,13 @@ if __name__ == "__main__":
     # See https://tech.preferred.jp/en/blog/multivariate-tpe-makes-optuna-even-more-powerful/
     sampler = optuna.samplers.TPESampler(multivariate=True)
     if parser.pruner:
-        study = optuna.create_study(direction="minimize", sampler=sampler,
-                                pruner=optuna.pruners.MedianPruner(n_startup_trials=5,
-                                                                  n_warmup_steps=parser.warmup_steps,
-                                                                  interval_steps=10))
+        pruner = optuna.pruners.MedianPruner(n_startup_trials=5,
+                                             n_warmup_steps=parser.warmup_steps,
+                                             interval_steps=10)
+        study = optuna.create_study(direction="minimize", sampler=sampler, pruner=pruner)
     else:
-        study = optuna.create_study(direction="minimize", sampler=sampler,
-                                    pruner=optuna.pruners.NopPruner())
+        study = optuna.create_study(direction="minimize", sampler=sampler, pruner=optuna.pruners.NopPruner())
+
     # Remove/replace NopPruner if we want to use a pruner.
     # See https://optuna.readthedocs.io/en/v1.4.0/reference/pruners.html
     # study = optuna.create_study(direction="minimize", pruner=optuna.pruners.NopPruner())
