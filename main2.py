@@ -60,7 +60,6 @@ if parser.proceed:
         torch.manual_seed(this_seed)
         np.random.seed(this_seed)
 
-
         if parser.model_type == 'ctgan':
             if trial is not None:
                 cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6, 2e-6, 1e-5, 2e-5, 1e-4])
@@ -84,7 +83,7 @@ if parser.proceed:
 
         elif parser.model_type == 'tvae':
             if trial is not None:
-                cfg.tvae_setting.LEARNING_RATE = trial.suggest_categorical('tv_lr', [1e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2])
+                cfg.tvae_setting.LEARNING_RATE = trial.suggest_categorical('tv_lr', [1e-5, 1e-4, 5e-4, 1e-3])  # 1e-2 results in non-decreasing loss
                 cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', 100, 900, step=100)
                 cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 100, 1000, step=100)
                 cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 1, 4)
