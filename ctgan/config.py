@@ -35,9 +35,9 @@ class tablegan_setting:
     STRIDE = 2  # This is fixed
     KERNEL_SIZE = 4  # This is fixed
     SCALE_FACTOR = 2  # This is fixed
-    LEARNING_RATE = 2e-5 ## 2e-3;2e-5
+    LEARNING_RATE = 2e-4 ## 2e-3;2e-5
     BATCH_SIZE = 500 ## or 1000
-    EPOCHS = 3  ## or 600
+    EPOCHS = 300  ## or 600
     DISCRIMINATOR_STEP = 1
     DEVICE = "cpu"  # "cuda:0"
 
