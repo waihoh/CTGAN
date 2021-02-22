@@ -70,7 +70,7 @@ if parser.proceed:
                 cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 4)
                 cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
                 cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_embedding', 128, 512, step=64)
-                cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25, 0.5, 0.6])
+                cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25, 0.5, 0.75])
                 # initialize a new model
                 model = CTGANSynthesizer()
 
