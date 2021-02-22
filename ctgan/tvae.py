@@ -124,7 +124,7 @@ class TVAESynthesizer(object):
         self.validation_KLD = []
         self.total_loss = []
         self.threshold = None
-        self.prop_dis_validation = None
+        self.KLD_dist = None
         self.trial_completed = True
 
     def _apply_activate(self, data):
@@ -265,18 +265,19 @@ class TVAESynthesizer(object):
             # Use Optuna for hyper-parameter tuning
             # Use KL divergence proportion of dissimilarity as metric (to minimize).
             if trial is not None:
-                if self.threshold is None:
-                    if threshold is None:
-                        self.threshold = M.determine_threshold(data, val_data.shape[0], discrete_columns, n_rep=10)
-                    else:
-                        self.threshold = threshold
+                # if self.threshold is None:
+                #     if threshold is None:
+                #         self.threshold = M.determine_threshold(data, val_data.shape[0], discrete_columns, n_rep=10)
+                #     else:
+                #         self.threshold = threshold
                 # synthetic data by the generator for each epoch
                 sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
                 KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
-                diff_val = KL_val_loss - self.threshold
-                self.validation_KLD.append(KL_val_loss)
-                self.prop_dis_validation = np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val))
-                trial.report(self.prop_dis_validation, i)
+                self.KLD_dist = np.sqrt(np.nansum(KL_val_loss ** 2))
+                # diff_val = KL_val_loss - self.threshold
+                # self.validation_KLD.append(KL_val_loss)
+                # self.prop_dis_validation = np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val))
+                trial.report(self.KLD_dist, i)
                 # Handle pruning based on the intermediate value.
                 if trial.should_prune():
                     self.trial_completed = False
