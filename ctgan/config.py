@@ -26,6 +26,8 @@ class tvae_setting:
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
     DEVICE = "cpu"  # "cuda:0"
+    UCG1 = False
+    UCG2 = False
 
 
 class tablegan_setting:
