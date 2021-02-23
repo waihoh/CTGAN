@@ -4,7 +4,6 @@ from ctgan import load_demo
 from ctgan import TVAESynthesizer
 import pandas as pd
 import numpy as np
-from ctgan.config import tvae_setting as cfg
 import torch
 torch.manual_seed(0)
 np.random.seed(0)
@@ -46,13 +45,11 @@ tvae = TVAESynthesizer()
 tvae.logger.change_dirpath(tvae.logger.dirpath + "/TVAE_" + tvae.logger.PID)  ## create a folder with PID
 
 print('Training tvae is starting')
-#tvae.fit(data, discrete_columns, model_summary=True, trans="VGM")
-tvae.fit(data, discrete_columns, model_summary=True, trans="VGM", use_cond_gen1 = cfg.UCG1, use_cond_gen2 = cfg.UCG2)
+tvae.fit(data, discrete_columns, model_summary=True, trans="VGM")
 print('Training tvae is completed')
 
 # Generate synthetic data
-#samples_1 = tvae.sample(10)
-samples_1 = tvae.sample(10, use_cond_gen2 = cfg.UCG2)
+samples_1 = tvae.sample(10)
 
 # Save
 samples_1.to_csv(tvae.logger.dirpath + "/" + "tvae_samples_" + tvae.logger.PID + "_" + tvae.logger.dt.now().strftime(tvae.logger.datetimeformat) + ".csv", index=False, header=True)

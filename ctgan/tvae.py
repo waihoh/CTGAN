@@ -60,7 +60,7 @@ class Decoder(Module):
         return self.seq(input), self.sigma
 
 
-def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor, use_cond_gen1):
+def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor, cond_gen_encoder):
     # Evidence loss lower bound
     # See equation 10 in Kingma and Welling 2013.
     # See also useful information in https://www.cs.princeton.edu/courses/archive/fall11/cos597C/lectures/variational-inference-i.pdf
@@ -83,7 +83,9 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor, use_cond_
             st = ed
         else:
             assert 0
-    if use_cond_gen1:
+
+    # conditional vector is used as an input to encoder.
+    if cond_gen_encoder:
         ed = recon_x.size()[1]
         loss.append(cross_entropy(recon_x[:, st:ed], torch.argmax(x[:, st:ed], dim=-1), reduction='sum'))
         st = ed
@@ -121,7 +123,8 @@ class TVAESynthesizer(object):
         self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
-        self.use_cond_gen = cfg.CONDGEN
+        self.cond_gen_encoder = cfg.CONDGEN_ENCODER
+        self.cond_gen_latent = cfg.CONDGEN_LATENT
         self.validation_KLD = []
         self.total_loss = []
         self.threshold = None
@@ -148,21 +151,12 @@ class TVAESynthesizer(object):
 
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
-            trial=None, transformer=None, in_val_data=None, threshold=None,
-            use_cond_gen1=False, use_cond_gen2=True):
-        if use_cond_gen1:
-            print("Conditional generator 1 is ON")
-        else:
-            print("Conditional generator 1 is OFF")
-        if use_cond_gen2:
-            print("Conditional generator 2 is ON")
-        else:
-            print("Conditional generator 2 is OFF")
+            trial=None, transformer=None, in_val_data=None, threshold=None):
 
         self.logger.write_to_file('Learning rate: ' + str(self.lr))
         self.logger.write_to_file('Batch size: ' + str(self.batch_size))
         self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
-        self.logger.write_to_file('Use conditional vector: ' + str(self.use_cond_gen))
+        self.logger.write_to_file('Use conditional vector: ' + str(self.cond_gen_encoder or self.cond_gen_latent))
 
         self.trans = trans
 
@@ -193,15 +187,12 @@ class TVAESynthesizer(object):
         self.logger.write_to_file('data dimension: ' + str(data_dim))
 
         if not hasattr(self, "cond_generator"):
-            use_cond_gen = False
-            if use_cond_gen1 == True or use_cond_gen2 == True:
-                use_cond_gen = True
             self.cond_generator = ConditionalGenerator(
                 train_data,
                 self.transformer.output_info,
                 self.log_frequency,
                 trans=self.trans,
-                use_cond_gen=self.use_cond_gen
+                use_cond_gen=(self.cond_gen_encoder or self.cond_gen_latent)
             )
 
         # NOTE: these steps are different from ctgan
@@ -209,48 +200,23 @@ class TVAESynthesizer(object):
         # loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
 
         # Note: vectors from conditional generator are appended latent space
-        if use_cond_gen1:
-            self.encoder = Encoder(data_dim + self.cond_generator.n_opt, self.compress_dims,
-                                   self.embedding_dim).to(self.device)
-            if use_cond_gen2:
-                self.decoder = Decoder(self.embedding_dim + self.cond_generator.n_opt,
-                                       self.compress_dims,
-                                       data_dim + self.cond_generator.n_opt).to(self.device)
-            else:
-                self.decoder = Decoder(self.embedding_dim, self.compress_dims,
-                                       data_dim + self.cond_generator.n_opt).to(self.device)
-        else:
-            self.encoder = Encoder(data_dim, self.compress_dims, self.embedding_dim).to(
-                self.device)
-            if use_cond_gen2:
-                self.decoder = Decoder(self.embedding_dim + self.cond_generator.n_opt,
-                                       self.compress_dims,
-                                       data_dim).to(self.device)
-            else:
-                self.decoder = Decoder(self.embedding_dim, self.compress_dims, data_dim).to(
-                    self.device)
+        self.encoder = Encoder(data_dim + self.cond_gen_encoder * self.cond_generator.n_opt,
+                               self.compress_dims,
+                               self.embedding_dim).to(self.device)
+
+        self.decoder = Decoder(self.embedding_dim + self.cond_gen_latent * self.cond_generator.n_opt,
+                               self.compress_dims,
+                               data_dim + self.cond_gen_encoder * self.cond_generator.n_opt).to(self.device)
 
         if model_summary:
             print("*" * 100)
             print("ENCODER")
-            if use_cond_gen1:
-                summary(self.encoder,(data_dim + self.cond_generator.n_opt,))
-                print("*" * 100)
-                print("DECODER")
-                if use_cond_gen2:
-                    summary(self.decoder, (self.embedding_dim + self.cond_generator.n_opt,))
-                else:
-                    summary(self.decoder, (self.embedding_dim,))
-                print("*" * 100)
-            else:
-                summary(self.encoder, (data_dim, ))
-                print("*" * 100)
-                print("DECODER")
-                if use_cond_gen2:
-                    summary(self.decoder, (self.embedding_dim + self.cond_generator.n_opt,))
-                else:
-                    summary(self.decoder, (self.embedding_dim,))
-                print("*" * 100)
+            summary(self.encoder, (data_dim + self.cond_gen_encoder * self.cond_generator.n_opt,))
+            print("*" * 100)
+            print("DECODER")
+            summary(self.decoder, (self.embedding_dim + self.cond_gen_latent * self.cond_generator.n_opt,))
+            print("*" * 100)
+
 
         optimizerAE = Adam(
             list(self.encoder.parameters()) + list(self.decoder.parameters()), lr=self.lr,
@@ -279,7 +245,7 @@ class TVAESynthesizer(object):
 
                 optimizerAE.zero_grad()
                 real = torch.from_numpy(real.astype('float32')).to(self.device)
-                if use_cond_gen1:
+                if self.cond_gen_encoder:
                     real = torch.cat([real, c2], dim=1)
 
                 mu, std, logvar = self.encoder(real)
@@ -293,12 +259,12 @@ class TVAESynthesizer(object):
 
                 # NEW
                 # Conditional vector is added to latent space.
-                if use_cond_gen2:
+                if self.cond_gen_latent:
                     if c1 is not None:
                         emb = torch.cat([emb, c2], dim=1)
                 rec, sigmas = self.decoder(emb)
                 loss_1, loss_2 = loss_function(
-                    rec, real, sigmas, mu, logvar, self.transformer.output_info, self.loss_factor, use_cond_gen1)
+                    rec, real, sigmas, mu, logvar, self.transformer.output_info, self.loss_factor, self.cond_gen_encoder)
                 loss = loss_1 + loss_2
                 loss.backward()
                 optimizerAE.step()
@@ -329,7 +295,7 @@ class TVAESynthesizer(object):
                     self.trial_completed = False
                     raise optuna.exceptions.TrialPruned()
 
-    def sample(self, samples, use_cond_gen2, condition_column=None, condition_value=None):
+    def sample(self, samples, condition_column=None, condition_value=None):
         self.decoder.eval()
 
         if condition_column is not None and condition_value is not None:
@@ -366,7 +332,7 @@ class TVAESynthesizer(object):
             else:
                 c1 = condvec
                 c1 = torch.from_numpy(c1).to(self.device)
-                if use_cond_gen2:
+                if self.cond_gen_latent:
                     fakez = torch.cat([fakez, c1], dim=1)
 
             fake, sigmas = self.decoder(fakez)

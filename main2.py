@@ -88,7 +88,9 @@ if parser.proceed:
                 cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 1, 4)
                 cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512, step=64)
                 cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512, step=64)
-                cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
+                # cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
+                cfg.tvae_setting.CONDGEN_ENCODER = trial.suggest_categorical('tv_condgen_encoder', [True, False])
+                cfg.tvae_setting.CONDGEN_LATENT = trial.suggest_categorical('tv_condgen_latent', [True, False])
                 # initialize a new model
                 model = TVAESynthesizer()
 

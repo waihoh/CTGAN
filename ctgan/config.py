@@ -19,15 +19,14 @@ class ctgan_setting:
 
 class tvae_setting:
     EMBEDDING = 128
-    CONDGEN = True
     DEPTH = 2 ## or 3 hidden layers
     WIDTH = 128
     LEARNING_RATE = 1e-3 ## 1e-2; 1e-4
     BATCH_SIZE = 500 ## or 1000
     EPOCHS = 300  ## or 600
     DEVICE = "cpu"  # "cuda:0"
-    UCG1 = False
-    UCG2 = False
+    CONDGEN_ENCODER = True
+    CONDGEN_LATENT = True
 
 
 class tablegan_setting:

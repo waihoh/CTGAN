@@ -64,13 +64,15 @@ def _parse_args():
 
     # TVAE parameters
     parser.add_argument('--tv_embedding', default=None, type=int, metavar='', help='tvae embedding')
-    parser.add_argument('--tv_condgen', default=None, type=str2bool, metavar='', help='tvae cond. gen.')
+    # parser.add_argument('--tv_condgen', default=None, type=str2bool, metavar='', help='tvae cond. gen.')
     parser.add_argument('--tv_depth', default=None, type=int, metavar='', help='tvae num hidden layers')
     parser.add_argument('--tv_width', default=None, type=int, metavar='', help='tvae width of mlp')
     parser.add_argument('--tv_lr', default=None, type=float, metavar='', help='tvae learning rate')
     parser.add_argument('--tv_batchsize', default=None, type=int, metavar='', help='tvae batch size')
     parser.add_argument('--tv_epochs', default=None, type=int, metavar='', help='tvae num epochs')
     parser.add_argument('--tv_device', default=None, type=str, metavar='', help='tvae cpu or cuda')
+    parser.add_argument('--tv_condgen_encoder', default=None, type=str2bool, metavar='', help='tvae cond. gen. to encoder')
+    parser.add_argument('--tv_condgen_latent', default=None, type=str2bool, metavar='', help='tvae cond. gen. to latent space')
 
     return parser.parse_args()
 
@@ -220,9 +222,6 @@ class ParserOutput:
             if args.tv_embedding is not None:
                 cfg.tvae_setting.EMBEDDING = args.tv_embedding
 
-            if args.tv_condgen is not None:
-                cfg.tvae_setting.CONDGEN = args.tv_condgen
-
             if args.tv_depth is not None:
                 cfg.tvae_setting.DEPTH = args.tv_depth
 
@@ -240,6 +239,12 @@ class ParserOutput:
 
             if args.tv_device is not None:
                 cfg.tvae_setting.DEVICE = args.tv_device
+
+            if args.tv_condgen_encoder is not None:
+                cfg.tvae_setting.CONDGEN_ENCODER = args.tv_condgen_encoder
+
+            if args.tv_condgen_latent is not None:
+                cfg.tvae_setting.CONDGEN_LATENT = args.tv_condgen_latent
         else:
             print('Please specify the correct model type.')
             return
