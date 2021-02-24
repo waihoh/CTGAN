@@ -175,7 +175,7 @@ def weights_init(m):
 
 def get_side(total_dims):
     output = 0
-    sides = [4, 8, 16, 24, 32, 64]  # added 64 to accommodate OVS dataset
+    sides = [4, 8, 16, 24, 32, 48, 64]  # added 48 and 64 to accommodate OVS dataset
     for i in sides:
         if i * i >= total_dims:
             output = i
