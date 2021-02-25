@@ -100,6 +100,11 @@ if parser.proceed:
         # Create a new folder to save the training results
         model.logger.change_dirpath(optuna_logger.dirpath)  ## create a folder with PID
 
+        # Add trial number to summary log file
+        filename, file_extension = os.path.splitext(model.logger.filename)
+        new_filename = filename + "_" + str(this_seed) + file_extension
+        model.logger.change_filename(new_filename)
+
         # Record the seed number
         model.logger.write_to_file('Both seed number ' + str(this_seed))
 

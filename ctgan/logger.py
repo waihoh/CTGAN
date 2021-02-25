@@ -3,6 +3,7 @@ from datetime import datetime as dt
 
 
 class Logger:
+
     def __init__(self, dirpath=None, filename=None):
         self.datetimeformat = "%Y%m%d_%H%M%S"
         self.dt = dt
@@ -23,6 +24,9 @@ class Logger:
         else:
             self.filename = "summary_" + self.PID + "_" + self.datetimeval + ".txt"
 
+        self._set_file_path()
+
+    def _set_file_path(self):
         self.file_path = os.path.join(self.dirpath, self.filename)
 
     def write_to_file(self, msg, toprint=True):
@@ -38,3 +42,7 @@ class Logger:
             os.makedirs(dirpath)
         self.dirpath = dirpath
         self.file_path = os.path.join(self.dirpath, self.filename)
+
+    def change_filename(self, new_fn):
+        self.filename = new_fn
+        self._set_file_path()
