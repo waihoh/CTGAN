@@ -75,7 +75,7 @@ if parser.proceed:
 
         elif parser.model_type == 'tablegan':
             if trial is not None:
-                cfg.tablegan_setting.LEARNING_RATE = trial.suggest_categorical('tbl_lr', [1e-5, 2e-5])
+                cfg.tablegan_setting.LEARNING_RATE = trial.suggest_categorical('tbl_lr', [2e-6,5e-6,1e-5])
                 cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 500, 600, step=100)
                 # initialize a new model
                 model = TableganSynthesizer()
