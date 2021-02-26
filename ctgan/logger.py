@@ -41,7 +41,7 @@ class Logger:
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
         self.dirpath = dirpath
-        self.file_path = os.path.join(self.dirpath, self.filename)
+        self._set_file_path()
 
     def change_filename(self, new_fn):
         self.filename = new_fn
