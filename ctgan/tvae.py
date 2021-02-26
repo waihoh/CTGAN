@@ -128,8 +128,7 @@ class TVAESynthesizer(object):
         self.validation_KLD = []
         self.total_loss = []
         self.threshold = None
-        self.KLD_dist = None
-        self.trial_completed = True
+        self.optuna_metric = None
 
     def _apply_activate(self, data):
         data_t = []
@@ -174,12 +173,17 @@ class TVAESynthesizer(object):
                 self.transformer = DataTransformer()
                 self.transformer.fit(data, discrete_columns, self.trans)
                 train_data = self.transformer.transform(train_data)
+
         else:
             # transformer has been saved separately.
             # input data should have been transformed as well.
             self.transformer = transformer
             train_data = data
             val_data = in_val_data
+
+        # Note the val data that was split externally is currently before transformation
+        if cfg.OPTUNA_ELBO:
+            val_data = self.transformer.transform(val_data)
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -275,24 +279,55 @@ class TVAESynthesizer(object):
                                       toprint=True)
 
             # Use Optuna for hyper-parameter tuning
-            # Use KL divergence proportion of dissimilarity as metric (to minimize).
             if trial is not None:
-                # if self.threshold is None:
-                #     if threshold is None:
-                #         self.threshold = M.determine_threshold(data, val_data.shape[0], discrete_columns, n_rep=10)
-                #     else:
-                #         self.threshold = threshold
-                # synthetic data by the generator for each epoch
-                sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
-                KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
-                self.KLD_dist = np.sqrt(np.nansum(KL_val_loss ** 2))
-                # diff_val = KL_val_loss - self.threshold
-                # self.validation_KLD.append(KL_val_loss)
-                # self.prop_dis_validation = np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val))
-                trial.report(self.KLD_dist, i)
+                if cfg.OPTUNA_ELBO:
+                    # ELBO as metric for minimization
+                    with torch.no_grad():
+                        self.encoder.eval()
+                        self.decoder.eval()
+
+                        if self.cond_generator.n_opt > 0:
+                            c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt)).to(self.device)
+
+                        this_val_data = torch.from_numpy(val_data.astype('float32')).to(self.device)
+                        if self.cond_gen_encoder:
+                            this_val_data = torch.cat([this_val_data, c1_val], dim=1)
+
+                        mu_val, std_val, logvar_val = self.encoder(this_val_data)
+                        eps_val = torch.randn_like(std_val)
+                        emb_val = eps_val * std_val + mu_val
+
+                        # Conditional vector is added to latent space.
+                        if self.cond_gen_latent:
+                            emb_val = torch.cat([emb_val, c1_val], dim=1)
+                        rec_val, sigmas_val = self.decoder(emb_val)
+                        loss_1_val, loss_2_val = loss_function(
+                            rec_val, this_val_data, sigmas_val, mu_val, logvar_val, self.transformer.output_info,
+                            self.loss_factor, self.cond_gen_encoder)
+                        self.optuna_metric = loss_1_val + loss_2_val
+
+                        self.encoder.train()
+                        self.decoder.train()
+
+                else:
+                    # Use KL divergence proportion of dissimilarity as metric (to minimize).
+
+                    # if self.threshold is None:
+                    #     if threshold is None:
+                    #         self.threshold = M.determine_threshold(data, val_data.shape[0], discrete_columns, n_rep=10)
+                    #     else:
+                    #         self.threshold = threshold
+                    # synthetic data by the generator for each epoch
+                    sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
+                    KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
+                    self.optuna_metric = np.sqrt(np.nansum(KL_val_loss ** 2))
+                    # diff_val = KL_val_loss - self.threshold
+                    # self.validation_KLD.append(KL_val_loss)
+                    # self.prop_dis_validation = np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val))
+
+                trial.report(self.optuna_metric, i)
                 # Handle pruning based on the intermediate value.
                 if trial.should_prune():
-                    self.trial_completed = False
                     raise optuna.exceptions.TrialPruned()
 
     def sample(self, samples, condition_column=None, condition_value=None):
