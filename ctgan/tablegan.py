@@ -214,8 +214,7 @@ class TableganSynthesizer(object):
         self.generator_loss = []
         self.discriminator_loss = []
         self.threshold = None
-        self.KLD_dist = None
-        self.trial_completed = True
+        self.optuna_metric = None
 
     def _apply_activate(self, data, padding = True):
         data_t = []
@@ -493,15 +492,14 @@ class TableganSynthesizer(object):
                 # synthetic data by the generator for each epoch
                 sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
                 KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
-                self.KLD_dist = np.sqrt(np.nansum(KL_val_loss ** 2))
+                self.optuna_metric = np.sqrt(np.nansum(KL_val_loss ** 2))
 
                 # diff_val = KL_val_loss - self.threshold
                 # self.validation_KLD.append(KL_val_loss)
                 # self.prop_dis_validation = np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val))
-                trial.report(self.KLD_dist, i)
+                trial.report(self.optuna_metric, i)
                 # Handle pruning based on the intermediate value.
                 if trial.should_prune():
-                    self.trial_completed = False
                     raise optuna.exceptions.TrialPruned()
 
     ### following ctgan and tvae, added the parts updated by the authors.
