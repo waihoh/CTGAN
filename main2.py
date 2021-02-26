@@ -134,7 +134,7 @@ if parser.proceed:
         #     with open(model.logger.dirpath+"/model{}.pkl".format(trial.number), "wb") as fout:
         #         pickle.dump(model, fout)
 
-        return model.KLD_dist
+        return model.optuna_metric
 
 
     def callback(study, trial):
@@ -146,14 +146,14 @@ if parser.proceed:
                             + optuna_logger.dt.now().strftime(optuna_logger.datetimeformat)
 
             if len(metric_vals) < num_max_mdls:
-                metric_vals.append(model.KLD_dist)
+                metric_vals.append(model.optuna_metric)
                 mdl_fns.append(this_model_fn)
                 metric_vals, mdl_fns = sortlists(metric_vals, mdl_fns)
 
                 model.save(optuna_logger.dirpath + "/" + this_model_fn + ".pkl")
             else:
                 print(mdl_fns)
-                if model.KLD_dist < metric_vals[-1]:
+                if model.optuna_metric < metric_vals[-1]:
                     # remove the previously saved model
                     metric_vals.pop()
                     mdl_fn_discard = mdl_fns.pop()
@@ -161,7 +161,7 @@ if parser.proceed:
                     os.remove(optuna_logger.dirpath + "/" + mdl_fn_discard + ".pkl")
 
                     # add the new record
-                    metric_vals.append(model.KLD_dist)
+                    metric_vals.append(model.optuna_metric)
                     mdl_fns.append(this_model_fn)
                     metric_vals, mdl_fns = sortlists(metric_vals, mdl_fns)
 
