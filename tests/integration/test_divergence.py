@@ -25,7 +25,7 @@ data_a = pd.DataFrame({
 # We anticipate the KL or JS divergence to be minimum
 data_b = data_a.copy()
 
-KL_loss_ab, JS_loss_ab = M.KLD_JSD(data_a, data_b, discrete_columns)
+KL_loss_ab, JS_loss_ab = M.KLD(data_a, data_b, discrete_columns)
 print("Case 1: Minimum divergence")
 print(KL_loss_ab, JS_loss_ab)
 
@@ -47,7 +47,7 @@ data_c = pd.DataFrame({
     'discrete1': data_discrete_c
 })
 
-KL_loss_a2c, JS_loss_a2c = M.KLD_JSD(data_a2, data_c, discrete_columns)
+KL_loss_a2c, JS_loss_a2c = M.KLD(data_a2, data_c, discrete_columns)
 print("Case 2: Maximum divergence")
 print(KL_loss_a2c, JS_loss_a2c)
 
@@ -75,5 +75,5 @@ data_d = pd.DataFrame({
 })
 
 print("Case 3: Some overlap")
-KL_loss_ad, JS_loss_ad = M.KLD_JSD(data_a, data_d, discrete_columns)
+KL_loss_ad, JS_loss_ad = M.KLD(data_a, data_d, discrete_columns)
 print(KL_loss_ad, JS_loss_ad)
