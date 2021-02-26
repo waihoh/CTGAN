@@ -100,9 +100,9 @@ class ParserOutput:
 
     def parser_func(self):
         """
-        The function acts as a placeholder to update cfg with valeus from argparse.
+        The function acts as a placeholder to update cfg with values from argparse.
 
-        Returns:
+        NOTE:
             proceed: continue with subsequent code in main.oy
             model: the selected model is either ctgan, tablegan or tvae.
             datadir: where the training data is located.
