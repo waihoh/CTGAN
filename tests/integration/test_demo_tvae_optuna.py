@@ -67,7 +67,7 @@ def objective(trial):
     # NOTE: to use Optuna, pass trial to fit function
     tvae_mdl.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial)
 
-    return tvae_mdl.prop_dis_validation
+    return tvae_mdl.optuna_metric
 
 
 # saving the best model
@@ -80,14 +80,14 @@ def callback(study, trial):
                         + optuna_logger.dt.now().strftime(optuna_logger.datetimeformat)
 
         if len(metric_vals) < num_max_mdls:
-            metric_vals.append(tvae_mdl.prop_dis_validation)
+            metric_vals.append(tvae_mdl.optuna_metric)
             mdl_fns.append(this_model_fn)
             metric_vals, mdl_fns = sortlists(metric_vals, mdl_fns)
 
             tvae_mdl.save(optuna_logger.dirpath + "/" + this_model_fn + ".pkl")
         else:
             print(mdl_fns)
-            if tvae_mdl.prop_dis_validation < metric_vals[-1]:
+            if tvae_mdl.optuna_metric < metric_vals[-1]:
                 # remove the previously saved model
                 metric_vals.pop()
                 mdl_fn_discard = mdl_fns.pop()
@@ -95,7 +95,7 @@ def callback(study, trial):
                 os.remove(optuna_logger.dirpath + "/" + mdl_fn_discard + ".pkl")
 
                 # add the new record
-                metric_vals.append(tvae_mdl.prop_dis_validation)
+                metric_vals.append(tvae_mdl.optuna_metric)
                 mdl_fns.append(this_model_fn)
                 metric_vals, mdl_fns = sortlists(metric_vals, mdl_fns)
 
