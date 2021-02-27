@@ -9,11 +9,11 @@ class ctgan_setting:
     WIDTH = 256
     GENERATOR_LEARNING_RATE = 2e-4
     DISCRIMINATOR_LEARNING_RATE = 2e-4
-
     BATCH_SIZE = 500
     EPOCHS = 300
     DROPOUT = 0.5
     DISCRIMINATOR_STEP = 1
+    CONDGEN = True
     DEVICE = "cpu"  # "cuda:0"
 
 
@@ -41,4 +41,5 @@ class tablegan_setting:
     BATCH_SIZE = 500
     EPOCHS = 300
     DISCRIMINATOR_STEP = 1
+    CONDGEN = True
     DEVICE = "cpu"  # "cuda:0"
