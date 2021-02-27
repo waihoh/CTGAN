@@ -73,6 +73,7 @@ def _parse_args():
     parser.add_argument('--tv_device', default=None, type=str, metavar='', help='tvae cpu or cuda')
     parser.add_argument('--tv_condgen_encoder', default=None, type=str2bool, metavar='', help='tvae cond. gen. to encoder')
     parser.add_argument('--tv_condgen_latent', default=None, type=str2bool, metavar='', help='tvae cond. gen. to latent space')
+    parser.add_argument('--tv_optuna_elbo', default=None, type=str2bool, metavar='', help='tvae elbo as optuna metric')
 
     return parser.parse_args()
 
@@ -245,6 +246,9 @@ class ParserOutput:
 
             if args.tv_condgen_latent is not None:
                 cfg.tvae_setting.CONDGEN_LATENT = args.tv_condgen_latent
+
+            if args.tv_optuna_elbo is not None:
+                cfg.tvae_setting.OPTUNA_ELBO = args.tv_optuna_elbo
         else:
             print('Please specify the correct model type.')
             return
