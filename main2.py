@@ -106,7 +106,8 @@ if parser.proceed:
         model.logger.change_filename(new_filename)
 
         # Record the seed number
-        model.logger.write_to_file('Both seed number ' + str(this_seed))
+        model.logger.write_to_file('PyTorch seed number ' + str(this_seed))
+        model.logger.write_to_file('Numpy seed number ' + str(this_seed))
 
         if parser.transformer is None:
             data = pd.read_csv(data_path)
