@@ -50,12 +50,10 @@ class CTGANSynthesizer(object):
             sampling. Defaults to ``True``.
     """
 
-
     def __init__(self, l2scale=1e-6, pack = 10, log_frequency=True):
         self.embedding_dim = cfg.EMBEDDING
         self.gen_dim = np.repeat(cfg.WIDTH, cfg.DEPTH)
         self.dis_dim = np.repeat(cfg.WIDTH, cfg.DEPTH)
-
         self.l2scale = l2scale
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
@@ -158,9 +156,8 @@ class CTGANSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    #def fit(self, threshold, data,  discrete_columns=tuple(), model_summary=False, trans="VGM", use_cond_gen=True,trial=None):
     def fit(self, data, discrete_columns=tuple(),
-            model_summary=False, trans="VGM", use_cond_gen=True,
+            model_summary=False, trans="VGM",
             trial=None, transformer=None, in_val_data=None, threshold=None):
         """Fit the CTGAN Synthesizer models to the training data.
 
@@ -177,10 +174,16 @@ class CTGANSynthesizer(object):
                 Number of training epochs. Defaults to 300.
         """
 
-        self.logger.write_to_file('Generator learning rate: ' + str(self.glr))
-        self.logger.write_to_file('Discriminator learning rate: ' + str(self.dlr))
-        self.logger.write_to_file('Batch size: ' + str(self.batch_size))
-        self.logger.write_to_file('Number of Epochs: '+ str(self.epochs))
+        self.logger.write_to_file('Generator learning rate: ' + str(cfg.GENERATOR_LEARNING_RATE))
+        self.logger.write_to_file('Discriminator learning rate: ' + str(cfg.DISCRIMINATOR_LEARNING_RATE))
+        self.logger.write_to_file('Batch size: ' + str(cfg.BATCH_SIZE))
+        self.logger.write_to_file('Number of Epochs: '+ str(cfg.EPOCHS))
+        self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
+        self.logger.write_to_file('Depth: ' + str(cfg.DEPTH))
+        self.logger.write_to_file('Width: ' + str(cfg.WIDTH))
+        self.logger.write_to_file('Dropout rate: ' + str(cfg.DROPOUT))
+        self.logger.write_to_file('Discriminator step: ' + str(cfg.DISCRIMINATOR_STEP))
+        self.logger.write_to_file('use cond. gen. ' + str(cfg.CONDGEN))
 
         self.trans = trans
 
@@ -218,7 +221,7 @@ class CTGANSynthesizer(object):
                 self.transformer.output_info,
                 self.log_frequency,
                 trans=self.trans,
-                use_cond_gen=use_cond_gen
+                use_cond_gen=cfg.CONDGEN
             )
 
         if not hasattr(self, "generator"):
