@@ -300,11 +300,19 @@ class TableganSynthesizer(object):
 
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
-            use_cond_gen=True, trial=None, transformer=None, in_val_data=None, threshold=None):
+            trial=None, transformer=None, in_val_data=None, threshold=None):
 
-        self.logger.write_to_file('Learning rate: ' + str(self.lr))
-        self.logger.write_to_file('Batch size: ' + str(self.batch_size))
-        self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
+        self.logger.write_to_file('Learning rate: ' + str(cfg.LEARNING_RATE))
+        self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
+        self.logger.write_to_file('Num channels: ' + str(cfg.NUM_CHANNELS))
+        self.logger.write_to_file('Dlayer: ' + str(cfg.DLAYER))
+        self.logger.write_to_file('Stride: ' + str(cfg.STRIDE))
+        self.logger.write_to_file('Kernel size: ' + str(cfg.KERNEL_SIZE))
+        self.logger.write_to_file('Scale factor: ' + str(cfg.SCALE_FACTOR))
+        self.logger.write_to_file('Batch size: ' + str(cfg.BATCH_SIZE))
+        self.logger.write_to_file('Number of Epochs: ' + str(cfg.EPOCHS))
+        self.logger.write_to_file('Discriminator step: ' + str(cfg.DISCRIMINATOR_STEP))
+        self.logger.write_to_file('Use cond gen: ' + str(cfg.CONDGEN))
 
         self.trans = trans
 
@@ -345,7 +353,7 @@ class TableganSynthesizer(object):
                 self.transformer.output_info,
                 self.log_frequency,
                 trans=self.trans,
-                use_cond_gen=use_cond_gen
+                use_cond_gen=cfg.CONDGEN
             )
 
         # compute side after transformation
