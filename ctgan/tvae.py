@@ -152,10 +152,18 @@ class TVAESynthesizer(object):
             model_summary=False, trans="VGM",
             trial=None, transformer=None, in_val_data=None, threshold=None):
 
-        self.logger.write_to_file('Learning rate: ' + str(self.lr))
-        self.logger.write_to_file('Batch size: ' + str(self.batch_size))
-        self.logger.write_to_file('Number of Epochs: ' + str(self.epochs))
-        self.logger.write_to_file('Use conditional vector: ' + str(self.cond_gen_encoder or self.cond_gen_latent))
+        self.logger.write_to_file('Learning rate: ' + str(cfg.LEARNING_RATE))
+        self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
+        self.logger.write_to_file('Depth: ' + str(cfg.DEPTH))
+        self.logger.write_to_file('Width: ' + str(cfg.WIDTH))
+        self.logger.write_to_file('Batch size: ' + str(cfg.BATCH_SIZE))
+        self.logger.write_to_file('Number of Epochs: ' + str(cfg.EPOCHS))
+        self.logger.write_to_file('Loss factor: ' + str(self.loss_factor))
+        self.logger.write_to_file('Log frequency: ' + str(self.log_frequency))
+        self.logger.write_to_file('Encoder cond. vector: ' + str(self.cond_gen_encoder))
+        self.logger.write_to_file('L2 scale: ' + str(self.l2scale))
+        self.logger.write_to_file('Latent cond. vector: ' + str(self.cond_gen_latent))
+        self.logger.write_to_file('Optuna ELBO: ' + str(cfg.OPTUNA_ELBO))
 
         self.trans = trans
 
