@@ -190,6 +190,8 @@ class TVAESynthesizer(object):
             train_data = data  # load transformed train data
             # Note: For Optuna training, we need to load the transformed val data
             val_data = in_val_data
+            if cfg.OPTUNA_ELBO:
+                val_data = val_data.values
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
