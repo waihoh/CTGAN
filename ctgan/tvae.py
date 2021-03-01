@@ -181,17 +181,15 @@ class TVAESynthesizer(object):
                 self.transformer = DataTransformer()
                 self.transformer.fit(data, discrete_columns, self.trans)
                 train_data = self.transformer.transform(train_data)
-
+                if cfg.OPTUNA_ELBO:
+                    val_data = self.transformer.transform(val_data)
         else:
             # transformer has been saved separately.
             # input data should have been transformed as well.
             self.transformer = transformer
-            train_data = data
+            train_data = data  # load transformed train data
+            # Note: For Optuna training, we need to load the transformed val data
             val_data = in_val_data
-
-        # Note the val data that was split externally is currently before transformation
-        if cfg.OPTUNA_ELBO:
-            val_data = self.transformer.transform(val_data)
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
