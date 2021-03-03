@@ -103,7 +103,7 @@ if parser.proceed:
 
         # Add trial number to summary log file
         filename, file_extension = os.path.splitext(model.logger.filename)
-        new_filename = filename + "_" + str(this_seed) + file_extension
+        new_filename = filename + "_" + str(trial.number) + file_extension
         model.logger.change_filename(new_filename)
 
         # Record the seed number
