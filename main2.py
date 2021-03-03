@@ -141,12 +141,12 @@ if parser.proceed:
 
     def callback(study, trial):
         global metric_vals, mdl_fns, num_max_mdls  # , best_mdl
-        if trial.state == optuna.trial.TrialState.COMPLETE:
-            this_model_fn = parser.model_type + "_model_" \
-                            + str(trial.number) + "_" \
-                            + optuna_logger.PID + "_" \
-                            + optuna_logger.dt.now().strftime(optuna_logger.datetimeformat)
+        this_model_fn = parser.model_type + "_model_" \
+                        + str(trial.number) + "_" \
+                        + optuna_logger.PID + "_" \
+                        + optuna_logger.dt.now().strftime(optuna_logger.datetimeformat)
 
+        if trial.state == optuna.trial.TrialState.COMPLETE:
             if len(metric_vals) < num_max_mdls:
                 metric_vals.append(model.optuna_metric)
                 mdl_fns.append(this_model_fn)
@@ -154,7 +154,6 @@ if parser.proceed:
 
                 model.save(optuna_logger.dirpath + "/" + this_model_fn + ".pkl")
             else:
-                print(mdl_fns)
                 if model.optuna_metric < metric_vals[-1]:
                     # remove the previously saved model
                     metric_vals.pop()
@@ -168,6 +167,11 @@ if parser.proceed:
                     metric_vals, mdl_fns = sortlists(metric_vals, mdl_fns)
 
                     model.save(optuna_logger.dirpath + "/" + this_model_fn + ".pkl")
+
+        # write intermediate Optuna training results, in case the training crashes, eg. core dumped error.
+        optuna_logger.write_to_file(
+            "Trial: {}, Metric: {}, Status: {}, model fn: {} ".format(
+                trial.number, model.optuna_metric, trial.state, this_model_fn), toprint=False)
 
         # if study.best_trial == trial:
         #     best_mdl = tvae_mdl
@@ -190,6 +194,9 @@ if __name__ == "__main__":
     study.optimize(objective, n_trials=parser.trials, callbacks=[callback])
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
     complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+
+    # Training completed. Clear the intermediate log that was saved by optuna_logger first.
+    optuna_logger.clear_all_content()
 
     # write training statistics to log file
     optuna_logger.write_to_file("Study statistics: ")
