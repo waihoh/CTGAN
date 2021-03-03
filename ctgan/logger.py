@@ -46,3 +46,8 @@ class Logger:
     def change_filename(self, new_fn):
         self.filename = new_fn
         self._set_file_path()
+
+    def clear_all_content(self):
+        # see CasualCode3's reply in https://stackoverflow.com/questions/2769061/how-to-erase-the-file-contents-of-text-file-in-python
+        with open(self.file_path, "w"):
+            pass
