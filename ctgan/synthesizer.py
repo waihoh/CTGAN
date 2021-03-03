@@ -201,8 +201,8 @@ class CTGANSynthesizer(object):
 
             if not hasattr(self, "transformer"):
                 self.transformer = DataTransformer()
-                self.transformer.fit(data, discrete_columns, self.trans)
-                train_data = self.transformer.transform(train_data)
+            self.transformer.fit(data, discrete_columns, self.trans)
+            train_data = self.transformer.transform(train_data)
         else:
             # transformer has been saved separately.
             # input data should have been transformed as well.
