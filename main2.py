@@ -63,11 +63,11 @@ if parser.proceed:
         if parser.model_type == 'ctgan':
             if trial is not None:
                 cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6, 2e-6, 1e-5, 2e-5])
-                cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_categorical('ct_dis_lr', [1e-6, 2e-6, 1e-5, 2e-5])
-                cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs', 600, 900, step=100)
-                # cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 500, 1000, step=100)
+                #cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_categorical('ct_dis_lr', [1e-6, 2e-6, 1e-5, 2e-5])
+                #cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs', 600, 900, step=100)
+                cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 500, 1000, step=100)
                 # cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 3)
-                # cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
+                cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
                 # # cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_embedding', 128, 512, step=64)
                 # cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25, 0.5])
                 # initialize a new model
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     # See https://tech.preferred.jp/en/blog/multivariate-tpe-makes-optuna-even-more-powerful/
     ## Use GridSampler
     if parser.model_type == 'ctgan':
-        search_space = {"ct_gen_lr": [1e-5, 2e-5], "ct_dis_lr": [1e-5, 2e-5], "ct_epochs": [600, 700]}
+        search_space = {"ct_gen_lr": [1e-5, 2e-5],"ct_width":[384,512],"ct_batchsize":[600,700]}
     elif parser.model_type == 'tablegan':
         search_space = {"tbl_lr": [1e-5, 5e-6],"tbl_epochs": [150, 200],"tbl_batchsize":[500, 800]}
     elif parser.model_type == 'tvae':
