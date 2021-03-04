@@ -183,7 +183,7 @@ if __name__ == "__main__":
     if parser.model_type == 'ctgan':
         search_space = {"ct_gen_lr": [1e-5, 2e-5], "ct_dis_lr": [1e-5, 2e-5], "ct_epochs": [600, 700]}
     elif parser.model_type == 'tablegan':
-        search_space = {"tbl_lr": [1e-5, 5e-6],"tbl_epochs": [150, 300],"tbl_batchsize":[500, 600]}
+        search_space = {"tbl_lr": [1e-5, 5e-6],"tbl_epochs": [150, 200],"tbl_batchsize":[500, 800]}
     elif parser.model_type == 'tvae':
         search_space = {"tv_lr": [1e-5, 1e-4], "tv_epochs": [300, 400],"tv_batchsize": [500, 600]}
     sampler = optuna.samplers.GridSampler(search_space)
