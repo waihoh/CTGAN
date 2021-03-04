@@ -63,13 +63,13 @@ if parser.proceed:
         if parser.model_type == 'ctgan':
             if trial is not None:
                 cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6, 2e-6, 1e-5, 2e-5])
-                cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_float('ct_dis_lr', cfg.ctgan_setting.GENERATOR_LEARNING_RATE, 2e-5, log=True)
+                cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_categorical('ct_dis_lr', [1e-6, 2e-6, 1e-5, 2e-5])
                 cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs', 600, 900, step=100)
-                cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 500, 1000, step=100)
-                cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 3)
-                cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
-                # cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_embedding', 128, 512, step=64)
-                cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25, 0.5])
+                # cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 500, 1000, step=100)
+                # cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 3)
+                # cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
+                # # cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_embedding', 128, 512, step=64)
+                # cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25, 0.5])
                 # initialize a new model
                 model = CTGANSynthesizer()
 
@@ -86,12 +86,12 @@ if parser.proceed:
                 cfg.tvae_setting.LEARNING_RATE = trial.suggest_categorical('tv_lr', [1e-5, 1e-4, 1e-3])  # 1e-2 results in non-decreasing loss
                 cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', 300, 900, step=100)
                 cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 500, 1000, step=100)
-                cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 1, 4)
-                cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512, step=64)
-                cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512, step=64)
-                # cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
-                cfg.tvae_setting.CONDGEN_ENCODER = trial.suggest_categorical('tv_condgen_encoder', [True, False])
-                cfg.tvae_setting.CONDGEN_LATENT = trial.suggest_categorical('tv_condgen_latent', [True, False])
+                # cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 1, 4)
+                # cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512, step=64)
+                # cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512, step=64)
+                # # cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
+                # cfg.tvae_setting.CONDGEN_ENCODER = trial.suggest_categorical('tv_condgen_encoder', [True, False])
+                # cfg.tvae_setting.CONDGEN_LATENT = trial.suggest_categorical('tv_condgen_latent', [True, False])
                 # initialize a new model
                 model = TVAESynthesizer()
 
@@ -179,7 +179,16 @@ if parser.proceed:
 if __name__ == "__main__":
     # Training with TPE multivariate=True is reported to give better results than default TPE
     # See https://tech.preferred.jp/en/blog/multivariate-tpe-makes-optuna-even-more-powerful/
-    sampler = optuna.samplers.TPESampler(multivariate=True)
+    ## Use GridSampler
+    if parser.model_type == 'ctgan':
+        search_space = {"ct_gen_lr": [1e-5, 2e-5], "ct_dis_lr": [1e-5, 2e-5], "ct_epochs": [600, 700]}
+    elif parser.model_type == 'tablegan':
+        search_space = {"tbl_lr": [1e-5, 5e-6],"tbl_epochs": [150, 300],"tbl_batchsize":[500, 600]}
+    elif parser.model_type == 'tvae':
+        search_space = {"tv_lr": [1e-5, 1e-4], "tv_epochs": [300, 400],"tv_batchsize": [500, 600]}
+    sampler = optuna.samplers.GridSampler(search_space)
+    # Use TPESampler
+    #sampler = optuna.samplers.TPESampler(multivariate=True)
     if parser.pruner:
         pruner = optuna.pruners.MedianPruner(n_startup_trials=5,
                                              n_warmup_steps=parser.warmup_steps,
