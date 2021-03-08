@@ -104,7 +104,7 @@ if parser.proceed:
             if trial is not None:
                 inum = trial.number
                 # NOTE: when using suggest_categorical, we are not able to change the values in subsequent trials
-                cfg.tvae_setting.LEARNING_RATE = trial.suggest_float('tv_lr', [cases[inum]['LEARNING_RATE'], cases[inum]['LEARNING_RATE']])  # 1e-2 results in non-decreasing loss
+                cfg.tvae_setting.LEARNING_RATE = trial.suggest_float('tv_lr', cases[inum]['LEARNING_RATE'], cases[inum]['LEARNING_RATE'])  # 1e-2 results in non-decreasing loss
                 cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', cases[inum]['EPOCHS'], cases[inum]['EPOCHS'], step=100)
                 cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', cases[inum]['BATCH_SIZE'], cases[inum]['BATCH_SIZE'], step=100)
                 cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', cases[inum]['DEPTH'], cases[inum]['DEPTH'])
@@ -112,7 +112,7 @@ if parser.proceed:
                 cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', cases[inum]['EMBEDDING'], cases[inum]['EMBEDDING'], step=64)
                 # cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
                 cfg.tvae_setting.CONDGEN_ENCODER = bool(trial.suggest_int('tv_condgen_encoder', int(cases[inum]['CONDGEN_ENCODER']), int(cases[inum]['CONDGEN_ENCODER'])))
-                cfg.tvae_setting.CONDGEN_LATENT = bool(trial.suggest_categorical('tv_condgen_latent', int(cases[inum]['CONDGEN_LATENT']), int(cases[inum]['CONDGEN_LATENT'])))
+                cfg.tvae_setting.CONDGEN_LATENT = bool(trial.suggest_int('tv_condgen_latent', int(cases[inum]['CONDGEN_LATENT']), int(cases[inum]['CONDGEN_LATENT'])))
                 # initialize a new model
                 model = TVAESynthesizer()
 
