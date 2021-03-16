@@ -62,7 +62,8 @@ class Decoder(Module):
 
 def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor, cond_gen_encoder):
     # Evidence loss lower bound
-    # See equation 10 in Kingma and Welling 2013.
+    # See equation 10 in Kingma and Welling 2013. We need to maximize ELBO in this equation.
+    # That's equivalent to minimizing -ELBO, which is coded here.
     # See also useful information in https://www.cs.princeton.edu/courses/archive/fall11/cos597C/lectures/variational-inference-i.pdf
     st = 0
     loss = []
@@ -75,7 +76,7 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor, cond_gen_
             loss.append(((x[:, st] - torch.tanh(recon_x[:, st])) ** 2 / 2 / (std ** 2)).sum())
             loss.append(torch.log(std) * x.size()[0])
             st = ed
-        # cross entropy loss for
+        # cross entropy loss for beta and d
         elif item[1] == 'softmax':
             ed = st + item[0]
             loss.append(cross_entropy(
