@@ -109,6 +109,8 @@ def KLD(real, fake, discrete_columns):
         column_real = real[column].values
         if column in discrete_columns:
             # find list of all unique values
+            column_real = column_real[~np.isnan(column_real)]
+            column_fake = column_fake[~np.isnan(column_fake)]
             unique_list = []
             arrs = [np.unique(column_fake), np.unique(column_real)]
             for arr in arrs:
