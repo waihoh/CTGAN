@@ -20,7 +20,7 @@ Run hyper-parameter tuning using Optuna
 
 # Additional test cases, manually selected
 cases = []
-cases.append({'BATCH_SIZE': 1000, 'CONDGEN_ENCODER': False, 'CONDGEN_LATENT': False, 'DEPTH': 2, 'EMBEDDING': 192, 'EPOCHS': 500, 'LEARNING_RATE': 1e-5, 'WIDTH': 448})
+cases.append({'BATCH_SIZE': 1000, 'CONDGEN_ENCODER': False, 'CONDGEN_LATENT': False, 'DEPTH': 3, 'EMBEDDING': 192, 'EPOCHS': 1200, 'LEARNING_RATE': 1e-5, 'WIDTH': 448})
 
 # update inputs
 parser = ParserOutput()
@@ -62,7 +62,7 @@ if parser.proceed:
         global model
 
         # get the seed number from the last element of seed_list and remove it from the list.
-        this_seed = seed_list[-1]
+        this_seed = 23 # seed_list[-1]
         seed_list.pop()
         torch.manual_seed(this_seed)
         np.random.seed(this_seed)
