@@ -147,7 +147,7 @@ if parser.proceed:
 
         # model.fit(data, discrete_columns)
         model.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial,
-                  transformer=parser.transformer, in_val_data=parser.val_data_fn,
+                  transformer=parser.transformer, in_val_data=parser.val_data,
                   threshold=parser.threshold)
 
         elapsed_time = time.time() - start_time

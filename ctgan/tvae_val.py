@@ -152,7 +152,8 @@ class TVAESynthesizerVal(object):
 
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
-            trial=None, transformer=None, in_val_data=None, threshold=None):
+            trial=None, transformer=None, in_val_data=None, in_val_transformed_data=None,
+            threshold=None):
 
         self.logger.write_to_file('Learning rate: ' + str(cfg.LEARNING_RATE))
         self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
@@ -191,8 +192,7 @@ class TVAESynthesizerVal(object):
             train_data = data  # load transformed train data
             # Note: For Optuna training, we need to load the transformed val data
             val_data = in_val_data
-            val_data_transformed = self.transformer.transform(val_data)
-            #val_data_transformed = in_val_data_transformed.values
+            val_data_transformed = in_val_transformed_data.values
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -313,10 +313,10 @@ class TVAESynthesizerVal(object):
                 self.encoder.train()
                 self.decoder.train()
 
-            self.total_loss.append(loss.detach().cpu())
+            self.total_loss.append(loss.detach().cpu().numpy())
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
                                       ", Training Loss: " + str(loss.detach().cpu().numpy()) +
-                                      ", Validation loss: " + str(val_loss.detach().cpu()),
+                                      ", Validation loss: " + str(val_loss.detach().cpu().numpy()),
                                       toprint=True)
 
             # Use Optuna for hyper-parameter tuning

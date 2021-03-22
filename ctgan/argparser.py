@@ -27,9 +27,10 @@ def _parse_args():
     parser.add_argument('--datadir', default="/workspace", type=str, metavar='', help='path of training data directory')
     parser.add_argument('--outputdir', default="/workspace", type=str, metavar='', help='path of output directory')
     parser.add_argument('--data_fn', default=None, type=str, metavar='', help='filename of transformed training data (with .csv)')
-    parser.add_argument('--val_data_fn', default=None, type=str, metavar='',help='filename of validation data (with .csv)')
-    parser.add_argument('--threshold', default=None, type=str, metavar='',help='threshold of KLD (with .csv)')
-    parser.add_argument('--transformer', default=None, type=str, metavar='',help='VGM Transformer')
+    parser.add_argument('--val_data_fn', default=None, type=str, metavar='', help='filename of validation data (with .csv)')
+    parser.add_argument('--val_transformed_data_fn', default=None, type=str, metavar='', help='filename of validation data (with .csv)')
+    parser.add_argument('--threshold', default=None, type=str, metavar='', help='threshold of KLD (with .csv)')
+    parser.add_argument('--transformer', default=None, type=str, metavar='', help='VGM Transformer')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
     # Optuna
@@ -92,7 +93,8 @@ class ParserOutput:
         self.outputdir = None
         self.data_fn = None
         self.discrete_fn = None
-        self.val_data_fn = None
+        self.val_data = None
+        self.val_transformed_data = None
         self.threshold = None
         self.transformer = None
         self.samplesize = 9905  # current size of test data.
@@ -141,6 +143,7 @@ class ParserOutput:
         self.outputdir = args.outputdir
         self.data_fn = args.data_fn
         self.val_data_fn = args.val_data_fn
+        self.val_transformed_data_fn = args.val_transformed_data_fn
         self.discrete_fn = args.discrete_fn
 
         # Optuna
@@ -150,7 +153,10 @@ class ParserOutput:
         self.warmup_steps = args.warmup_steps
 
         if args.val_data_fn is not None:
-            self.val_data_fn = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))
+            self.val_data = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))
+
+        if args.val_transformed_data_fn is not None:
+            self.val_transformed_data = pd.read_csv(os.path.join(self.datadir, args.val_transformed_data_fn))
 
         if args.threshold is not None:
             self.threshold = np.transpose(pd.read_csv(os.path.join(self.datadir, args.threshold)))

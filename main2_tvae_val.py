@@ -8,7 +8,7 @@ from ctgan.argparser import ParserOutput
 from ctgan.logger import Logger
 from ctgan import CTGANSynthesizer
 from ctgan import TableganSynthesizer
-from ctgan import TVAESynthesizer
+from ctgan import TVAESynthesizerVal
 
 import optuna
 from ctgan import config as cfg
@@ -17,15 +17,22 @@ from ctgan import config as cfg
 '''
 Run hyper-parameter tuning using Optuna
 '''
+
+# Additional test cases, manually selected
+cases = []
+cases.append({'BATCH_SIZE': 1000, 'CONDGEN_ENCODER': False, 'CONDGEN_LATENT': False, 'DEPTH': 2, 'EMBEDDING': 192, 'EPOCHS': 500, 'LEARNING_RATE': 1e-5, 'WIDTH': 448})
+
 # update inputs
 parser = ParserOutput()
+
+# Ensure number of trials match the number of manually selected cases
+assert parser.trials == len(cases)
 
 # logger to save optuna statistics
 optuna_logger = Logger(filename="optuna_trials_summary.txt")
 optuna_logger.change_dirpath(parser.outputdir + "/" + parser.model_type + "_" + optuna_logger.PID)
 
 # function to sort two lists together
-
 def sortlists(metrics, fns):
     metrics_sorted, fns_sorted = (list(t) for t in zip(*sorted(zip(metrics, fns))))
     return metrics_sorted, fns_sorted
@@ -76,24 +83,26 @@ if parser.proceed:
         elif parser.model_type == 'tablegan':
             if trial is not None:
                 cfg.tablegan_setting.LEARNING_RATE = trial.suggest_categorical('tbl_lr', [2e-6,5e-6,1e-5])
-                cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 500, 800, step=100)
-                cfg.tablegan_setting.EPOCHS=trial.suggest_int('tbl_epochs',150,300,step=50)
+                cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 500, 600, step=100)
+                cfg.tablegan_setting.EPOCHS=trial.suggest_categorical('tbl_epochs',[150,300])
                 # initialize a new model
                 model = TableganSynthesizer()
 
         elif parser.model_type == 'tvae':
             if trial is not None:
-                cfg.tvae_setting.LEARNING_RATE = trial.suggest_categorical('tv_lr', [1e-5, 1e-4, 1e-3])  # 1e-2 results in non-decreasing loss
-                cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', 300, 900, step=100)
-                cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 500, 1000, step=100)
-                # cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 1, 4)
-                # cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512, step=64)
-                # cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512, step=64)
-                # # cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
-                # cfg.tvae_setting.CONDGEN_ENCODER = trial.suggest_categorical('tv_condgen_encoder', [True, False])
-                # cfg.tvae_setting.CONDGEN_LATENT = trial.suggest_categorical('tv_condgen_latent', [True, False])
+                inum = trial.number
+                # NOTE: when using suggest_categorical, we are not able to change the values in subsequent trials
+                cfg.tvae_setting.LEARNING_RATE = trial.suggest_float('tv_lr', cases[inum]['LEARNING_RATE'], cases[inum]['LEARNING_RATE'])  # 1e-2 results in non-decreasing loss
+                cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', cases[inum]['EPOCHS'], cases[inum]['EPOCHS'], step=100)
+                cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', cases[inum]['BATCH_SIZE'], cases[inum]['BATCH_SIZE'], step=100)
+                cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', cases[inum]['DEPTH'], cases[inum]['DEPTH'])
+                cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', cases[inum]['WIDTH'], cases[inum]['WIDTH'], step=64)
+                cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', cases[inum]['EMBEDDING'], cases[inum]['EMBEDDING'], step=64)
+                # cfg.tvae_setting.CONDGEN = trial.suggest_categorical('tv_condgen', [True, False])
+                cfg.tvae_setting.CONDGEN_ENCODER = bool(trial.suggest_int('tv_condgen_encoder', int(cases[inum]['CONDGEN_ENCODER']), int(cases[inum]['CONDGEN_ENCODER'])))
+                cfg.tvae_setting.CONDGEN_LATENT = bool(trial.suggest_int('tv_condgen_latent', int(cases[inum]['CONDGEN_LATENT']), int(cases[inum]['CONDGEN_LATENT'])))
                 # initialize a new model
-                model = TVAESynthesizer()
+                model = TVAESynthesizerVal()
 
         else:
             ValueError('The selected model, ' + parser.model_type + ', is invalid.')
@@ -127,6 +136,7 @@ if parser.proceed:
         # model.fit(data, discrete_columns)
         model.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial,
                   transformer=parser.transformer, in_val_data=parser.val_data,
+                  in_val_transformed_data=parser.val_transformed_data,
                   threshold=parser.threshold)
 
         elapsed_time = time.time() - start_time
@@ -179,16 +189,8 @@ if parser.proceed:
 if __name__ == "__main__":
     # Training with TPE multivariate=True is reported to give better results than default TPE
     # See https://tech.preferred.jp/en/blog/multivariate-tpe-makes-optuna-even-more-powerful/
-    ## Use GridSampler
-    if parser.model_type == 'ctgan':
-        search_space = {"ct_gen_lr": [1e-5, 2e-5],"ct_width":[384,512],"ct_batchsize":[600,700]}
-    elif parser.model_type == 'tablegan':
-        search_space = {"tbl_lr": [1e-5, 5e-6],"tbl_epochs": [150, 200],"tbl_batchsize":[500, 800]}
-    elif parser.model_type == 'tvae':
-        search_space = {"tv_lr": [1e-5, 1e-4], "tv_epochs": [300, 400],"tv_batchsize": [500, 600]}
-    sampler = optuna.samplers.GridSampler(search_space)
     # Use TPESampler
-    #sampler = optuna.samplers.TPESampler(multivariate=True)
+    sampler = optuna.samplers.TPESampler(multivariate=True)
     if parser.pruner:
         pruner = optuna.pruners.MedianPruner(n_startup_trials=5,
                                              n_warmup_steps=parser.warmup_steps,
