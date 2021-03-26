@@ -17,7 +17,7 @@ from ctgan.logger import Logger
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
-import optuna
+#import optuna
 
 
 class Discriminator(Module):
@@ -53,7 +53,6 @@ class Classifier(Module):
         self.side = side
         self.seq = Sequential(*layers)
         self.valid = True
-        # if meta[-1]['name'] != 'label' or meta[-1]['type'] != CATEGORICAL or meta[-1]['size'] != 2:
         if meta[-1]['name'] != 'label':  ##check whether the last column is "label"
             self.valid = False
 
@@ -103,8 +102,6 @@ def determine_layers(side, random_dim, num_channels, dlayer):
     layers_D = []
     for prev, curr in zip(layer_dims, layer_dims[1:]):
         layers_D += [
-           ## Conv2d(in_channels = prev[0], out_channels = curr[0], kernel_size = 4,
-           ## stride = 2, padding = 1, bias=False)
             Conv2d(prev[0], curr[0], kernel_size, stride, 1, bias=False),
             BatchNorm2d(curr[0]),
             ## the slope of the leak was set to 0.2
@@ -124,9 +121,7 @@ def determine_layers(side, random_dim, num_channels, dlayer):
     ]
 
     layers_G = [
-        # ConvTranspose2d(
-        #     in_channels = random_dim, out_channels = layer_dims[-1][0], kernel_size = layer_dims[-1][1],
-        #     stride = 1, padding = 0, output_padding=0, bias=False)
+
         ConvTranspose2d(
             random_dim, layer_dims[-1][0], layer_dims[-1][1], 1, 0, output_padding=0, bias=False)
     ]
@@ -142,8 +137,6 @@ def determine_layers(side, random_dim, num_channels, dlayer):
         layers_G += [
             BatchNorm2d(prev[0]),
             ReLU(True),
-        ## ConvTranspose2d(in_channels = prev[0], out_channels = curr[0], kernel_size = 4,
-        ## stride = 2, padding = 1, output_padding=0, bias=True)
             ConvTranspose2d(prev[0], curr[0], kernel_size, stride, 1, output_padding=0, bias=True)
         ]
     #layers_G += [Tanh()] ##revmoved and use _apply_activate function instead
@@ -231,8 +224,7 @@ class TableganSynthesizer(object):
                 st = ed
             else:
                 assert 0
-        ### TODO: How to deal with those values padded with 0
-        ### cannot replaced by 0; try to apply gumbel_softmax first
+
         if padding:
             transformed0 = CTGANSynthesizer()._gumbel_softmax(data[:, self.transformer.output_dimensions:data.shape[1]], tau=0.2)
             data_t.append(transformed0)
@@ -320,10 +312,6 @@ class TableganSynthesizer(object):
         # we'll use transformer.transform function. The output data is 1D instead of 2D.
         # we'll reshape the data later.
         if transformer is None:
-            # data is split to train:validation:test with 70:15:15 rule
-            # test data has been partitioned outside of this code.
-            # thus, we split data to train:validation. Validation data is approximately 17.6%.
-            # TODO
             temp_test_size = 15 / (70 + 15)  # 0.176
             exact_val_size = int(temp_test_size * data.shape[0])
 
@@ -360,9 +348,7 @@ class TableganSynthesizer(object):
         self.side = get_side(self.data_dim)
         self.logger.write_to_file('side is: ' + str(self.side))
 
-        # data = torch.from_numpy(data.astype('float32')).to(self.device)
-        # dataset = TensorDataset(data)
-        # loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
+
 
         layers_D, layers_G, layers_C = determine_layers(
             self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels, self.dlayer)
@@ -384,9 +370,6 @@ class TableganSynthesizer(object):
             summary(self.discriminator, (1, self.side, self.side))
             print("*" * 100)
 
-            # print("CLASSIFIER")
-            # summary(self.classifier, (1, self.side, self.side))
-            # print("*" * 100)
 
         ##learning rate is 0.0002
         optimizer_params = dict(lr=self.lr, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
@@ -455,8 +438,7 @@ class TableganSynthesizer(object):
                 loss_info.backward()
                 optimizerG.step()
 
-                # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
-                # fake = self.generator(noise)
+
                 if self.classifier.valid:
                     noise, real = self.get_noise_real(True)
                     fake = self.generator(noise)

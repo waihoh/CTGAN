@@ -1,29 +1,6 @@
 import numpy as np
 import pandas as pd
-import torch
-import torch.nn.functional as F ## For JSD
 from sklearn.utils import resample
-
-## calculate Jensen--Shannon Divergence
-# softmax is not valid
-# def js_div(p_output,q_output,get_softmax=True):
-#     # p_output = torch.transpose(p_output, 0, 1)
-#     # q_output = torch.transpose(q_output, 0, 1)
-#     criterion = torch.nn.KLDivLoss(reduction='batchmean') #the sum of the output will be divided by batchsize
-#     if get_softmax:
-#         p_output = F.softmax(p_output, dim=1) ## transform to probability
-#         q_output = F.softmax(q_output, dim=1)
-#     log_mean_output = ((p_output + q_output) / 2).log()
-#     return(criterion(log_mean_output, p_output)+criterion(log_mean_output, q_output))/2
-#
-# def kl_div(p_output,q_output,get_softmax=True):
-#     # p_output = torch.transpose(p_output, 0, 1)
-#     # q_output = torch.transpose(q_output, 0, 1)
-#     criterion = torch.nn.KLDivLoss(reduction='batchmean')  # the sum of the output will be divided by batchsize
-#     if get_softmax:
-#         p_output = F.softmax(p_output, dim=1) ## transform to probability
-#         q_output = F.softmax(q_output, dim=1)
-#     return criterion(p_output.log(), q_output)
 
 
 # For discrete data
@@ -31,10 +8,6 @@ def discrete_probs(column, unique_list):
     # find probability in the order of unique_list
     column = pd.Series(column)
     counts = column.value_counts()
-    # freqs = {counts.index[i]: counts.values[i] for i in range(len(counts.index))}
-    # probs = []
-    # for k, v in freqs.items():
-    #     probs.append(v/len(column))
 
     probs = []
     total_length = len(column)
@@ -86,22 +59,6 @@ def cumulative_continuous_kl(x,y,fraction=0.5):
     return KL
 
 
-# def continuous_probs(column,bins):
-#     column = pd.Series(np.digitize(column, bins))
-#     counts = column.value_counts()
-#     freqs = {counts.index[i]: counts.values[i] for i in range(len(counts.index))}
-#     for i in range(1, len(bins)+1):
-#         if i not in freqs.keys():
-#             freqs[i] = 0
-#     sorted_freqs = {}
-#     for k in sorted(freqs.keys()):
-#         sorted_freqs[k] = freqs[k]
-#     probs = []
-#     for k,v in sorted_freqs.items():
-#         probs.append(v/len(column))
-#     return np.array(probs)
-
-
 def KLD(real, fake, discrete_columns):
     KLD = []
     for column in fake.columns:
@@ -142,23 +99,6 @@ def KLD(real, fake, discrete_columns):
                     KLD.append(np.nan)
             else:
                 KLD.append((cumulative_continuous_kl(column_fake, column_real)+cumulative_continuous_kl(column_real, column_fake))/2)
-            # maxval = max(max(column_real), max(column_fake))
-            # minval = min(min(column_real), min(column_fake))
-            # bins = np.linspace(start=minval, stop=maxval, num=20) ##Is number of bins too small?
-            # bins = np.histogram_bin_edges(np.arange(minval, maxval), bins='auto')
-            # fake_prob = continuous_probs(column_fake, bins)
-            # real_prob = continuous_probs(column_real, bins)
 
-            # mean_prob = (fake_prob+real_prob)/2
 
-    # return np.mean(KLD), np.mean(JSD)
     return np.array(KLD)
-
-def determine_threshold(data,n,discrete_columns,n_rep=1000):
-    boot_KLD = np.zeros((n_rep,data.shape[1]))
-    for i in np.arange(n_rep):
-        boot1 = resample(data, replace=False, n_samples=n)
-        boot2 = resample(data, replace=False, n_samples=n)
-        boot_KLD[i]= KLD(boot1,boot2,discrete_columns)
-   # return np.nanmean(boot_KLD,axis=0)
-    return np.nanmean(boot_KLD,axis=0)+2*np.nanstd(boot_KLD,axis=0)

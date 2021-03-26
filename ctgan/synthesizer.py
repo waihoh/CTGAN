@@ -16,7 +16,7 @@ from ctgan.logger import Logger
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
-import optuna
+#import optuna
 
 
 class CTGANSynthesizer(object):
@@ -188,10 +188,7 @@ class CTGANSynthesizer(object):
         self.trans = trans
 
         if transformer is None:
-            # data is split to train:validation:test with 70:15:15 rule
-            # test data has been partitioned outside of this code.
-            # thus, we split data to train:validation. Validation data is approximately 17.6%.
-            # TODO
+
             temp_test_size = 15 / (70 + 15)  # 0.176
             exact_val_size = int(temp_test_size * data.shape[0])
             exact_val_size -= exact_val_size % self.pack
@@ -367,14 +364,12 @@ class CTGANSynthesizer(object):
                 sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
                 KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
                 self.optuna_metric = np.sqrt(np.nansum(KL_val_loss ** 2))
-                # diff_val = KL_val_loss - self.threshold
-                # self.validation_KLD.append(KL_val_loss)
-                # self.prop_dis_validation = np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val))
+
                 trial.report(self.optuna_metric, i)
 
                 # Handle pruning based on the intermediate value.
-                if trial.should_prune():
-                    raise optuna.exceptions.TrialPruned()
+                #if trial.should_prune():
+                #    raise optuna.exceptions.TrialPruned()
 
 
     def sample(self, n, condition_column=None, condition_value=None):

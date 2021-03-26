@@ -46,7 +46,6 @@ class Discriminator(Module):
         seq = []
         print('Dropout rate: ', cfg.DROPOUT)
         for item in list(dis_dims):
-            #seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(0.5)]
             seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(cfg.DROPOUT)]
             dim = item
 

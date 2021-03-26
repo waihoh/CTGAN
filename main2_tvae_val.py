@@ -142,10 +142,6 @@ if parser.proceed:
         elapsed_time = time.time() - start_time
         model.logger.write_to_file("Training time {:.2f} seconds".format(elapsed_time), True)
 
-        # if model.prop_dis_validation <= 0.5:
-        #     with open(model.logger.dirpath+"/model{}.pkl".format(trial.number), "wb") as fout:
-        #         pickle.dump(model, fout)
-
         return model.optuna_metric
 
 
@@ -183,8 +179,6 @@ if parser.proceed:
             "Trial: {}, Metric: {}, Status: {}, model fn: {} ".format(
                 trial.number, model.optuna_metric, trial.state, this_model_fn), toprint=False)
 
-        # if study.best_trial == trial:
-        #     best_mdl = tvae_mdl
 
 if __name__ == "__main__":
     # Training with TPE multivariate=True is reported to give better results than default TPE

@@ -106,7 +106,7 @@ class ParserOutput:
         The function acts as a placeholder to update cfg with values from argparse.
 
         NOTE:
-            proceed: continue with subsequent code in main.oy
+            proceed: continue with subsequent code in main.py
             model: the selected model is either ctgan, tablegan or tvae.
             datadir: where the training data is located.
             outputdir: where the trained model should be stored.

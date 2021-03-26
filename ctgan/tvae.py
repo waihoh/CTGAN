@@ -112,7 +112,7 @@ class TVAESynthesizer(object):
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
         self.lr = cfg.LEARNING_RATE
-        self.loss_factor = 1  # 2 TODO: why 2 in original code? Should be 1 based on loss function.
+        self.loss_factor = 1
         self.trained_epoches = trained_epoches
 
         # exponential moving average of latent space, mu and sigma
