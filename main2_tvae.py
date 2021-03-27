@@ -104,6 +104,7 @@ if parser.proceed:
             if trial is not None:
                 inum = trial.number
                 # NOTE: when using suggest_categorical, we are not able to change the values in subsequent trials
+                # See comment by Rishav1 in https://github.com/optuna/optuna/issues/372
                 cfg.tvae_setting.LEARNING_RATE = trial.suggest_float('tv_lr', cases[inum]['LEARNING_RATE'], cases[inum]['LEARNING_RATE'])  # 1e-2 results in non-decreasing loss
                 cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', cases[inum]['EPOCHS'], cases[inum]['EPOCHS'], step=100)
                 cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', cases[inum]['BATCH_SIZE'], cases[inum]['BATCH_SIZE'], step=100)

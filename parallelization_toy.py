@@ -2,7 +2,7 @@ import optuna
 
 #create a study and store in a db file
 study_name = 'example-study'  # Unique identifier of the study.
-study = optuna.create_study(study_name=study_name, storage="mysql://root@localhost/example", load_if_exists=True)
+study = optuna.create_study(study_name=study_name, storage="mysql://root:root@localhost:8888/ml_expts", load_if_exists=True)
 
 def objective(trial):
     x = trial.suggest_uniform('x', -10, 10)
