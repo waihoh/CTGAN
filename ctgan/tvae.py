@@ -112,7 +112,7 @@ class TVAESynthesizer(object):
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
         self.lr = cfg.LEARNING_RATE
-        self.loss_factor = 1
+        self.loss_factor = 1 # NOTE: It is 1 based in Kingma and Welling's paper. In CTGAN paper, the authors set it as 2.
         self.trained_epoches = trained_epoches
 
         # exponential moving average of latent space, mu and sigma
@@ -128,7 +128,6 @@ class TVAESynthesizer(object):
         self.cond_gen_latent = cfg.CONDGEN_LATENT
         self.validation_KLD = []
         self.total_loss = []
-        self.threshold = None
         self.optuna_metric = None
 
     def _apply_activate(self, data):
@@ -169,10 +168,10 @@ class TVAESynthesizer(object):
         self.trans = trans
 
         if transformer is None:
-            # data is split to train:validation:test with 70:15:15 rule
-            # test data has been partitioned outside of this code.
-            # thus, we split data to train:validation. Validation data is approximately 17.6%.
-            # TODO
+            # NOTE: data is split to train:validation:test with 70:15:15 rule
+            # Test data has been partitioned outside of this code.
+            # The next step is splitting the reamining data to train:validation.
+            # Validation data is approximately 17.6%.
             temp_test_size = 15 / (70 + 15)  # 0.176
             exact_val_size = int(temp_test_size * data.shape[0])
 
@@ -234,7 +233,7 @@ class TVAESynthesizer(object):
         optimizerAE = Adam(
             list(self.encoder.parameters()) + list(self.decoder.parameters()), lr=self.lr,
             weight_decay=self.l2scale)
-        #print(optimizerAE)
+
         assert self.batch_size % 2 == 0
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
@@ -319,20 +318,12 @@ class TVAESynthesizer(object):
                         self.decoder.train()
 
                 else:
-                    # Use KL divergence proportion of dissimilarity as metric (to minimize).
-
-                    # if self.threshold is None:
-                    #     if threshold is None:
-                    #         self.threshold = M.determine_threshold(data, val_data.shape[0], discrete_columns, n_rep=10)
-                    #     else:
-                    #         self.threshold = threshold
                     # synthetic data by the generator for each epoch
                     sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
+
+                    # Euclidean KLD
                     KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
                     self.optuna_metric = np.sqrt(np.nansum(KL_val_loss ** 2))
-                    # diff_val = KL_val_loss - self.threshold
-                    # self.validation_KLD.append(KL_val_loss)
-                    # self.prop_dis_validation = np.count_nonzero(diff_val >= 0) / np.count_nonzero(~np.isnan(diff_val))
 
                 trial.report(self.optuna_metric, i)
                 # Handle pruning based on the intermediate value.

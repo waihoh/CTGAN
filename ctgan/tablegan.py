@@ -17,7 +17,7 @@ from ctgan.logger import Logger
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
-#import optuna
+import optuna
 
 
 class Discriminator(Module):
@@ -87,12 +87,9 @@ def determine_layers(side, random_dim, num_channels, dlayer):
     kernel_size = cfg.KERNEL_SIZE # 4  # ini value: 4
     stride = cfg.STRIDE # 2  # ini value: 2
 
-    # layer_dims = [(1, side), (num_channels, side // 2)]
     layer_dims = [(1, side), (num_channels, side // scale_factor)]
 
-    #while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
     while layer_dims[-1][1] > 3 and len(layer_dims) < 5: ## max of 5 for the case side = 64
-        # layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
         layer_dims.append((layer_dims[-1][0] * scale_factor, layer_dims[-1][1] // scale_factor))
 
     # WH: Remove last layer
@@ -121,7 +118,6 @@ def determine_layers(side, random_dim, num_channels, dlayer):
     ]
 
     layers_G = [
-
         ConvTranspose2d(
             random_dim, layer_dims[-1][0], layer_dims[-1][1], 1, 0, output_padding=0, bias=False)
     ]
@@ -206,7 +202,6 @@ class TableganSynthesizer(object):
         self.validation_KLD = []
         self.generator_loss = []
         self.discriminator_loss = []
-        self.threshold = None
         self.optuna_metric = None
 
     def _apply_activate(self, data, padding = True):
@@ -292,7 +287,7 @@ class TableganSynthesizer(object):
 
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
-            trial=None, transformer=None, in_val_data=None, threshold=None):
+            trial=None, transformer=None, in_val_data=None):
 
         self.logger.write_to_file('Learning rate: ' + str(cfg.LEARNING_RATE))
         self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
@@ -312,6 +307,10 @@ class TableganSynthesizer(object):
         # we'll use transformer.transform function. The output data is 1D instead of 2D.
         # we'll reshape the data later.
         if transformer is None:
+            # NOTE: data is split to train:validation:test with 70:15:15 rule
+            # Test data has been partitioned outside of this code.
+            # The next step is splitting the reamining data to train:validation.
+            # Validation data is approximately 17.6%.
             temp_test_size = 15 / (70 + 15)  # 0.176
             exact_val_size = int(temp_test_size * data.shape[0])
 
@@ -347,8 +346,6 @@ class TableganSynthesizer(object):
         # compute side after transformation
         self.side = get_side(self.data_dim)
         self.logger.write_to_file('side is: ' + str(self.side))
-
-
 
         layers_D, layers_G, layers_C = determine_layers(
             self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels, self.dlayer)
@@ -409,7 +406,6 @@ class TableganSynthesizer(object):
 
                 #  To train the generator with L_orig^G first
                 noise, _, condvec = self.get_noise_real(False)
-                # noise = torch.randn(self.batch_size, self.random_dim, 1, 1, device=self.device)
                 fake = self.generator(noise)
                 fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
                 if condvec is None:
@@ -437,7 +433,6 @@ class TableganSynthesizer(object):
                 loss_info = loss_mean + loss_std
                 loss_info.backward()
                 optimizerG.step()
-
 
                 if self.classifier.valid:
                     noise, real = self.get_noise_real(True)
@@ -468,25 +463,16 @@ class TableganSynthesizer(object):
             self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
                                       ", Loss G: " + str(loss_g.detach().cpu().numpy()) +
                                       ", Loss D: " + str(loss_d.detach().cpu().numpy()),
-                                      toprint=False)
+                                      toprint=True)
 
             # Use Optuna for hyper-parameter tuning
-            # Use KL divergence proportion of dissimilarity as metric (to minimize).
             if trial is not None:
-                # if self.threshold is None:
-                #     if threshold is None:
-                #         self.threshold = M.determine_threshold(data, val_data.shape[0], discrete_columns, n_rep=10)
-                #     else:
-                #         self.threshold = threshold
-
                 # synthetic data by the generator for each epoch
                 sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
+                # Euclidean KLD
                 KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
                 self.optuna_metric = np.sqrt(np.nansum(KL_val_loss ** 2))
 
-                # diff_val = KL_val_loss - self.threshold
-                # self.validation_KLD.append(KL_val_loss)
-                # self.prop_dis_validation = np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val))
                 trial.report(self.optuna_metric, i)
                 # Handle pruning based on the intermediate value.
                 if trial.should_prune():
@@ -543,10 +529,6 @@ class TableganSynthesizer(object):
         self.classifier.to(self.device)
 
         torch.save(self, path) ##saving the entire model
-       ## torch.save(self.state_dict(),path) ##save only parameters
-        ### load this model
-        ## model = torch.load(path)
-        ## print(model)
 
         self.device = device_bak
         self.generator.to(self.device)

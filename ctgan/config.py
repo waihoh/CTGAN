@@ -10,7 +10,7 @@ class ctgan_setting:
     GENERATOR_LEARNING_RATE = 2e-4
     DISCRIMINATOR_LEARNING_RATE = 2e-5
     BATCH_SIZE = 500
-    EPOCHS = 800
+    EPOCHS = 2 # 800
     DROPOUT = 0.5
     DISCRIMINATOR_STEP = 1
     CONDGEN = True
@@ -23,7 +23,7 @@ class tvae_setting:
     WIDTH = 128
     LEARNING_RATE = 1e-3
     BATCH_SIZE = 500
-    EPOCHS = 300
+    EPOCHS = 2 # 300
     CONDGEN_ENCODER = True
     CONDGEN_LATENT = True
     OPTUNA_ELBO = False  # Use ELBO as Optuna metric
@@ -39,7 +39,7 @@ class tablegan_setting:
     SCALE_FACTOR = 2  # This is fixed
     LEARNING_RATE = 2e-4
     BATCH_SIZE = 500
-    EPOCHS = 300
+    EPOCHS = 2 # 300
     DISCRIMINATOR_STEP = 1
     CONDGEN = True
     DEVICE = "cpu"  # "cuda:0"
