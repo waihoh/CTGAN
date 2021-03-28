@@ -13,7 +13,7 @@ USER INPUT IS REQUIRED HERE
 - select between ctgan, tablegan or tvae
 - Note that hyperparameters are in config.py.
 '''
-modelname = 'tvae'  # ctgan, tablegan, tvae
+modelname = 'ctgan'  # ctgan, tablegan, tvae
 
 """
 Sample code
@@ -27,8 +27,7 @@ np.random.seed(seednum)
 data = pd.DataFrame({
     'continuous1': np.random.random(3000),
     'discrete1': np.repeat([1, 2, 3], [2850, 75, 75]),
-    # 'discrete2': np.repeat(["a", "b"], [1740, 1260]),
-    'discrete2': np.repeat([4, 5], [1740, 1260]),
+    'discrete2': np.repeat(["a", "b", np.nan], [1740, 1258, 2]),
     'discrete3': np.repeat([6, 7], [300, 2700])
 })
 

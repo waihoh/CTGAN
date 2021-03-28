@@ -24,7 +24,7 @@ np.random.seed(seednum)
 data = pd.DataFrame({
     'continuous1': np.random.random(3000),
     'discrete1': np.repeat([1, 2, 3], [2850, 75, 75]),
-    'discrete2': np.repeat(["a", "b"], [1740, 1260]),
+    'discrete2': np.repeat(["a", "b", np.nan], [1740, 1258, 2]),
     'discrete3': np.repeat([6, 7], [300, 2700])
 })
 
