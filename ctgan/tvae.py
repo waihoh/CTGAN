@@ -10,7 +10,7 @@ from torchsummary import summary
 from ctgan.transformer import DataTransformer
 from ctgan.conditional import ConditionalGenerator
 from ctgan.sampler import Sampler
-from ctgan.synthesizer import CTGANSynthesizer  # use _gumbel_softmax
+from ctgan.ctgan import CTGANSynthesizer  # use _gumbel_softmax
 
 from ctgan.config import tvae_setting as cfg
 from ctgan.logger import Logger
