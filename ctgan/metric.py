@@ -60,14 +60,12 @@ def cumulative_continuous_kl(x,y,fraction=0.5):
 def KLD(real, fake, discrete_columns):
     KLD = []
     for column in fake.columns:
-        column_fake = fake[column].astype('category').cat.codes.values
-        column_real = real[column].astype('category').cat.codes.values
-        # column_fake = fake[column].values
-        # column_real = real[column].values
+        column_fake = fake[column].values
+        column_real = real[column].values
         if column in discrete_columns:
             # find list of all unique values
-            column_real = column_real[~np.isnan(column_real)]
-            column_fake = column_fake[~np.isnan(column_fake)]
+            column_real = column_real[~pd.isnull(column_real)]
+            column_fake = column_fake[~pd.isnull(column_fake)]
             unique_list = []
             arrs = [np.unique(column_fake), np.unique(column_real)]
             for arr in arrs:
