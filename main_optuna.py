@@ -126,8 +126,7 @@ if parser.proceed:
 
         # model.fit(data, discrete_columns)
         model.fit(data, discrete_columns, model_summary=False, trans="VGM", trial=trial,
-                  transformer=parser.transformer, in_val_data=parser.val_data,
-                  threshold=parser.threshold)
+                  transformer=parser.transformer, in_val_data=parser.val_data)
 
         elapsed_time = time.time() - start_time
         model.logger.write_to_file("Training time {:.2f} seconds".format(elapsed_time), True)
