@@ -1,12 +1,10 @@
 # For testing of the three models
 from ctgan import CTGANSynthesizer, TableganSynthesizer, TVAESynthesizer
-from ctgan.transformer import DataTransformer
 import pandas as pd
 import numpy as np
 import torch
 from torch.optim import Adam
 from sklearn.model_selection import train_test_split
-from torch.nn.functional import cross_entropy
 from ctgan.sampler import Sampler
 from ctgan.tvae import loss_function
 
