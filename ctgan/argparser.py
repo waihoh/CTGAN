@@ -2,7 +2,6 @@ import argparse
 import os
 from ctgan import config as cfg
 import pandas as pd
-import numpy as np
 from ctgan.transformer import DataTransformer
 
 # To allow True/False argparse input.
@@ -32,6 +31,7 @@ def _parse_args():
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
     # Optuna
+    parser.add_argument('--use_optuna', default=False, type=str2bool, metavar='', help='set True to use Optuna')
     parser.add_argument('--trials', default=10, type=int, metavar='', help='Number of Optuna trials')
     parser.add_argument('--max_num_mdls', default=5, type=int, metavar='',  help='Number of Optuna trials')
     parser.add_argument('--pruner', default=True, type=str2bool, metavar='', help='use Optuna pruner')
@@ -142,6 +142,7 @@ class ParserOutput:
         self.discrete_fn = args.discrete_fn
 
         # Optuna
+        self.use_optuna = args.use_optuna
         self.trials = args.trials
         self.max_num_mdls = args.max_num_mdls
         self.pruner = args.pruner
