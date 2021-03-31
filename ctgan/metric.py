@@ -19,8 +19,8 @@ def discrete_probs(column, unique_list):
 
 # KL-divergence formula
 def kl_divergence(p, q):
-    # TODO: how to handle q == 0?
     # set a small number for numerical stability.
+    # this should also handle the case q == 0
     p[p < 1e-12] = 1e-12
     q[q < 1e-12] = 1e-12
     a = np.log(p)
