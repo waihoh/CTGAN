@@ -26,7 +26,6 @@ class tvae_setting:
     EPOCHS = 2 # 300
     CONDGEN_ENCODER = True
     CONDGEN_LATENT = True
-    OPTUNA_ELBO = False  # Use ELBO as Optuna metric
     DEVICE = "cpu"  # "cuda:0"
 
 
