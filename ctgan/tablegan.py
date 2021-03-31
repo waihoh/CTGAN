@@ -287,7 +287,8 @@ class TableganSynthesizer(object):
 
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
-            trial=None, transformer=None, in_val_data=None):
+            trial=None, transformer=None, in_val_data=None,
+            reload=False):
 
         self.logger.write_to_file('Learning rate: ' + str(cfg.LEARNING_RATE))
         self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
@@ -303,6 +304,9 @@ class TableganSynthesizer(object):
 
         self.trans = trans
 
+        if reload:
+            self.trained_epoches = 0
+
         # NOTE:
         # we'll use transformer.transform function. The output data is 1D instead of 2D.
         # we'll reshape the data later.
@@ -316,9 +320,10 @@ class TableganSynthesizer(object):
 
             train_data, val_data = train_test_split(data, test_size=exact_val_size, random_state=42)
 
-            if not hasattr(self, "transformer"):
-                self.transformer = DataTransformer()
-            self.transformer.fit(data, discrete_columns, self.trans)
+            if not reload:
+                if not hasattr(self, "transformer"):
+                    self.transformer = DataTransformer()
+                self.transformer.fit(data, discrete_columns, self.trans)
             train_data = self.transformer.transform(train_data)
         else:
             # transformer has been saved separately.
@@ -326,7 +331,6 @@ class TableganSynthesizer(object):
             self.transformer = transformer
             train_data = data
             val_data = in_val_data
-
 
         self.data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
@@ -347,13 +351,13 @@ class TableganSynthesizer(object):
         self.side = get_side(self.data_dim)
         self.logger.write_to_file('side is: ' + str(self.side))
 
-        layers_D, layers_G, layers_C = determine_layers(
-            self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels, self.dlayer)
+        if not reload:
+            layers_D, layers_G, layers_C = determine_layers(
+                self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels, self.dlayer)
 
-        self.generator = Generator(self.transformer.meta, self.side, layers_G).to(self.device)
-        self.discriminator = Discriminator(self.transformer.meta, self.side, layers_D).to(self.device)
-        self.classifier = Classifier(
-            self.transformer.meta, self.side, layers_C, self.device).to(self.device)
+            self.generator = Generator(self.transformer.meta, self.side, layers_G).to(self.device)
+            self.discriminator = Discriminator(self.transformer.meta, self.side, layers_D).to(self.device)
+            self.classifier = Classifier(self.transformer.meta, self.side, layers_C, self.device).to(self.device)
 
         if model_summary:
             print("*" * 100)

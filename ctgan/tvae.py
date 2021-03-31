@@ -151,7 +151,8 @@ class TVAESynthesizer(object):
 
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
-            trial=None, transformer=None, in_val_data=None):
+            trial=None, transformer=None, in_val_data=None,
+            reload=False):
 
         self.logger.write_to_file('Learning rate: ' + str(cfg.LEARNING_RATE))
         self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
@@ -167,6 +168,9 @@ class TVAESynthesizer(object):
 
         self.trans = trans
 
+        if reload:
+            self.trained_epoches = 0
+
         if transformer is None:
             # NOTE: data is split to train:validation:test with 70:15:15 rule
             # Test data has been partitioned outside of this code.
@@ -177,9 +181,10 @@ class TVAESynthesizer(object):
 
             train_data, val_data = train_test_split(data, test_size=exact_val_size, random_state=42)
 
-            if not hasattr(self, "transformer"):
-                self.transformer = DataTransformer()
-            self.transformer.fit(data, discrete_columns, self.trans)
+            if not reload:
+                if not hasattr(self, "transformer"):
+                    self.transformer = DataTransformer()
+                self.transformer.fit(data, discrete_columns, self.trans)
             train_data = self.transformer.transform(train_data)
             val_data_transformed = self.transformer.transform(val_data)
         else:
@@ -211,13 +216,14 @@ class TVAESynthesizer(object):
         # loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
 
         # Note: vectors from conditional generator are appended latent space
-        self.encoder = Encoder(data_dim + self.cond_gen_encoder * self.cond_generator.n_opt,
-                               self.compress_dims,
-                               self.embedding_dim).to(self.device)
+        if not reload:
+            self.encoder = Encoder(data_dim + self.cond_gen_encoder * self.cond_generator.n_opt,
+                                   self.compress_dims,
+                                   self.embedding_dim).to(self.device)
 
-        self.decoder = Decoder(self.embedding_dim + self.cond_gen_latent * self.cond_generator.n_opt,
-                               self.compress_dims,
-                               data_dim + self.cond_gen_encoder * self.cond_generator.n_opt).to(self.device)
+            self.decoder = Decoder(self.embedding_dim + self.cond_gen_latent * self.cond_generator.n_opt,
+                                   self.compress_dims,
+                                   data_dim + self.cond_gen_encoder * self.cond_generator.n_opt).to(self.device)
 
         if model_summary:
             print("*" * 100)

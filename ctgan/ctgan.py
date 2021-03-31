@@ -255,7 +255,8 @@ class CTGANSynthesizer(object):
 
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
-            trial=None, transformer=None, in_val_data=None):
+            trial=None, transformer=None, in_val_data=None,
+            reload=False):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -284,6 +285,9 @@ class CTGANSynthesizer(object):
 
         self.trans = trans
 
+        if reload:
+            self.trained_epoches = 0
+
         if transformer is None:
             # NOTE: data is split to train:validation:test with 70:15:15 rule
             # Test data has been partitioned outside of this code.
@@ -296,9 +300,10 @@ class CTGANSynthesizer(object):
 
             train_data, val_data = train_test_split(data, test_size=exact_val_size, random_state=42)
 
-            if not hasattr(self, "transformer"):
-                self.transformer = DataTransformer()
-            self.transformer.fit(data, discrete_columns, self.trans)
+            if not reload:
+                if not hasattr(self, "transformer"):
+                    self.transformer = DataTransformer()
+                self.transformer.fit(data, discrete_columns, self.trans)
             train_data = self.transformer.transform(train_data)
         else:
             # transformer has been saved separately.
@@ -312,28 +317,29 @@ class CTGANSynthesizer(object):
         data_dim = self.transformer.output_dimensions
         self.logger.write_to_file('data dimension: ' + str(data_dim))
 
-        if not hasattr(self, "cond_generator"):
-            self.cond_generator = ConditionalGenerator(
-                train_data,
-                self.transformer.output_info,
-                self.log_frequency,
-                trans=self.trans,
-                use_cond_gen=cfg.CONDGEN
-            )
+        if not reload:
+            if not hasattr(self, "cond_generator"):
+                self.cond_generator = ConditionalGenerator(
+                    train_data,
+                    self.transformer.output_info,
+                    self.log_frequency,
+                    trans=self.trans,
+                    use_cond_gen=cfg.CONDGEN
+                )
 
-        if not hasattr(self, "generator"):
-            self.generator = Generator(
-                self.embedding_dim + self.cond_generator.n_opt,
-                self.gen_dim,
-                data_dim
-            ).to(self.device)
+            if not hasattr(self, "generator"):
+                self.generator = Generator(
+                    self.embedding_dim + self.cond_generator.n_opt,
+                    self.gen_dim,
+                    data_dim
+                ).to(self.device)
 
-        if not hasattr(self, "discriminator"):
-            self.discriminator = Discriminator(
-                data_dim + self.cond_generator.n_opt,
-                self.dis_dim,
-                pack=self.pack
-            ).to(self.device)
+            if not hasattr(self, "discriminator"):
+                self.discriminator = Discriminator(
+                    data_dim + self.cond_generator.n_opt,
+                    self.dis_dim,
+                    pack=self.pack
+                ).to(self.device)
 
         if not hasattr(self, "optimizerG"):
             self.optimizerG = optim.Adam(
