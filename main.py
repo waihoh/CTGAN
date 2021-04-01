@@ -60,7 +60,7 @@ def run_individual_training():
 
     # Train the model
     start_time = time.time()
-    model.fit(data, discrete_columns)
+    model.fit(data, discrete_columns, transformer=parser.transformer)
     elapsed_time = time.time() - start_time
     model.logger.write_to_file("Training time {:.2f} seconds".format(elapsed_time), True)
 
