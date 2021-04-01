@@ -16,11 +16,7 @@ Run parser function to update inputs by the user.
 parser = ParserOutput()
 
 
-def run_individual_training():
-    # Initialize seed
-    torch.manual_seed(parser.torch_seed)
-    np.random.seed(parser.numpy_seed)
-
+def get_train_data():
     # get paths
     data_path = os.path.join(parser.datadir, parser.data_fn)
     discrete_cols_path = os.path.join(parser.datadir, parser.discrete_fn)
@@ -30,6 +26,25 @@ def run_individual_training():
 
     if not os.path.isfile(discrete_cols_path):
         ValueError('Discrete text file ' + discrete_cols_path + " does not exists.")
+
+    if parser.transformer is None:
+        data = pd.read_csv(data_path)
+    else:
+        # if transformer is provided, then the data should have been transformed
+        # moreover, the saved data is in a numpy array.
+        data = pd.read_csv(data_path).values
+
+    # read list of discrete variables
+    with open(discrete_cols_path, "r+") as f:
+        discrete_columns = f.read().splitlines()
+
+    return data, discrete_columns
+
+
+def run_individual_training():
+    # Initialize seed
+    torch.manual_seed(parser.torch_seed)
+    np.random.seed(parser.numpy_seed)
 
     # select model
     if parser.model_type == 'ctgan':
@@ -48,19 +63,14 @@ def run_individual_training():
     model.logger.write_to_file('PyTorch seed number ' + str(parser.torch_seed))
     model.logger.write_to_file('Numpy seed number ' + str(parser.numpy_seed))
 
-    # read the training data
-    data = pd.read_csv(data_path)
-
-    # read list of discrete variables
-    with open(discrete_cols_path, "r+") as f:
-        discrete_columns = f.read().splitlines()
-
     # update logger output path
     model.logger.change_dirpath(parser.outputdir)
 
+    data, discrete_columns = get_train_data()
+
     # Train the model
     start_time = time.time()
-    model.fit(data, discrete_columns, transformer=parser.transformer)
+    model.fit(data, discrete_columns, transformer=parser.transformer, in_val_data=parser.val_data)
     elapsed_time = time.time() - start_time
     model.logger.write_to_file("Training time {:.2f} seconds".format(elapsed_time), True)
 
@@ -89,14 +99,6 @@ def run_optuna_training():
     optuna_logger = Logger(filename="optuna_trials_summary.txt")
     optuna_logger.change_dirpath(parser.outputdir + "/" + parser.model_type + "_" + optuna_logger.PID)
 
-    # get paths
-    data_path = os.path.join(parser.datadir, parser.data_fn)
-    discrete_cols_path = os.path.join(parser.datadir, parser.discrete_fn)
-    if not os.path.isfile(data_path):
-        ValueError('Training data file ' + data_path + " does not exists.")
-    if not os.path.isfile(discrete_cols_path):
-        ValueError('Discrete text file ' + discrete_cols_path + " does not exists.")
-
     # generate unique seed for each trial
     seed_list = np.arange(parser.trials).tolist()
     np.random.shuffle(seed_list)
@@ -119,8 +121,6 @@ def run_optuna_training():
         np.random.seed(this_seed)
 
         # NOTE: uncomment the cfg.(respective hyper-parameters) if we want Optuna to vary more variables.
-
-
         if parser.model_type == 'ctgan':
             cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6, 2e-6, 1e-5, 2e-5])
             # cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_categorical('ct_dis_lr', [1e-6, 2e-6, 1e-5, 2e-5])
@@ -168,16 +168,7 @@ def run_optuna_training():
         model.logger.write_to_file('PyTorch seed number ' + str(this_seed))
         model.logger.write_to_file('Numpy seed number ' + str(this_seed))
 
-        if parser.transformer is None:
-            data = pd.read_csv(data_path)
-        else:
-            # if transformer is provided, then the data should have been transformed
-            # moreover, the saved data is in a numpy array.
-            data = pd.read_csv(data_path).values
-
-        # read list of discrete variables
-        with open(discrete_cols_path, "r+") as f:
-            discrete_columns = f.read().splitlines()
+        data, discrete_columns = get_train_data()
 
         # Train the model
         start_time = time.time()

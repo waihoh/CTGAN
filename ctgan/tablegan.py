@@ -330,6 +330,11 @@ class TableganSynthesizer(object):
             # input data should have been transformed as well.
             self.transformer = transformer
             train_data = data
+
+            if trial is not None:
+                if in_val_data is None:
+                    ValueError('Validation data must be provided')
+            # val_data is not transformed. For computation of KLD.
             val_data = in_val_data
 
         self.data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)

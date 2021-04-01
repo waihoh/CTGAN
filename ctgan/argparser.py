@@ -148,12 +148,12 @@ class ParserOutput:
         self.pruner = args.pruner
         self.warmup_steps = args.warmup_steps
 
-        if args.val_data_fn is not None:
-            self.val_data = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))
-
         if args.transformer is not None:
             transformer_path = os.path.join(self.datadir, args.transformer)
             self.transformer = DataTransformer.load(transformer_path)
+
+        if args.val_data_fn is not None:
+            self.val_data = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))
 
         if args.samplesize is not None:
             self.samplesize = args.samplesize

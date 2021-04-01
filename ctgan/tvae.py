@@ -195,6 +195,11 @@ class TVAESynthesizer(object):
             # input data should have been transformed as well.
             self.transformer = transformer
             train_data = data  # load transformed train data
+
+            if trial is not None:
+                if in_val_data is None:
+                    ValueError('Validation data must be provided')
+
             # val_data is not transformed. For computation of KLD.
             val_data = in_val_data
             # next, we transform need a transformed val data for computation of ELBO validation
