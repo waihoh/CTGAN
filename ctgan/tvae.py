@@ -57,6 +57,9 @@ class Decoder(Module):
         self.sigma = Parameter(torch.ones(data_dim) * 0.1)
 
     def forward(self, input):
+        # NOTE: See section 4.5 in Xu et al (2019).
+        # In the original code, sigma is assumed and fixed at 0.1
+        # It is used in the calculation of loss.
         return self.seq(input), self.sigma
 
 
