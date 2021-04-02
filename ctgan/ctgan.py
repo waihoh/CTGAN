@@ -311,9 +311,9 @@ class CTGANSynthesizer(object):
             self.transformer = transformer
             train_data = data
 
-            if trial is not None:
-                if in_val_data is None:
-                    ValueError('Validation data must be provided')
+            if in_val_data is None:
+                ValueError('Validation data must be provided')
+
             # val_data is not transformed. For computation of KLD.
             val_data = in_val_data
 
