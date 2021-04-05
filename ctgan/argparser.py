@@ -2,7 +2,6 @@ import argparse
 import os
 from ctgan import config as cfg
 import pandas as pd
-import numpy as np
 from ctgan.transformer import DataTransformer
 
 # To allow True/False argparse input.
@@ -28,12 +27,11 @@ def _parse_args():
     parser.add_argument('--outputdir', default="/workspace", type=str, metavar='', help='path of output directory')
     parser.add_argument('--data_fn', default=None, type=str, metavar='', help='filename of transformed training data (with .csv)')
     parser.add_argument('--val_data_fn', default=None, type=str, metavar='', help='filename of validation data (with .csv)')
-    parser.add_argument('--val_transformed_data_fn', default=None, type=str, metavar='', help='filename of validation data (with .csv)')
-    parser.add_argument('--threshold', default=None, type=str, metavar='', help='threshold of KLD (with .csv)')
     parser.add_argument('--transformer', default=None, type=str, metavar='', help='VGM Transformer')
     parser.add_argument('--discrete_fn', default=None, type=str, metavar='', help='filename of discrete cols, (with .txt)')
     parser.add_argument('--samplesize', default=None, type=int, metavar='', help='synthetic sample size')
     # Optuna
+    parser.add_argument('--use_optuna', default=False, type=str2bool, metavar='', help='set True to use Optuna')
     parser.add_argument('--trials', default=10, type=int, metavar='', help='Number of Optuna trials')
     parser.add_argument('--max_num_mdls', default=5, type=int, metavar='',  help='Number of Optuna trials')
     parser.add_argument('--pruner', default=True, type=str2bool, metavar='', help='use Optuna pruner')
@@ -74,7 +72,6 @@ def _parse_args():
     parser.add_argument('--tv_device', default=None, type=str, metavar='', help='tvae cpu or cuda')
     parser.add_argument('--tv_condgen_encoder', default=None, type=str2bool, metavar='', help='tvae cond. gen. to encoder')
     parser.add_argument('--tv_condgen_latent', default=None, type=str2bool, metavar='', help='tvae cond. gen. to latent space')
-    parser.add_argument('--tv_optuna_elbo', default=None, type=str2bool, metavar='', help='tvae elbo as optuna metric')
 
     return parser.parse_args()
 
@@ -95,9 +92,8 @@ class ParserOutput:
         self.discrete_fn = None
         self.val_data = None
         self.val_transformed_data = None
-        self.threshold = None
         self.transformer = None
-        self.samplesize = 9905  # current size of test data.
+        self.samplesize = None  # current size of test data.
 
         self.parser_func()
 
@@ -106,7 +102,7 @@ class ParserOutput:
         The function acts as a placeholder to update cfg with values from argparse.
 
         NOTE:
-            proceed: continue with subsequent code in main.oy
+            proceed: continue with subsequent code in main.py
             model: the selected model is either ctgan, tablegan or tvae.
             datadir: where the training data is located.
             outputdir: where the trained model should be stored.
@@ -143,27 +139,21 @@ class ParserOutput:
         self.outputdir = args.outputdir
         self.data_fn = args.data_fn
         self.val_data_fn = args.val_data_fn
-        self.val_transformed_data_fn = args.val_transformed_data_fn
         self.discrete_fn = args.discrete_fn
 
         # Optuna
+        self.use_optuna = args.use_optuna
         self.trials = args.trials
         self.max_num_mdls = args.max_num_mdls
         self.pruner = args.pruner
         self.warmup_steps = args.warmup_steps
 
-        if args.val_data_fn is not None:
-            self.val_data = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))
-
-        if args.val_transformed_data_fn is not None:
-            self.val_transformed_data = pd.read_csv(os.path.join(self.datadir, args.val_transformed_data_fn))
-
-        if args.threshold is not None:
-            self.threshold = np.transpose(pd.read_csv(os.path.join(self.datadir, args.threshold)))
-
         if args.transformer is not None:
             transformer_path = os.path.join(self.datadir, args.transformer)
             self.transformer = DataTransformer.load(transformer_path)
+
+        if args.val_data_fn is not None:
+            self.val_data = pd.read_csv(os.path.join(self.datadir, args.val_data_fn))
 
         if args.samplesize is not None:
             self.samplesize = args.samplesize
@@ -253,8 +243,6 @@ class ParserOutput:
             if args.tv_condgen_latent is not None:
                 cfg.tvae_setting.CONDGEN_LATENT = args.tv_condgen_latent
 
-            if args.tv_optuna_elbo is not None:
-                cfg.tvae_setting.OPTUNA_ELBO = args.tv_optuna_elbo
         else:
             print('Please specify the correct model type.')
             return

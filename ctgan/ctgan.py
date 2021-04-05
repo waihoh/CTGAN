@@ -5,7 +5,7 @@ from torch import optim
 from torch.nn import functional
 
 from ctgan.conditional import ConditionalGenerator
-from ctgan.models import Discriminator, Generator
+from torch.nn import BatchNorm1d, Dropout, LeakyReLU, Linear, Module, ReLU, Sequential
 from ctgan.sampler import Sampler
 from ctgan.transformer import DataTransformer
 from torchsummary import summary
@@ -16,11 +16,108 @@ from ctgan.logger import Logger
 ### added for validation
 from sklearn.model_selection import train_test_split
 import ctgan.metric as M
-
 import optuna
 
 
-class CTGANSynthesizer2(object):
+class Discriminator(Module):
+    # Note: The lambda_ is based on WGAN + gradient penalty.
+    # See Algorithm 1 in Gulrajani et. al. (2017)
+    def calc_gradient_penalty(self, real_data, fake_data, device='cpu', pac=10, lambda_=10):
+        # real_data.size(0) is batch size, eg. 500
+        # real_data.size(1) is number of columns, eg. 15
+        alpha = torch.rand(real_data.size(0) // pac, 1, 1, device=device)  # eg. ([50, 1, 1])
+        # duplicates alpha. For each alpha, # cols is real_data.size(1), # rows is pac.
+        alpha = alpha.repeat(1, pac, real_data.size(1))  # eg. [(50, 10 , 15)]
+        # change shape so that alpha is the same dimension as real_data and fake_data.
+        alpha = alpha.view(-1, real_data.size(1))  # eg[(500, 15)]
+
+        # Element-wise multiplication.
+        # real_data.shape == fake_data.shape == interpolates.shape == eg. ([500, 15])
+        # Note: See section 4 of Gulrajani et. al. (2017), Sampling distribution
+        interpolates = alpha * real_data + ((1 - alpha) * fake_data)
+        # Note interpolates passes through the Discriminator forward function.
+        disc_interpolates = self(interpolates)  # disc_interpolates.shape == eg. ([50, 1])
+
+        # Computes and returns the sum of gradients of outputs w.r.t. the inputs.
+        gradients = torch.autograd.grad(
+            outputs=disc_interpolates, inputs=interpolates,
+            grad_outputs=torch.ones(disc_interpolates.size(), device=device),
+            create_graph=True, retain_graph=True, only_inputs=True
+        )[0]
+
+        # gradients.shape == [(500, 15)]
+        gradient_penalty = ((
+            # reshape to pac * real_data.size(1) sums all
+            # the norm is a Frobenius norm.
+            # It sums over all interpolates/gradients multiplied to same alpha previously.
+            gradients.view(-1, pac * real_data.size(1)).norm(2, dim=1) - 1
+        ) ** 2).mean() * lambda_
+        return gradient_penalty
+
+    def __init__(self, input_dim, dis_dims, pack=10):
+        super(Discriminator, self).__init__()
+        dim = input_dim * pack
+        self.pack = pack
+        self.packdim = dim
+        seq = []
+        print('Dropout rate: ', cfg.DROPOUT)
+        for item in list(dis_dims):
+            seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(cfg.DROPOUT)]
+            dim = item
+
+        seq += [Linear(dim, 1)]
+        self.seq = Sequential(*seq)
+
+    def forward(self, input):
+        # NOTE: disable assert so that model_summary can be printed.
+        # this is because batch_size of input x is hardcoded in torchsummary.py.
+        # See row 60 of torchsummary.py in torchsummary library
+        # See also if model_summary in synthesizer.py
+        # instead, this is imposed in synthesizer.py instead.
+        # See assert self.batch_size % self.pack == 0.
+        # assert input.size()[0] % self.pack == 0
+
+        # input.view reshapes the input data by dividing the 1st dim, i.e. batch size
+        # and group the data in concatenate manner in 2nd dim
+        # example, if input dim is ([500, 15]) and pack is 10,
+        # then it is reshaped to ([500/10, 15*10)] = ([50, 150])
+        return self.seq(input.view(-1, self.packdim))
+
+
+class Residual(Module):
+    # NOTE: a Residual layer will be created for each one of the values in gen_dims provided
+    def __init__(self, i, o):
+        super(Residual, self).__init__()
+        self.fc = Linear(i, o)
+        self.bn = BatchNorm1d(o)
+        self.relu = ReLU()
+
+    def forward(self, input):
+        out = self.fc(input)
+        out = self.bn(out)
+        out = self.relu(out)
+        # concatenate the columns. See 4.4 of Xu et. al (2019),
+        # where h2 concat h1 concat h0 before passing through last FCs to generate alpha, beta and d.
+        return torch.cat([out, input], dim=1)
+
+
+class Generator(Module):
+    def __init__(self, embedding_dim, gen_dims, data_dim):
+        super(Generator, self).__init__()
+        dim = embedding_dim
+        seq = []
+        for item in list(gen_dims):
+            seq += [Residual(dim, item)]
+            dim += item
+        seq.append(Linear(dim, data_dim))
+        self.seq = Sequential(*seq)
+
+    def forward(self, input):
+        data = self.seq(input)
+        return data
+
+
+class CTGANSynthesizer(object):
     """Conditional Table GAN Synthesizer.
 
     This is the core class of the CTGAN project, where the different components
@@ -51,12 +148,10 @@ class CTGANSynthesizer2(object):
             sampling. Defaults to ``True``.
     """
 
-
     def __init__(self, l2scale=1e-6, pack = 10, log_frequency=True):
         self.embedding_dim = cfg.EMBEDDING
-        self.gen_dim = np.repeat(cfg.WIDTH,cfg.DEPTH)
-        self.dis_dim = np.repeat(cfg.WIDTH,cfg.DEPTH)
-
+        self.gen_dim = np.repeat(cfg.WIDTH, cfg.DEPTH)
+        self.dis_dim = np.repeat(cfg.WIDTH, cfg.DEPTH)
         self.l2scale = l2scale
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
@@ -66,13 +161,15 @@ class CTGANSynthesizer2(object):
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         self.trained_epoches = 0
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
-        self.pack = pack  # Default value of Discriminator pac. See models.py
+        self.pack = pack  # Default value of Discriminator pac.
         self.logger = Logger()
-        self.val_metric = None
-        self.save_model = True
+        self.validation_KLD = []
+        self.generator_loss = []
+        self.discriminator_loss = []
+        self.optuna_metric = None
 
     @staticmethod
-    def _gumbel_softmax(logits, tau=1, hard=False, eps=1e-10, dim=-1):
+    def _gumbel_softmax(logits, tau=1.0, hard=False, eps=1e-10, dim=-1):
         """Deals with the instability of the gumbel_softmax for older versions of torch.
 
         For more details about the issue:
@@ -156,8 +253,10 @@ class CTGANSynthesizer2(object):
 
         return (loss * m).sum() / data.size()[0]
 
-    def fit(self, data, discrete_columns=tuple(), model_summary=False,
-            trans="VGM", use_cond_gen=True, trial=None):
+    def fit(self, data, discrete_columns=tuple(),
+            model_summary=False, trans="VGM",
+            trial=None, transformer=None, in_val_data=None,
+            reload=False):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -173,58 +272,79 @@ class CTGANSynthesizer2(object):
                 Number of training epochs. Defaults to 300.
         """
 
-        self.logger.write_to_file('Generator learning rate: ' + str(self.glr))
-        self.logger.write_to_file('Discriminator learning rate: ' + str(self.dlr))
-        self.logger.write_to_file('Batch size: ' + str(self.batch_size))
-        self.logger.write_to_file('Number of Epochs: '+ str(self.epochs))
+        self.logger.write_to_file('Generator learning rate: ' + str(cfg.GENERATOR_LEARNING_RATE))
+        self.logger.write_to_file('Discriminator learning rate: ' + str(cfg.DISCRIMINATOR_LEARNING_RATE))
+        self.logger.write_to_file('Batch size: ' + str(cfg.BATCH_SIZE))
+        self.logger.write_to_file('Number of Epochs: '+ str(cfg.EPOCHS))
+        self.logger.write_to_file('Embedding: ' + str(cfg.EMBEDDING))
+        self.logger.write_to_file('Depth: ' + str(cfg.DEPTH))
+        self.logger.write_to_file('Width: ' + str(cfg.WIDTH))
+        self.logger.write_to_file('Dropout rate: ' + str(cfg.DROPOUT))
+        self.logger.write_to_file('Discriminator step: ' + str(cfg.DISCRIMINATOR_STEP))
+        self.logger.write_to_file('use cond. gen. ' + str(cfg.CONDGEN))
 
         self.trans = trans
-        if not hasattr(self, "transformer"):
-           self.transformer = DataTransformer()
-           self.transformer.fit(data, discrete_columns, self.trans)
-           #self.transformer = DataTransformer.load('C:/Users/stazt/Documents/nBox/Project Ultron/Tianming/Dataset')
-        transformed_data = self.transformer.transform(data)
-        self.logger.write_to_file('transformed data shape: ' + str(transformed_data.shape))
 
-        temp_test_size = 0.176
-        exact_val_size = int(temp_test_size * data.shape[0])
-        exact_val_size -= exact_val_size % self.pack
-        assert exact_val_size % self.pack == 0
+        if reload:
+            self.trained_epoches = 0
 
-        train_data, val_data = train_test_split(transformed_data, test_size=exact_val_size, random_state=42)
-        val_data = torch.from_numpy(val_data.astype('float32')).to(self.device)
+        if transformer is None:
+            # NOTE: data is split to train:validation:test with 70:15:15 rule
+            # Test data has been partitioned outside of this code.
+            # The next step is splitting the reamining data to train:validation.
+            # Validation data is approximately 17.6%.
+            temp_test_size = 15 / (70 + 15)  # 0.176
+            exact_val_size = int(temp_test_size * data.shape[0])
+            exact_val_size -= exact_val_size % self.pack
+            assert exact_val_size % self.pack == 0
 
-        ## split the data into train and validation (70/15 rule)
-        self.logger.write_to_file('training data shape: ' + str(train_data.shape))
-        self.logger.write_to_file('validation data shape: ' + str(val_data.shape))
+            train_data, val_data = train_test_split(data, test_size=exact_val_size, random_state=42)
+
+            if not reload:
+                if not hasattr(self, "transformer"):
+                    self.transformer = DataTransformer()
+                self.transformer.fit(data, discrete_columns, self.trans)
+            train_data = self.transformer.transform(train_data)
+        else:
+            # transformer has been saved separately.
+            # input data should have been transformed as well.
+            self.transformer = transformer
+            train_data = data
+
+            if in_val_data is None:
+                ValueError('Validation data must be provided')
+
+            # val_data is not transformed. For computation of KLD.
+            val_data = in_val_data
 
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
         self.logger.write_to_file('data dimension: ' + str(data_dim))
 
-        if not hasattr(self, "cond_generator"):
-            self.cond_generator = ConditionalGenerator(
-                train_data,
-                self.transformer.output_info,
-                self.log_frequency,
-                trans=self.trans,
-                use_cond_gen=use_cond_gen
-            )
+        if not reload:
+            if not hasattr(self, "cond_generator"):
+                self.cond_generator = ConditionalGenerator(
+                    train_data,
+                    self.transformer.output_info,
+                    self.log_frequency,
+                    trans=self.trans,
+                    use_cond_gen=cfg.CONDGEN
+                )
 
-        if not hasattr(self, "generator"):
-            self.generator = Generator(
-                self.embedding_dim + self.cond_generator.n_opt,
-                self.gen_dim,
-                data_dim
-            ).to(self.device)
+            if not hasattr(self, "generator"):
+                self.generator = Generator(
+                    self.embedding_dim + self.cond_generator.n_opt,
+                    self.gen_dim,
+                    data_dim
+                ).to(self.device)
 
-        if not hasattr(self, "discriminator"):
-            self.discriminator = Discriminator(
-                data_dim + self.cond_generator.n_opt,
-                self.dis_dim,
-                pack=self.pack
-            ).to(self.device)
+            if not hasattr(self, "discriminator"):
+                self.discriminator = Discriminator(
+                    data_dim + self.cond_generator.n_opt,
+                    self.dis_dim,
+                    pack=self.pack
+                ).to(self.device)
 
         if not hasattr(self, "optimizerG"):
             self.optimizerG = optim.Adam(
@@ -239,15 +359,11 @@ class CTGANSynthesizer2(object):
                 self.discriminator.parameters(), lr=self.dlr, betas=(0.5, 0.9))
 
         # assert self.batch_size % 2 == 0
-        # NOTE: in models.py, Discriminator forward function,
+        # NOTE: in Discriminator forward function,
         # there is a reshape of input data, i.e. input.view() that is dependent on self.pack.
         assert self.batch_size % self.pack == 0
         mean = torch.zeros(self.batch_size, self.embedding_dim, device=self.device)
         std = mean + 1
-
-        # Validation
-        mean_val = torch.zeros(val_data.shape[0], self.embedding_dim, device=self.device)
-        std_val = mean_val + 1
 
         if model_summary:
             print("*" * 100)
@@ -260,17 +376,8 @@ class CTGANSynthesizer2(object):
             summary(self.discriminator, (this_size,))
             print("*" * 100)
 
-
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-        # self.threshold = M.determine_threshold(train_data0, val_data.shape[0], discrete_columns,
-        #                                        n_rep=1000)
-        # print(self.threshold)
-        # self.train_KLD = []
-        # self.prop_dis_train = []
-        # self.validation_KLD = []
-        # self.prop_dis_validation = []
-        self.generator_loss = []
-        self.discriminator_loss = []
+
         for i in range(self.epochs):
             self.generator.train() ##switch to train mode
             self.trained_epoches += 1
@@ -348,60 +455,26 @@ class CTGANSynthesizer2(object):
                 loss_g.backward()
                 self.optimizerG.step()
 
-            # Validation loss
-            with torch.no_grad():
-                self.discriminator.eval()
-                fakez_val = torch.normal(mean=mean_val, std=std_val)
-
-                if self.cond_generator.n_opt > 0:
-                    c1_val = torch.zeros(size=(val_data.shape[0], self.cond_generator.n_opt)).to(self.device)
-                    fakez_val = torch.cat([fakez_val, c1_val], dim=1)
-
-                fake_val = self.generator(fakez_val)
-                fakeact_val = self._apply_activate(fake_val)
-
-                if self.cond_generator.n_opt > 0:
-                    fake_cat_val = torch.cat([fakeact_val, c1_val], dim=1)
-                    real_cat_val = torch.cat([val_data, c1_val], dim=1)
-                else:
-                    real_cat_val = val_data
-                    fake_cat_val = fake_val
-
-                fake_cat_val.to(self.device)
-                real_cat_val.to(self.device)
-
-                y_fake_val = self.discriminator(fake_cat_val)
-                y_real_val = self.discriminator(real_cat_val)
-
-                loss_d_val_sq = ((torch.mean(y_real_val) - torch.mean(y_fake_val)))**2
-                self.val_metric = loss_d_val_sq
-                self.discriminator.train()
-
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
-            self.logger.write_to_file("Epoch " + str(self.trained_epoches)
-                                      + ", Loss G: " + str(loss_g.detach().cpu().numpy())
-                                      + ", Loss D: " + str(loss_d.detach().cpu().numpy())
-                                      + ", Loss Val sq: " + str(loss_d_val_sq.detach().cpu().numpy()),
-                                      toprint=False)
+            self.logger.write_to_file("Epoch " + str(self.trained_epoches) +
+                                      ", Loss G: " + str(loss_g.detach().cpu().numpy()) +
+                                      ", Loss D: " + str(loss_d.detach().cpu().numpy()),
+                                      toprint=True)
 
-            # if trial is not None:
-            #     trial.report(loss_d_val_sq, i)
-            #     # Handle pruning based on the intermediate value.
-            #     if trial.should_prune():
-            #         self.save_model = False
-            #         raise optuna.exceptions.TrialPruned()
+            # Use Optuna for hyper-parameter tuning
+            if trial is not None:
+                # synthetic data by the generator for each epoch
+                sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
+                KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
 
-            # synthetic data by the generator for each epoch
-            # sampled_train = self.sample(val_data.shape[0], condition_column=None,condition_value=None)
-            # KL_val_loss = M.KLD(val_data, sampled_train,  discrete_columns)
-            # KL_train_loss = M.KLD(train_data0,sampled_train, discrete_columns)
-            # diff_train = KL_train_loss - self.threshold
-            # diff_val = KL_val_loss - self.threshold
-            # self.train_KLD.append(KL_train_loss)
-            # self.validation_KLD.append(KL_val_loss)
-            # self.prop_dis_train.append(np.count_nonzero(diff_train >= 0)/np.count_nonzero(~np.isnan(diff_train)))
-            # self.prop_dis_validation.append(np.count_nonzero(diff_val >= 0)/np.count_nonzero(~np.isnan(diff_val)))
+                # Euclidean distance of KLD
+                self.optuna_metric = np.sqrt(np.nansum(KL_val_loss ** 2))
+                trial.report(self.optuna_metric, i)
+
+                # Handle pruning based on the intermediate value.
+                if trial.should_prune():
+                   raise optuna.exceptions.TrialPruned()
 
 
     def sample(self, n, condition_column=None, condition_value=None):

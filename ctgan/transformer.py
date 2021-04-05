@@ -110,14 +110,6 @@ class DataTransformer(object):
                 column_data = data[[column]].values
                 if column in discrete_columns:
                     meta = self._fit_discrete(column, column_data)
-                    # column_data = data[column]
-                    # mapper = column_data.value_counts().index.tolist()
-                    # meta = {
-                    # "name": column,
-                    # "type": CATEGORICAL,
-                    # 'output_info': [(len(mapper), 'softmax')], #instead of len(mapper); not use one-hot vector
-                    # 'output_dimensions': len(mapper)
-                    # }
                 else:
                     meta = {
                         "name": column,
@@ -197,7 +189,7 @@ class DataTransformer(object):
         print('shape of data after VGM transformation:', data.shape)
         self.datalen = data.shape[1]
 
-        sides = [4, 8, 16, 24, 32, 64]  # added 64 to accommodate OVS dataset
+        sides = [4, 8, 16, 24, 32, 48, 64]  # added 48 and 64 to accommodate OVS dataset
         for i in sides:
             if i * i >= self.datalen:
                 self.side = i
