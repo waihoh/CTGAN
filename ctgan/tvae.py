@@ -360,9 +360,8 @@ class TVAESynthesizer(object):
         data = []
         for _ in range(steps):
             # print("ema_mu, ema_std", self.ema_mu, self.ema_std)
-            # NOTE: empricially, ema_mu and ema_std are close to 0 and 1 respectively.
+            # NOTE: empirically, ema_mu and ema_std are close to 0 and 1 respectively.
             # justifying the original assumptions
-            # It is nonetheless observed from tests that ema_mu and ema_std are close to 0 and 1 respectively.
             mean = torch.zeros(self.batch_size, self.embedding_dim)
             std = mean + 1
 
