@@ -109,19 +109,21 @@ def KLD(real, fake, discrete_columns):
         column_real = real[column].values
         if column in discrete_columns:
             # find list of all unique values
-            column_real = column_real[~np.isnan(column_real)]
-            column_fake = column_fake[~np.isnan(column_fake)]
-            unique_list = []
-            arrs = [np.unique(column_fake), np.unique(column_real)]
-            for arr in arrs:
-                for val in arr:
-                    if val not in unique_list:
-                        unique_list.append(val)
+            column_real = column_real[~pd.isnull(column_real)]
+            column_fake = column_fake[~pd.isnull(column_fake)]
+            if len(column_real) > 0 and len(column_fake) > 0:
+                unique_list = []
+                arrs = [np.unique(column_fake), np.unique(column_real)]
+                for arr in arrs:
+                    for val in arr:
+                        if val not in unique_list:
+                            unique_list.append(val)
             # find probabilities of values according to order in unique_list
-            fake_prob = discrete_probs(column_fake, unique_list)
-            real_prob = discrete_probs(column_real, unique_list)
-            KLD.append((kl_divergence(fake_prob, real_prob)+kl_divergence(real_prob,fake_prob)/2)
-)
+                fake_prob = discrete_probs(column_fake, unique_list)
+                real_prob = discrete_probs(column_real, unique_list)
+                KLD.append((kl_divergence(fake_prob, real_prob)+kl_divergence(real_prob,fake_prob)/2))
+            else:
+                KLD.append(np.nan)
         else:
             # check whether indicator columns exist
             if column + '_cat' in fake.columns:
