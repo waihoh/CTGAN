@@ -9,3 +9,4 @@ packaging
 optuna
 seaborn
 jupyter
+openpyxl
