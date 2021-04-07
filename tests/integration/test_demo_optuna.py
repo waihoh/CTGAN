@@ -10,10 +10,9 @@ from ctgan.logger import Logger
 '''
 USER INPUT IS REQUIRED HERE
 - Change the modelname to test different models.
-- select between ctgan, tablegan or tvae
-- Note that hyperparameters are in config.py.
+- select between ctgan, tablegan or tvae- Note that hyperparameters are in config.py.
 '''
-modelname = 'ctgan'  # ctgan, tablegan, tvae
+modelname = 'tvae'  # ctgan, tablegan, tvae
 
 """
 Sample code
@@ -26,10 +25,13 @@ np.random.seed(seednum)
 # Create a toy example of 3000 rows for testing
 data = pd.DataFrame({
     'continuous1': np.random.random(3000),
+    'continuous2': np.random.random(3000),
     'discrete1': np.repeat([1, 2, 3], [2850, 75, 75]),
-    'discrete2': np.repeat(["a", "b", np.nan], [1740, 1258, 2]),
+    'discrete2': np.repeat([4,5,np.nan], [1740, 1258, 2]),
     'discrete3': np.repeat([6, 7], [300, 2700])
 })
+
+
 
 # Shuffle rows
 data = data.sample(frac=1).reset_index(drop=True)
@@ -153,5 +155,5 @@ if __name__ == "__main__":
         sample_fn = mdl_fn + "_sample.csv"
         output_sample_path = os.path.join(optuna_logger.dirpath, sample_fn)
         temp_mdl = torch.load(filepath, map_location=torch.device('cpu'))
-        samples = temp_mdl.sample(10, condition_column=None, condition_value=None)
+        samples = temp_mdl.sample(3000, condition_column=None, condition_value=None)
         samples.to_csv(output_sample_path, index=False, header=True)

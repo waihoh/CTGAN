@@ -23,7 +23,7 @@ class tvae_setting:
     WIDTH = 128
     LEARNING_RATE = 1e-3
     BATCH_SIZE = 500
-    EPOCHS = 2 # 300
+    EPOCHS = 20 # 300
     CONDGEN_ENCODER = True
     CONDGEN_LATENT = True
     DEVICE = "cpu"  # "cuda:0"

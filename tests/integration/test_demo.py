@@ -10,7 +10,7 @@ USER INPUT IS REQUIRED HERE
 - select between ctgan, tablegan or tvae
 - Note that hyperparameters are in config.py.
 '''
-modelname = 'ctgan'  # ctgan, tablegan, tvae
+modelname = 'tvae'  # ctgan, tablegan, tvae
 
 """
 Sample code
@@ -45,6 +45,7 @@ else:
 
 # Create a folder with PID to store output results
 model.logger.change_dirpath(model.logger.dirpath + "/" + modelname + "_" + model.logger.PID)
+
 
 # Train the model
 model.fit(data, discrete_columns, model_summary=False, trans="VGM")
