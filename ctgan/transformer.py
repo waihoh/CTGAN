@@ -48,7 +48,8 @@ class DataTransformer(object):
             self.n_clusters,
             weight_concentration_prior_type='dirichlet_process',
             weight_concentration_prior=0.001,
-            n_init=1
+            n_init=1,
+            random_state=2
         )
         # (JY)
         # 'gm.fit(data)' estimates model parameters using 'data' and predict labels
