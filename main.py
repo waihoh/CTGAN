@@ -15,6 +15,14 @@ Run parser function to update inputs by the user.
 # update inputs
 parser = ParserOutput()
 
+# GLOBAL PARAMETERS
+# These parameters are needed in Optuna training and have to be placed outside of the functions.
+# model to be trained
+model = None
+# to record the top num_max_mdls models
+metric_vals = []
+mdl_fns = []
+num_max_mdls = parser.max_num_mdls
 
 def get_train_data():
     # get paths
@@ -103,14 +111,6 @@ def run_optuna_training():
     seed_list = np.arange(parser.trials).tolist()
     np.random.shuffle(seed_list)
 
-    # model to be trained
-    model = None
-
-    # to record the top num_max_mdls models
-    metric_vals = []
-    mdl_fns = []
-    num_max_mdls = parser.max_num_mdls
-
     def objective(trial):
         global model
 
@@ -125,9 +125,9 @@ def run_optuna_training():
             cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6, 2e-6, 1e-5, 2e-5])
             # cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_categorical('ct_dis_lr', [1e-6, 2e-6, 1e-5, 2e-5])
             # cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs', 600, 900, step=100)
-            cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 500, 1000, step=100)
+            # cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 500, 1000, step=100)
             # cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 3)
-            cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
+            # cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
             # # cfg.ctgan_setting.EMBEDDING = trial.suggest_int('ct_embedding', 128, 512, step=64)
             # cfg.ctgan_setting.DROPOUT = trial.suggest_categorical('ct_dropout', [0.25, 0.5])
 
@@ -135,15 +135,15 @@ def run_optuna_training():
 
         elif parser.model_type == 'tablegan':
             cfg.tablegan_setting.LEARNING_RATE = trial.suggest_categorical('tbl_lr', [2e-6, 5e-6, 1e-5])
-            cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 500, 800, step=100)
-            cfg.tablegan_setting.EPOCHS = trial.suggest_int('tbl_epochs', 150, 300, step=50)
+            # cfg.tablegan_setting.BATCH_SIZE = trial.suggest_int('tbl_batchsize', 500, 800, step=100)
+            # cfg.tablegan_setting.EPOCHS = trial.suggest_int('tbl_epochs', 150, 300, step=50)
 
             model = TableganSynthesizer()  # initialize a new model
 
         elif parser.model_type == 'tvae':
             cfg.tvae_setting.LEARNING_RATE = trial.suggest_categorical('tv_lr', [1e-5, 1e-4, 1e-3])  # 1e-2 results in non-decreasing loss
-            cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', 300, 900, step=100)
-            cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 500, 1000, step=100)
+            # cfg.tvae_setting.EPOCHS = trial.suggest_int('tv_epochs', 300, 900, step=100)
+            # cfg.tvae_setting.BATCH_SIZE = trial.suggest_int('tv_batchsize', 500, 1000, step=100)
             # cfg.tvae_setting.DEPTH = trial.suggest_int('tv_depth', 1, 4)
             # cfg.tvae_setting.WIDTH = trial.suggest_int('tv_width', 128, 512, step=64)
             # cfg.tvae_setting.EMBEDDING = trial.suggest_int('tv_embedding', 128, 512, step=64)
