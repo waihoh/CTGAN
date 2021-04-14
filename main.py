@@ -91,7 +91,7 @@ def run_individual_training():
     samples = model.sample(parser.samplesize, condition_column=None, condition_value=None)
     samples.to_csv(output_sample_path, index=False, header=True)
 
-    # Save the model in the same folder as the log file
+    # Save the model in the same folder as the pkl file
     model_fn = parser.model_type + "_" + PIDTAG + ".pkl"
     output_model_path = os.path.join(model.logger.dirpath, model_fn)
     model.save(output_model_path)
@@ -123,8 +123,8 @@ def run_optuna_training():
         # NOTE: uncomment the cfg.(respective hyper-parameters) if we want Optuna to vary more variables.
         if parser.model_type == 'ctgan':
             cfg.ctgan_setting.GENERATOR_LEARNING_RATE = trial.suggest_categorical('ct_gen_lr', [1e-6, 2e-6, 1e-5, 2e-5])
-            # cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_categorical('ct_dis_lr', [1e-6, 2e-6, 1e-5, 2e-5])
-            # cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs', 600, 900, step=100)
+            #cfg.ctgan_setting.DISCRIMINATOR_LEARNING_RATE = trial.suggest_categorical('ct_dis_lr', [1e-6, 2e-6, 1e-5, 2e-5])
+            #cfg.ctgan_setting.EPOCHS = trial.suggest_int('ct_epochs', 600, 900, step=100)
             # cfg.ctgan_setting.BATCH_SIZE = trial.suggest_int('ct_batchsize', 500, 1000, step=100)
             # cfg.ctgan_setting.DEPTH = trial.suggest_int('ct_depth', 1, 3)
             # cfg.ctgan_setting.WIDTH = trial.suggest_int('ct_width', 128, 512, step=64)
@@ -182,6 +182,7 @@ def run_optuna_training():
 
         return model.optuna_metric
 
+################################At the end of the optuna trial, save the model ################################
     def callback(study, trial):
         global metric_vals, mdl_fns, num_max_mdls  # , best_mdl
         this_model_fn = parser.model_type + "_model_" \
@@ -229,7 +230,7 @@ def run_optuna_training():
     sampler = optuna.samplers.GridSampler(search_space)
     '''
 
-    # Use TPESampler
+    # Use TPESampler that uses Bayesian Optimization to constrict the range of hyper-parameters
     sampler = optuna.samplers.TPESampler(multivariate=True)
 
     if parser.pruner:

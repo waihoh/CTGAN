@@ -20,6 +20,8 @@ from sklearn.model_selection import train_test_split
 import ctgan.metric as M
 import optuna
 
+################################### Defining the Neural Networks #########################################
+
 class Encoder(Module):
     def __init__(self, data_dim, compress_dims, embedding_dim):
         super(Encoder, self).__init__()
@@ -89,6 +91,7 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor, cond_gen_
             assert 0
 
     # conditional vector is used as an input to encoder.
+    # inputting the classification error of conditional vector and synthesised data
     if cond_gen_encoder:
         ed = recon_x.size()[1]
         loss.append(cross_entropy(recon_x[:, st:ed], torch.argmax(x[:, st:ed], dim=-1), reduction='sum'))
@@ -101,7 +104,7 @@ def loss_function(recon_x, x, sigmas, mu, logvar, output_info, factor, cond_gen_
     # return average loss per batch
     return sum(loss) * factor / x.size()[0], KLD / x.size()[0]
 
-
+#################################Initialising the TVAE model ##################################################
 class TVAESynthesizer(object):
     """TVAESynthesizer."""
 
@@ -120,20 +123,21 @@ class TVAESynthesizer(object):
 
         # exponential moving average of latent space, mu and sigma
         # use these values to sample from N(ema_mu, ema_sig**2) iso N(0,1)
-        self.ema_fraction = 0.9
-        self.ema_mu = 0
-        self.ema_std = 0
+        # self.ema_fraction = 0.9
+        # self.ema_mu = 0
+        # self.ema_std = 0
 
         self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
 
         self.cond_gen_encoder = cfg.CONDGEN_ENCODER
         self.cond_gen_latent = cfg.CONDGEN_LATENT
-        self.validation_KLD = []
+        #self.validation_KLD = []
         self.total_loss = []
         self.val_loss = []
         self.optuna_metric = None
 
+######################## Function to add into the last layer ######################################
     def _apply_activate(self, data):
         data_t = []
         st = 0
@@ -152,6 +156,7 @@ class TVAESynthesizer(object):
 
         return torch.cat(data_t, dim=1)
 
+############################# 1. Fitting the model #######################################################
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
             trial=None, transformer=None, in_val_data=None,
@@ -206,6 +211,7 @@ class TVAESynthesizer(object):
             # next, we transform need a transformed val data for computation of ELBO validation
             val_data_transformed = self.transformer.transform(val_data)
 
+        #Sample the transformed data
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
@@ -243,7 +249,7 @@ class TVAESynthesizer(object):
             summary(self.decoder, (self.embedding_dim + self.cond_gen_latent * self.cond_generator.n_opt,))
             print("*" * 100)
 
-
+        #Initialise the optimizer
         optimizerAE = Adam(
             list(self.encoder.parameters()) + list(self.decoder.parameters()), lr=self.lr,
             weight_decay=self.l2scale)
@@ -252,6 +258,7 @@ class TVAESynthesizer(object):
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
 
+        #Start training
         for i in range(self.epochs):
             self.decoder.train() ##switch to train mode
             self.trained_epoches += 1
@@ -271,9 +278,10 @@ class TVAESynthesizer(object):
 
                 optimizerAE.zero_grad()
                 real = torch.from_numpy(real.astype('float32')).to(self.device)
+###################### 2. Conditional vector is added before encoder. #######################
                 if self.cond_gen_encoder:
                     real = torch.cat([real, c2], dim=1)
-
+################### 3. Computing the mu, sigma, logvar ################################
                 mu, std, logvar = self.encoder(real)
                 eps = torch.randn_like(std)
                 emb = eps * std + mu
@@ -283,19 +291,21 @@ class TVAESynthesizer(object):
                 self.ema_mu = self.ema_fraction * mu.mean() + (1 - self.ema_fraction) * self.ema_mu
                 self.ema_std = self.ema_fraction * std.mean() + (1 - self.ema_fraction) * self.ema_std
 
-                # NEW
-                # Conditional vector is added to latent space.
+################### 4. Conditional vector is added into latent space, after the encoder. ###################################
                 if self.cond_gen_latent:
                     if c1 is not None:
                         emb = torch.cat([emb, c2], dim=1)
+#################### 5. Decoding the latent space to create synthesised data ########################################################
                 rec, sigmas = self.decoder(emb)
+################### 6. Calculate training loss #################################################################
                 loss_1, loss_2 = loss_function(
                     rec, real, sigmas, mu, logvar, self.transformer.output_info, self.loss_factor, self.cond_gen_encoder)
                 loss = loss_1 + loss_2
                 loss.backward()
+################## 7. Updating the weights and biases using Adam Optimizer #######################################################
                 optimizerAE.step()
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
-
+################### 8. Calculate validation loss for TVAE #############################################################
             with torch.no_grad():
                 self.encoder.eval()
                 self.decoder.eval()
@@ -312,7 +322,7 @@ class TVAESynthesizer(object):
                 eps_val = torch.randn_like(std_val)
                 emb_val = eps_val * std_val + mu_val
 
-                # Conditional vector is added to latent space.
+
                 if self.cond_gen_latent:
                     emb_val = torch.cat([emb_val, c1_val], dim=1)
                 rec_val, sigmas_val = self.decoder(emb_val)
@@ -332,7 +342,7 @@ class TVAESynthesizer(object):
                                       ", Validation loss: " + str(val_loss.detach().cpu().numpy()),
                                       toprint=True)
 
-            # Use Optuna for hyper-parameter tuning
+            # Use Optuna for hyper-parameter tuning (Euclidean KLD)
             if trial is not None:
                 # synthetic data by the generator for each epoch
                 sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
@@ -388,6 +398,8 @@ class TVAESynthesizer(object):
         data = data[:samples]
         return self.transformer.inverse_transform(data, sigmas.detach().cpu().numpy())
 
+
+#########################################Save the model into pkl file (the whole model + training loss + validation loss) #####################
     def save(self, path):
         # always save a cpu model.
         device_bak = self.device

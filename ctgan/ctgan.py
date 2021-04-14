@@ -18,7 +18,7 @@ from sklearn.model_selection import train_test_split
 import ctgan.metric as M
 import optuna
 
-
+########################################Defining our models ################################################################
 class Discriminator(Module):
     # Note: The lambda_ is based on WGAN + gradient penalty.
     # See Algorithm 1 in Gulrajani et. al. (2017)
@@ -84,7 +84,7 @@ class Discriminator(Module):
         return self.seq(input.view(-1, self.packdim))
 
 
-class Residual(Module):
+class Residual(Module): #####concatenating the input and output together
     # NOTE: a Residual layer will be created for each one of the values in gen_dims provided
     def __init__(self, i, o):
         super(Residual, self).__init__()
@@ -116,7 +116,7 @@ class Generator(Module):
         data = self.seq(input)
         return data
 
-
+#######################Creating the model ##########################
 class CTGANSynthesizer(object):
     """Conditional Table GAN Synthesizer.
 
@@ -147,7 +147,7 @@ class CTGANSynthesizer(object):
             Whether to use log frequency of categorical levels in conditional
             sampling. Defaults to ``True``.
     """
-
+################Initialising hyperparameters from config.py ###################################################
     def __init__(self, l2scale=1e-6, pack = 10, log_frequency=True):
         self.embedding_dim = cfg.EMBEDDING
         self.gen_dim = np.repeat(cfg.WIDTH, cfg.DEPTH)
@@ -163,7 +163,7 @@ class CTGANSynthesizer(object):
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.pack = pack  # Default value of Discriminator pac.
         self.logger = Logger()
-        self.validation_KLD = []
+        #self.validation_KLD = []
         self.generator_loss = []
         self.discriminator_loss = []
         self.optuna_metric = None
@@ -171,6 +171,7 @@ class CTGANSynthesizer(object):
     @staticmethod
     def _gumbel_softmax(logits, tau=1.0, hard=False, eps=1e-10, dim=-1):
         """Deals with the instability of the gumbel_softmax for older versions of torch.
+        ##For one-hot encoding, the authors use this instead of softmax
 
         For more details about the issue:
         https://drive.google.com/file/d/1AA5wPfZ1kquaRtVruCd6BiYZGcDeNxyP/view?usp=sharing
@@ -200,6 +201,7 @@ class CTGANSynthesizer(object):
 
         return functional.gumbel_softmax(logits, tau=tau, hard=hard, eps=eps, dim=dim)
 
+#############Apply activation function #######################################################
     def _apply_activate(self, data):
         data_t = []
         st = 0
@@ -217,7 +219,7 @@ class CTGANSynthesizer(object):
                 assert 0
 
         return torch.cat(data_t, dim=1)
-
+###########################Calculate conditional loss ##############################
     def _cond_loss(self, data, c, m):
         loss = []
         st = 0
@@ -253,6 +255,8 @@ class CTGANSynthesizer(object):
 
         return (loss * m).sum() / data.size()[0]
 
+
+#####################Fitting our model ############################################
     def fit(self, data, discrete_columns=tuple(),
             model_summary=False, trans="VGM",
             trial=None, transformer=None, in_val_data=None,
@@ -317,6 +321,7 @@ class CTGANSynthesizer(object):
             # val_data is not transformed. For computation of KLD.
             val_data = in_val_data
 
+#################Sample real data ############################################################
         data_sampler = Sampler(train_data, self.transformer.output_info, trans=self.trans)
 
         data_dim = self.transformer.output_dimensions
@@ -377,13 +382,14 @@ class CTGANSynthesizer(object):
             print("*" * 100)
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
-
+########################Start training ####################################################
         for i in range(self.epochs):
             self.generator.train() ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
 
                 for n in range(self.discriminator_steps):
+###################### 1. Initialise fake data ###################################################
                     fakez = torch.normal(mean=mean, std=std)
 
                     condvec = self.cond_generator.sample(self.batch_size)
@@ -394,13 +400,16 @@ class CTGANSynthesizer(object):
                         c1, m1, col, opt = condvec
                         c1 = torch.from_numpy(c1).to(self.device)
                         m1 = torch.from_numpy(m1).to(self.device)
+#################### 2. Add the conditional vector #########################################
                         fakez = torch.cat([fakez, c1], dim=1)
 
                         perm = np.arange(self.batch_size)
                         np.random.shuffle(perm)
+    ###################### 3. Sample real data #########################################################
                         real = data_sampler.sample(self.batch_size, col[perm], opt[perm])
                         c2 = c1[perm]
 
+###################### 4. Create synthetic data ###############################################
                     fake = self.generator(fakez)
                     fakeact = self._apply_activate(fake)
 
@@ -412,20 +421,21 @@ class CTGANSynthesizer(object):
                     else:
                         real_cat = real
                         fake_cat = fake
-
+##################### 5. Attribute score from critic############################################
                     y_fake = self.discriminator(fake_cat)
                     y_real = self.discriminator(real_cat)
-
+#################### 6. Calculate loss ##########################################################
                     pen = self.discriminator.calc_gradient_penalty(
                         real_cat, fake_cat, self.device)
                     loss_d = -(torch.mean(y_real) - torch.mean(y_fake))
-
+#################### 7. Update critic weights and bias using Adam Optimizer ################################
                     self.optimizerD.zero_grad()
                     pen.backward(retain_graph=True)
                     loss_d.backward()
-                    self.optimizerD.step()
+                    self.optimizerD.step() #Training for critic stops here
 
-                fakez = torch.normal(mean=mean, std=std)
+####################8. Create new synthesised data to train the generator ##########################################
+                fakez = torch.normal(mean=mean, std=std) # white noise
                 condvec = self.cond_generator.sample(self.batch_size)
 
                 if condvec is None:
@@ -436,7 +446,7 @@ class CTGANSynthesizer(object):
                     m1 = torch.from_numpy(m1).to(self.device)
                     fakez = torch.cat([fakez, c1], dim=1)
 
-                fake = self.generator(fakez)
+                fake = self.generator(fakez) #Create fake data from white noise
                 fakeact = self._apply_activate(fake)
 
                 if c1 is not None:
@@ -448,9 +458,9 @@ class CTGANSynthesizer(object):
                     cross_entropy = 0
                 else:
                     cross_entropy = self._cond_loss(fake, c1, m1)
-
+################## 10. Calculate generator loss ######################################################
                 loss_g = -torch.mean(y_fake) + cross_entropy
-
+################## 11. Update weights and bias for generator ##########################################
                 self.optimizerG.zero_grad()
                 loss_g.backward()
                 self.optimizerG.step()
@@ -462,7 +472,7 @@ class CTGANSynthesizer(object):
                                       ", Loss D: " + str(loss_d.detach().cpu().numpy()),
                                       toprint=True)
 
-            # Use Optuna for hyper-parameter tuning
+            # Use Optuna for hyper-parameter tuning (Euclidean KLD)
             if trial is not None:
                 # synthetic data by the generator for each epoch
                 sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
@@ -530,7 +540,7 @@ class CTGANSynthesizer(object):
         data = np.concatenate(data, axis=0)
         data = data[:n]
         return self.transformer.inverse_transform(data, None)
-
+########################### 12. Save the model #######################################################################################
     def save(self, path):
         assert hasattr(self, "generator")
         assert hasattr(self, "discriminator")

@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 import ctgan.metric as M
 import optuna
 
-
+################################# 1. Define our neural networks ###################################################
 class Discriminator(Module):
     def __init__(self, meta, side, layers):
         super(Discriminator, self).__init__()
@@ -43,6 +43,7 @@ class Generator(Module):
     def forward(self, input_):
         return self.seq(input_)
 
+##############2. Define layers for TableGAN ##################################################
 
 def determine_layers(side, random_dim, num_channels, dlayer):
     """
@@ -114,7 +115,7 @@ def determine_layers(side, random_dim, num_channels, dlayer):
 
     return layers_D, layers_G
 
-
+###########################3. Initialise weights ################################################################
 def weights_init(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
@@ -136,7 +137,7 @@ def get_side(total_dims):
             break
     return output
 
-
+################# 4. Reshaping the row into square matrices ########################################
 def reshape_data(data, side):
     data = data.copy().astype('float32')
     if side * side > len(data[1]):
@@ -144,9 +145,9 @@ def reshape_data(data, side):
         data = np.concatenate([data, padding], axis=1)
     return data.reshape(-1, 1, side, side)
 
-
+##################5. Creating the model ################################################
 class TableganSynthesizer(object):
-    """docstring for TableganSynthesizer??"""
+    """docstring for TableganSynthesizer"""
 
     def __init__(self, l2scale=1e-5, trained_epoches = 0, log_frequency=True):
 
@@ -164,11 +165,11 @@ class TableganSynthesizer(object):
         self.discriminator_steps = cfg.DISCRIMINATOR_STEP
         self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.validation_KLD = []
         self.generator_loss = []
         self.discriminator_loss = []
         self.optuna_metric = None
 
+#####################6. Applying the activation function ##############################################
     def _apply_activate(self, data, padding = True):
         data_t = []
         st = 0
@@ -189,7 +190,7 @@ class TableganSynthesizer(object):
             transformed0 = CTGANSynthesizer()._gumbel_softmax(data[:, self.transformer.output_dimensions:data.shape[1]], tau=0.2)
             data_t.append(transformed0)
         return torch.cat(data_t, dim=1)
-
+######################## 7 . Add conditional vector ##############################################
     def get_noise_real(self, get_actual_data=False):
         noise = torch.randn(self.batch_size, self.random_dim, device=self.device)
         real = None
@@ -215,6 +216,7 @@ class TableganSynthesizer(object):
 
         return noise, real, condvec
 
+########################8. Calculate conditional loss ######################################################
     def _cond_loss(self, data, c, m):
         loss = []
         st = 0
@@ -340,7 +342,7 @@ class TableganSynthesizer(object):
             summary(self.discriminator, (1, self.side, self.side))
             print("*" * 100)
 
-
+###################9. Initialise the 2 Adam Optimizers ###########################################################
         ##learning rate is 0.0002
         optimizer_params = dict(lr=self.lr, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
         optimizerG = Adam(self.generator.parameters(), **optimizer_params) ##nn.parameters() returns the trainable parameters
@@ -351,12 +353,14 @@ class TableganSynthesizer(object):
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
 
+###################10. Start training ############################################################
         for i in range(self.epochs):
             self.generator.train()  ##switch to train mode
             self.trained_epoches += 1
             for id_ in range(steps_per_epoch):
                 for n in range(self.discriminator_steps):
                     noise, real, _ = self.get_noise_real(True) ## cond is added
+##################11. Create fake data ###############################################################
                     fake = self.generator(noise)
                     ## reshape to vector then apply activate function
                     fake = torch.reshape(fake,(self.batch_size,self.side * self.side))
@@ -364,20 +368,23 @@ class TableganSynthesizer(object):
                     ## reshape to 2D.
                     fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
                      # Use reshape function to add zero padding and reshape to 2D.
+#################12. Reshape the real data ########################################################
                     real = reshape_data(real, self.side)
                     real = torch.from_numpy(real.astype('float32')).to(self.device)
 
                     optimizerD.zero_grad()
+##################13. Insert into discriminator to get JS Divergence #######################################
                     y_real = self.discriminator(real)
                     y_fake = self.discriminator(fake)
                     ## L_orig^D
                     loss_d = (-(torch.log(y_real + 1e-4).mean()) - (torch.log(1. - y_fake + 1e-4).mean()))
                     loss_d.backward()
+################# 14. Update weights and bias of discriminator using Adam Optimizer ############################
                     optimizerD.step()
-
+################## 15. Create new synthesised data for generator ############################################
                 #  To train the generator with L_orig^G first
-                noise, _, condvec = self.get_noise_real(False)
-                fake = self.generator(noise)
+                noise, _, condvec = self.get_noise_real(False) #Create white noise
+                fake = self.generator(noise) #Create fake data from white noise
                 fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
                 if condvec is None:
                     cross_entropy = 0
@@ -387,12 +394,12 @@ class TableganSynthesizer(object):
                     m1 = torch.from_numpy(m1).to(self.device)
                     cross_entropy = self._cond_loss(fake, c1, m1)
 
-                fake = self._apply_activate(fake,True)
+                fake = self._apply_activate(fake,True) #metadata
                 fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
 
                 optimizerG.zero_grad()
                 y_fake = self.discriminator(fake)
-
+######################16. Calculate generator loss ##############################################################
                 ## L_orig^G
                 loss_g = -(torch.log(y_fake + 1e-4).mean()) + cross_entropy ##plus cross_entropy for conditional generator
                 loss_g.backward(retain_graph=True) ##by setting retain_graph = True, generator is trained by L_orig^G+L_info^G
@@ -402,8 +409,10 @@ class TableganSynthesizer(object):
                 loss_std = torch.norm(torch.std(fake, dim=0) - torch.std(real, dim=0), 1)
                 ## L_info in eq (4) with delta_mean = 0 and delta_sd =0
                 loss_info = loss_mean + loss_std
+######################17. Update weight and bias of the generator #############################################
                 loss_info.backward()
                 optimizerG.step()
+
 
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
@@ -412,7 +421,7 @@ class TableganSynthesizer(object):
                                       ", Loss D: " + str(loss_d.detach().cpu().numpy()),
                                       toprint=True)
 
-            # Use Optuna for hyper-parameter tuning
+            # Use Optuna for hyper-parameter tuning (Euclidean KLD)
             if trial is not None:
                 # synthetic data by the generator for each epoch
                 sampled_train = self.sample(val_data.shape[0], condition_column=None, condition_value=None)
@@ -467,6 +476,7 @@ class TableganSynthesizer(object):
         data = data[:n]
         return self.transformer.inverse_transform(data, None)
 
+################# Save the model ############################################################################
     def save(self, path):
         # always save a cpu model.
         device_bak = self.device
