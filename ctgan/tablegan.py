@@ -44,31 +44,6 @@ class Generator(Module):
         return self.seq(input_)
 
 
-## used for classification problem
-## may not be used in OVS dataset
-class Classifier(Module):
-    def __init__(self, meta, side, layers, device):
-        super(Classifier, self).__init__()
-        self.meta = meta
-        self.side = side
-        self.seq = Sequential(*layers)
-        self.valid = True
-        if meta[-1]['name'] != 'label':  ##check whether the last column is "label"
-            self.valid = False
-
-        masking = np.ones((1, 1, side, side), dtype='float32')
-        index = len(self.meta) - 1
-        self.r = index // side
-        self.c = index % side
-        masking[0, 0, self.r, self.c] = 0
-        self.masking = torch.from_numpy(masking).to(device)
-
-    def forward(self, input):
-        label = (input[:, :, self.r, self.c].view(-1) + 1) / 2
-        input = input * self.masking.expand(input.size())
-        return self.seq(input).view(-1), label
-
-
 def determine_layers(side, random_dim, num_channels, dlayer):
     """
     Args:
@@ -78,7 +53,7 @@ def determine_layers(side, random_dim, num_channels, dlayer):
         dlayer: 0: no changes. -1: remove last item in layer_dims, 1: add a 1X1 Convolution layer.
 
     Returns:
-        lists of layers in Discriminator, Generator and Classifier.
+        lists of layers in Discriminator and Generator
     """
 
     assert side >= 4 and side <= 64  ##change to 64 for OVS dataset
@@ -137,17 +112,7 @@ def determine_layers(side, random_dim, num_channels, dlayer):
         ]
     #layers_G += [Tanh()] ##revmoved and use _apply_activate function instead
 
-    layers_C = []
-    for prev, curr in zip(layer_dims, layer_dims[1:]):
-        layers_C += [
-            Conv2d(prev[0], curr[0], kernel_size, stride, 1, bias=False),
-            BatchNorm2d(curr[0]),
-            LeakyReLU(0.2, inplace=True)
-        ]
-
-    layers_C += [Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0)]
-
-    return layers_D, layers_G, layers_C
+    return layers_D, layers_G
 
 
 def weights_init(m):
@@ -357,12 +322,11 @@ class TableganSynthesizer(object):
         self.logger.write_to_file('side is: ' + str(self.side))
 
         if not reload:
-            layers_D, layers_G, layers_C = determine_layers(
+            layers_D, layers_G = determine_layers(
                 self.side, self.random_dim + self.cond_generator.n_opt, self.num_channels, self.dlayer)
 
             self.generator = Generator(self.transformer.meta, self.side, layers_G).to(self.device)
             self.discriminator = Discriminator(self.transformer.meta, self.side, layers_D).to(self.device)
-            self.classifier = Classifier(self.transformer.meta, self.side, layers_C, self.device).to(self.device)
 
         if model_summary:
             print("*" * 100)
@@ -381,11 +345,9 @@ class TableganSynthesizer(object):
         optimizer_params = dict(lr=self.lr, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale)
         optimizerG = Adam(self.generator.parameters(), **optimizer_params) ##nn.parameters() returns the trainable parameters
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
-        optimizerC = Adam(self.classifier.parameters(), **optimizer_params)
 
         self.generator.apply(weights_init)
         self.discriminator.apply(weights_init)
-        self.classifier.apply(weights_init)
 
         steps_per_epoch = max(len(train_data) // self.batch_size, 1)
 
@@ -442,30 +404,6 @@ class TableganSynthesizer(object):
                 loss_info = loss_mean + loss_std
                 loss_info.backward()
                 optimizerG.step()
-
-                if self.classifier.valid:
-                    noise, real = self.get_noise_real(True)
-                    fake = self.generator(noise)
-                    fake = torch.reshape(fake, (self.batch_size, self.side * self.side))
-                    fake = self._apply_activate(fake,True)
-                    fake = torch.reshape(fake, (self.batch_size, 1, self.side, self.side))
-
-                    real_pre, real_label = self.classifier(real)
-                    fake_pre, fake_label = self.classifier(fake)
-
-                    loss_cc = binary_cross_entropy_with_logits(real_pre, real_label)
-                    loss_cg = binary_cross_entropy_with_logits(fake_pre, fake_label)
-
-                    optimizerG.zero_grad()
-                    loss_cg.backward()
-                    optimizerG.step()
-
-                    optimizerC.zero_grad()
-                    loss_cc.backward()
-                    optimizerC.step()
-                    loss_c = (loss_cc, loss_cg)
-                else:
-                    loss_c = None
 
             self.generator_loss.append(loss_g.detach().cpu())
             self.discriminator_loss.append(loss_d.detach().cpu())
@@ -535,14 +473,12 @@ class TableganSynthesizer(object):
         self.device = torch.device("cpu")
         self.generator.to(self.device)
         self.discriminator.to(self.device)
-        self.classifier.to(self.device)
 
         torch.save(self, path) ##saving the entire model
 
         self.device = device_bak
         self.generator.to(self.device)
         self.discriminator.to(self.device)
-        self.classifier.to(self.device)
 
     @classmethod
     def load(cls, path):
@@ -550,6 +486,5 @@ class TableganSynthesizer(object):
         model.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
         model.generator.to(model.device)
         model.discriminator.to(model.device)
-        model.classifier.to(model.device)
 
         return model
