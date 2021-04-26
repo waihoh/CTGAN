@@ -406,8 +406,8 @@ class CTGANSynthesizer(object):
                         perm = np.arange(self.batch_size)
                         np.random.shuffle(perm)
     ###################### 3. Sample real data #########################################################
-                        real = data_sampler.sample(self.batch_size, col[perm], opt[perm])
-                        c2 = c1[perm]
+                        real = data_sampler.sample(self.batch_size, col[perm], opt[perm]) #sampling rows and columns according to cond vector
+                        c2 = c1[perm] #shuffle the columns
 
 ###################### 4. Create synthetic data ###############################################
                     fake = self.generator(fakez)
@@ -415,7 +415,7 @@ class CTGANSynthesizer(object):
 
                     real = torch.from_numpy(real.astype('float32')).to(self.device)
 
-                    if c1 is not None:
+                    if c1 is not None: #cat is referred to as the conditional vector concatenated to the data
                         fake_cat = torch.cat([fakeact, c1], dim=1)
                         real_cat = torch.cat([real, c2], dim=1)
                     else:
@@ -427,7 +427,7 @@ class CTGANSynthesizer(object):
 #################### 6. Calculate loss ##########################################################
                     pen = self.discriminator.calc_gradient_penalty(
                         real_cat, fake_cat, self.device)
-                    loss_d = -(torch.mean(y_real) - torch.mean(y_fake))
+                    loss_d = -(torch.mean(y_real) - torch.mean(y_fake)) #Wasserstein's distance between real and fake
 #################### 7. Update critic weights and bias using Adam Optimizer ################################
                     self.optimizerD.zero_grad()
                     pen.backward(retain_graph=True)
@@ -459,7 +459,7 @@ class CTGANSynthesizer(object):
                 else:
                     cross_entropy = self._cond_loss(fake, c1, m1)
 ################## 10. Calculate generator loss ######################################################
-                loss_g = -torch.mean(y_fake) + cross_entropy
+                loss_g = -torch.mean(y_fake) + cross_entropy #torch.mean(y_real) is zero
 ################## 11. Update weights and bias for generator ##########################################
                 self.optimizerG.zero_grad()
                 loss_g.backward()

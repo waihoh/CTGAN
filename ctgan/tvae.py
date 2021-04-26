@@ -118,14 +118,14 @@ class TVAESynthesizer(object):
         self.batch_size = cfg.BATCH_SIZE
         self.epochs = cfg.EPOCHS
         self.lr = cfg.LEARNING_RATE
-        self.loss_factor = 1  # NOTE: It is 1 based in Kingma and Welling's paper. In CTGAN paper, the authors set it as 2.
+        self.loss_factor = 1  # NOTE: It is 1 based in Kingma and Welling's paper. In CTGAN paper, the authors set it as 2. This can be a hyper-parameter to tune.
         self.trained_epoches = trained_epoches
 
         # exponential moving average of latent space, mu and sigma
         # use these values to sample from N(ema_mu, ema_sig**2) iso N(0,1)
-        # self.ema_fraction = 0.9
-        # self.ema_mu = 0
-        # self.ema_std = 0
+        self.ema_fraction = 0.9
+        self.ema_mu = 0
+        self.ema_std = 0
 
         self.logger = Logger()
         self.device = torch.device(cfg.DEVICE)  # NOTE: original implementation "cuda:0" if torch.cuda.is_available() else "cpu"
